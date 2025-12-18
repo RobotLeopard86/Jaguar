@@ -1,0 +1,1 @@
+option('jaguartool', type: 'boolean', value: true, description: 'Whether to build jaguartool in addition to the Jaguar library.')
