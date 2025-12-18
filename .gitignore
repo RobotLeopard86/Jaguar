@@ -26,3 +26,13 @@ x64
 
 # Don't send clangd cache
 .cache
+
+# Don't send built docs
+docs/*
+!docs/conf.py
+!docs/*.rst
+!docs/manual
+!docs/assets
+!docs/README.md
+!docs/requirements.txt
+!docs/switcher.json

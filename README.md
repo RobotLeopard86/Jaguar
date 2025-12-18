@@ -3,7 +3,6 @@
 
 ## About
 Jaguar is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Here, you can find the Jaguar spec, `libjaguar` stream encoding/decoding library, and `jaguartool` CLI tool for creating Jaguar streams via a text format.  
-`libjaguar` uses C++20 features.
 
 ## Features
 * Byte-packed encoding
@@ -23,7 +22,6 @@ You will need:
 * Meson
 * Ninja  
 
-All other dependencies will be downloaded at configure-time.  
 Configure the build directory with `meson setup build --native-file native.ini`, then run `meson compile -C build` to build `libjaguar` and `jaguartool`. You do not have to use the native file (which sets the compiler to Clang and the linker to LLD), but it is recommended.
 
 ## Licensing
