@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Jaguar Documentation &#8212; Jaguar Documentation</title>
+    <title>The Jaguar Specification &#8212; Jaguar Documentation</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/collapsible-lists/js/CollapsibleLists.compressed.js?v=73120307"></script>
     <script src="_static/collapsible-lists/js/apply-collapsible-lists.js?v=660e4f45"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'spec';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/RobotLeopard86/Jaguar/refs/heads/main/docs/switcher.json';
@@ -53,7 +53,8 @@
         DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
         </script>
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="The Jaguar Specification" href="spec.html" />
+    <link rel="next" title="libjaguar API Reference" href="api/index.html" />
+    <link rel="prev" title="Jaguar Documentation" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -111,7 +112,7 @@
     
   
 
-<a class="navbar-brand logo" href="#">
+<a class="navbar-brand logo" href="index.html">
   
   
   
@@ -152,8 +153,8 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="spec.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
     The Jaguar Specification
   </a>
 </li>
@@ -224,6 +225,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -234,10 +239,8 @@
       
       
       
-        
-      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -252,8 +255,8 @@
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="spec.html">
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
     The Jaguar Specification
   </a>
 </li>
@@ -303,6 +306,15 @@
     
   </div>
   
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
@@ -318,7 +330,31 @@
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article d-print-none"></div>
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">The Jaguar Specification</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
               
               
               
@@ -326,34 +362,140 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="jaguar-documentation">
-<h1>Jaguar Documentation<a class="headerlink" href="#jaguar-documentation" title="Link to this heading"><span/></a></h1>
-<p>Welcome to the Jaguar documentation!</p>
-<p>Jaguar is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Some key features include:</p>
-<ul class="simple">
-<li><p>Byte-packed encoding</p></li>
-<li><p>Object support, with both unstructured dictionaries and type-consistent structured objects</p></li>
-<li><p>Static typing system</p></li>
-<li><p>Self-describing streams</p></li>
-<li><p>Built-in support for vectors and matrices (up to 4x4)</p></li>
-<li><p>Use of skipping and rewinding to support gleaning information quickly and obtaining further details later</p></li>
-<li><p>Arbitrary data buffer embedding</p></li>
-<li><p>Substreams - allows for embedding other streams to allow late parsing of data</p></li>
-</ul>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="spec.html">The Jaguar Specification</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="spec.html#before-we-begin-a-few-simple-notes">0. Before We Begin - A Few Simple Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spec.html#values-and-data">1. Values and Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="spec.html#typing">2. Typing</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api/index.html">libjaguar API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/index.html#full-api">Full API</a></li>
-</ul>
-</li>
-</ul>
+  <section id="the-jaguar-specification">
+<h1>The Jaguar Specification<a class="headerlink" href="#the-jaguar-specification" title="Link to this heading"><span/></a></h1>
+<p>This is the definitive specification for the Jaguar stream format. This is mainly for people looking to more deeply understand the format itself, or those wishing to write their own encoder/decoder (we recommend taking a look at <code class="docutils literal notranslate"><span class="pre">libjaguar</span></code>, the reference library, to understand how this might be accomplished).</p>
+<p>All conforming implementations must follow this specification. Please note: Jaguar is not designed to be an extensible format; as such any custom extensions or features <strong>will not</strong> be described here.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While this specification is designed to be fairly readable, what follows is still highly technical information.</p>
+<p>You should be familiar with the basics of streaming, hexadecimal, and matrix layouts before proceeding.</p>
 </div>
+<section id="before-we-begin-a-few-simple-notes">
+<h2>0. Before We Begin - A Few Simple Notes<a class="headerlink" href="#before-we-begin-a-few-simple-notes" title="Link to this heading"><span/></a></h2>
+<p>Before the more complicated parts of the specification, here are a few small rules that are important but don’t require a whole section themselves:</p>
+<ul class="simple">
+<li><p>Jaguar streams use little-endian byte order</p></li>
+<li><p>All strings are stored using Pascal format - a size in bytes followed by the actual string data, which has no terminator</p></li>
+<li><p>All strings are encoded using UTF-8</p></li>
+<li><p>Jaguar is byte-packed, but does not contain an explicit synchronization system. This is because Jaguar is not designed to be used in a lossy environment (such as networking)</p></li>
+<li><p>All floating-point values are encoded in accordance with the IEEE 754 LE standard</p></li>
+</ul>
+</section>
+<section id="values-and-data">
+<h2>1. Values and Data<a class="headerlink" href="#values-and-data" title="Link to this heading"><span/></a></h2>
+<p>A Jaguar stream is fairly simple conceptually. It is simply a continued stream of multiple <code class="docutils literal notranslate"><span class="pre">Value</span></code>s.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">Value</span></code> consists of the following information:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Size (bytes)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TypeTag</span></code></p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Name string size</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-even"><td><p>Name string</p></td>
+<td><p>(size above)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Data</p></td>
+<td><p>(size determined by <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The data itself is determined by what type the value belongs to, identified by the <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>.</p>
+<p>All data is split into a header and a body. The header contains the data required to identify the size of and correctly interpret the body data (such as the element count for lists). This allows decoders to skip over the body data and continue reading headers to identify the structure of the stream without needing to parse the data immediately.</p>
+</section>
+<section id="typing">
+<h2>2. Typing<a class="headerlink" href="#typing" title="Link to this heading"><span/></a></h2>
+<p>Jaguar is a statically-typed format. All data must have a corresponding type. This is useful for decoding because it allows for easier validation of the intended structure and also helps with maintaining internal consistency.</p>
+<p>All <code class="docutils literal notranslate"><span class="pre">Value</span></code>s in a Jaguar stream have a <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>, a one-byte sequence which identifies the start of a new <code class="docutils literal notranslate"><span class="pre">Value</span></code> and determines its type.</p>
+<p><code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s are grouped using their upper nibble (4 bits) by category, those categories being:
+0. Buffers, floating-point numbers, and booleans</p>
+<ol class="arabic simple">
+<li><p>Signed integers</p></li>
+<li><p>Unsigned integers</p></li>
+<li><p>Containers</p></li>
+<li><p>Math types</p></li>
+</ol>
+<p>Below is the list of types in Jaguar and their <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> (hex)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>String</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x0A</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Byte Buffer</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x0B</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Substream</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x0C</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Boolean</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x0D</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Floating-Point (single-precision, 32 bits)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x0E</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Floating-Point (double-precision, 64 bits)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x0F</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Signed Integer (8-bit)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x1A</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Signed Integer (16-bit)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x1B</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Signed Integer (32-bit)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x1C</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Signed Integer (64-bit)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x1D</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Unsigned Integer (8-bit)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x2A</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Unsigned Integer (16-bit)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x2B</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Unsigned Integer (32-bit)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x2C</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Unsigned Integer (64-bit)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x2D</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>List</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x3A</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Unstructured Object (Dictionary)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x3B</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Structured Object</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x3C</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Structured Object Type Declaration</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x3D</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Vector</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x4A</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Matrix</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0x4B</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>More details about non-self-explanatory object types will be provided later.</p>
+</section>
 </section>
 
 
@@ -366,12 +508,21 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Jaguar Documentation</p>
+      </div>
+    </a>
     <a class="right-next"
-       href="spec.html"
+       href="api/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">The Jaguar Specification</p>
+        <p class="prev-next-title">libjaguar API Reference</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -381,6 +532,26 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#before-we-begin-a-few-simple-notes">0. Before We Begin - A Few Simple Notes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#values-and-data">1. Values and Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typing">2. Typing</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
