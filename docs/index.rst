@@ -15,7 +15,7 @@ Jaguar is a stream-oriented binary data exchange format with an emphasis on simp
 * Substreams - allows for embedding other streams to allow late parsing of data
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     spec
     api/index

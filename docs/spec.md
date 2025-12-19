@@ -74,4 +74,57 @@ Below is the list of types in Jaguar and their `TypeTag`s:
 | Vector | `0x4A` |
 | Matrix | `0x4B` |  
 
-More details about non-self-explanatory object types will be provided later.
+More details about complex object types will be provided in later sections.
+
+## 3. Containers
+In order to support storing a Jaguar stream on disk in an identifiable format, the stream can be wrapped in a Jaguar container.  
+
+Unlike a Jaguar stream, Jaguar containers cannot be directly concatenated and still be valid, since the container is essentially a header followed by stream data. Since the header is not valid Jaguar bytes, this would cause the stream to become invalid when the header is encountered.  
+
+The container header takes the following form:
+| Field | Size (bytes) |
+| ----- | ---- |
+| Magic data | 6 |
+| File intent byte | 1 |
+| Null separator for alignment | 1 |
+
+The magic data string is `JAGUAR` in ASCII bytes (or `4A 41 47 55 41 52` in hex bytes).  
+
+The file intent byte is application-defined, and is used to identify what the stream is supposed to be to the application. Decoders **must not** rely on this byte to determine how to parse the stream, as this value has no formal definition. The only exception is that a null byte here (`00`) is reserved to mean a freeform stream (i.e. have no expectations for what you get). This is primarily for higher-level consumers of parsed Jaguar data as opposed to the decoder itself.
+
+## 4. Buffer Values
+Buffer-type `Value`s are fairly straightforward. Their header consists of an unsigned integer size (32 bits for strings, 64 for byte buffers and substreams), and the body is simply the data.  
+
+Per the rules from section 0, all strings must be encoded in UTF-8. This does not apply to data within byte buffers, of course.  
+
+Byte buffers are a blob of raw bytes embedded in the Jaguar stream. They can contain whatever binary data you like. Decoders **must not** attempt to parse the contents of byte buffers themselves; this is reserved for the consuming application.
+
+#### Substreams
+Substreams are a unique feature of Jaguar that allows one stream to exist within another in an independent manner. Though they may initially appear similar to objects, they differ in a number of ways:  
+
+1. Objects require metadata about how many fields they contain, whereas substreams do not
+
+2. There is no equivalent of structured objects for substreams
+
+3. The contents of substreams are not considered a part of the value tree of the containing stream; that is, they must be accessed separately
+
+4. Skipping an object during parsing requires traversing the tree and skipping each field individually, as there is no set size. By contrasts, substreams are embedded identically to byte buffers, allowing them to be skipped in O(1) time.
+
+It is advised that decoders do not automatically parse substreams during parsing of the main stream; they should wait until the substream is requested. However, this is not a hard requirement.  
+
+Substreams **may not** contain other substreams.
+
+## 5. Lists
+Lists are a fairly simple construct in Jaguar. The header for a list `Value` is as follows:
+| Field | Size (bytes) |
+| ----- | ------------ |
+| Element `TypeTag` | 1 |
+| Element Count (unsigned) | 4 |
+
+The body is then the list elements in sequential order, with zero-based indexing.  
+
+All elements in the list **must** be of the type specified by the element `TypeTag` field, and there **must** be exactly the amount of elements specified by the element count field.  
+
+Elements within a list do not have the typical `TypeTag` followed by name string prefix before their headers, as this is not needed to identify them.  
+
+Do note that a list overrun could be misinterpreted and break the decoder, especially if the bytes in the list overlap with real `TypeTag`s. For this reason, decoders are advised to always read and validate in its entirety the next presumed `Value` header after a list to ensure that this is not the case.
