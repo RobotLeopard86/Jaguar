@@ -2,7 +2,7 @@
 #### A stream-oriented binary data exchange format
 
 ## About
-Jaguar is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Here, you can find the Jaguar spec, `libjaguar` stream encoding/decoding library, and `jaguartool` CLI tool for creating Jaguar streams via a text format.  
+Jaguar is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Here, you can find the Jaguar spec, `libjaguar` reference encoding/decoding library, and `jaguartool` CLI tool for creating Jaguar streams via a text format.  
 
 ## Features
 * Byte-packed encoding

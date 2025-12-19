@@ -38,7 +38,7 @@ exhale_args = {
     "rootFileTitle":         "libjaguar API Reference",
     "createTreeView":        True,
     "exhaleExecutesDoxygen": True,
-    "afterTitleDescription": "Welcome to the Exathread documentation. Here you can find comprehensive API information. Check out the API map below.",
+    "afterTitleDescription": "Welcome to the libjaguar documentation. Here you can find comprehensive information on the libjaguar API; check out the map below!",
     "exhaleDoxygenStdin": dedent('''
 									INPUT = ../libjaguar/include
                                     EXCLUDE_SYMBOLS = std*

@@ -33,6 +33,6 @@ docs/*
 !docs/*.rst
 !docs/manual
 !docs/assets
-!docs/README.md
+!docs/*.md
 !docs/requirements.txt
 !docs/switcher.json
