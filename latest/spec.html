@@ -494,7 +494,76 @@
 </tbody>
 </table>
 </div>
-<p>More details about non-self-explanatory object types will be provided later.</p>
+<p>More details about complex object types will be provided in later sections.</p>
+</section>
+<section id="containers">
+<h2>3. Containers<a class="headerlink" href="#containers" title="Link to this heading"><span/></a></h2>
+<p>In order to support storing a Jaguar stream on disk in an identifiable format, the stream can be wrapped in a Jaguar container.</p>
+<p>Unlike a Jaguar stream, Jaguar containers cannot be directly concatenated and still be valid, since the container is essentially a header followed by stream data. Since the header is not valid Jaguar bytes, this would cause the stream to become invalid when the header is encountered.</p>
+<p>The container header takes the following form:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Size (bytes)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Magic data</p></td>
+<td><p>6</p></td>
+</tr>
+<tr class="row-odd"><td><p>File intent byte</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>Null separator for alignment</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The magic data string is <code class="docutils literal notranslate"><span class="pre">JAGUAR</span></code> in ASCII bytes (or <code class="docutils literal notranslate"><span class="pre">4A</span> <span class="pre">41</span> <span class="pre">47</span> <span class="pre">55</span> <span class="pre">41</span> <span class="pre">52</span></code> in hex bytes).</p>
+<p>The file intent byte is application-defined, and is used to identify what the stream is supposed to be to the application. Decoders <strong>must not</strong> rely on this byte to determine how to parse the stream, as this value has no formal definition. The only exception is that a null byte here (<code class="docutils literal notranslate"><span class="pre">00</span></code>) is reserved to mean a freeform stream (i.e. have no expectations for what you get). This is primarily for higher-level consumers of parsed Jaguar data as opposed to the decoder itself.</p>
+</section>
+<section id="buffer-values">
+<h2>4. Buffer Values<a class="headerlink" href="#buffer-values" title="Link to this heading"><span/></a></h2>
+<p>Buffer-type <code class="docutils literal notranslate"><span class="pre">Value</span></code>s are fairly straightforward. Their header consists of an unsigned integer size (32 bits for strings, 64 for byte buffers and substreams), and the body is simply the data.</p>
+<p>Per the rules from section 0, all strings must be encoded in UTF-8. This does not apply to data within byte buffers, of course.</p>
+<p>Byte buffers are a blob of raw bytes embedded in the Jaguar stream. They can contain whatever binary data you like. Decoders <strong>must not</strong> attempt to parse the contents of byte buffers themselves; this is reserved for the consuming application.</p>
+<section id="substreams">
+<h3>Substreams<a class="headerlink" href="#substreams" title="Link to this heading"><span/></a></h3>
+<p>Substreams are a unique feature of Jaguar that allows one stream to exist within another in an independent manner. Though they may initially appear similar to objects, they differ in a number of ways:</p>
+<ol class="arabic simple">
+<li><p>Objects require metadata about how many fields they contain, whereas substreams do not</p></li>
+<li><p>There is no equivalent of structured objects for substreams</p></li>
+<li><p>The contents of substreams are not considered a part of the value tree of the containing stream; that is, they must be accessed separately</p></li>
+<li><p>Skipping an object during parsing requires traversing the tree and skipping each field individually, as there is no set size. By contrasts, substreams are embedded identically to byte buffers, allowing them to be skipped in O(1) time.</p></li>
+</ol>
+<p>It is advised that decoders do not automatically parse substreams during parsing of the main stream; they should wait until the substream is requested. However, this is not a hard requirement.</p>
+<p>Substreams <strong>may not</strong> contain other substreams.</p>
+</section>
+</section>
+<section id="lists">
+<h2>5. Lists<a class="headerlink" href="#lists" title="Link to this heading"><span/></a></h2>
+<p>Lists are a fairly simple construct in Jaguar. The header for a list <code class="docutils literal notranslate"><span class="pre">Value</span></code> is as follows:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Size (bytes)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Element <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code></p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Element Count (unsigned)</p></td>
+<td><p>4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The body is then the list elements in sequential order, with zero-based indexing.</p>
+<p>All elements in the list <strong>must</strong> be of the type specified by the element <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> field, and there <strong>must</strong> be exactly the amount of elements specified by the element count field.</p>
+<p>Elements within a list do not have the typical <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> followed by name string prefix before their headers, as this is not needed to identify them.</p>
+<p>Do note that a list overrun could be misinterpreted and break the decoder, especially if the bytes in the list overlap with real <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s. For this reason, decoders are advised to always read and validate in its entirety the next presumed <code class="docutils literal notranslate"><span class="pre">Value</span></code> header after a list to ensure that this is not the case.</p>
 </section>
 </section>
 
@@ -548,6 +617,12 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#before-we-begin-a-few-simple-notes">0. Before We Begin - A Few Simple Notes</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#values-and-data">1. Values and Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typing">2. Typing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#containers">3. Containers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-values">4. Buffer Values</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#substreams">Substreams</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lists">5. Lists</a></li>
 </ul>
   </nav></div>
 
