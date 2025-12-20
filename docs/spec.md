@@ -21,7 +21,9 @@ Before the more complicated parts of the specification, here are a few small rul
 
 * All floating-point values are encoded in accordance with the IEEE 754 LE standard
 
-* While Jaguar can be used to encode hierarchical data, it is worth nothing that **Jaguar is not an object tree**; it is fundamentally a data stream system and has no concept of a top-level tree or DOM
+* While Jaguar can be used to encode hierarchical data, it is worth noting that **Jaguar is not an object tree**; it is fundamentally a data stream system and has no concept of a top-level tree or DOM
+
+* In cases where decoders declare the stream invalid and terminate decoding, they **must** allow for the consuming application to reposition the stream and continue parsing assuming the new location is valid data
 
 ## 1. Values and Data
 A Jaguar stream is fairly simple conceptually. It is simply a continued stream of multiple `Value`s.  
@@ -32,14 +34,15 @@ A `Value` consists of the following information:
 | `TypeTag` | 1 |
 | Name string size | 1 |
 | Name string | (size above) |
-| Integrity hash | 16 |
 | Data | (size determined by `TypeTag`) |  
-
-The integrity hash is a system meant to ensure that the data stream has not been corrupted. It is an MD5 hash computed from the contents of the stream. Decoders are advised to incrementally read the stream and generate the hash before rewinding and parsing, but they may implement this however they wish. As Jaguar streams may be large, an incremental approach to hash generation is recommended.
 
 The data itself is determined by what type the value belongs to, identified by the `TypeTag`.  
 
 All data is split into a header and a body. The header contains the data required to identify the size of and correctly interpret the body data (such as the element count for lists). This allows decoders to skip over the body data and continue reading headers to identify the structure of the stream without needing to parse the data immediately.  
+
+The name string is case-sensitive and must be unique across all `Values`s in its scope (stream root or within the same parent object). In the event that a field with a duplicate name is encountered, decoders **may** either declare the stream invalid and terminate decoding **or** continue, ignoring the invalid object.  
+
+If, according to this specification, a decoder is supposed to "ignore" a `Value`, that means that the decoder **must** automatically advance the stream to the next valid position and not inform the consuming application of the `Value`'s existence. If it has already done so due to the `Value` being valid before that point, the decoder **must** invalidate the returned data as it is able.
 
 ## 2. Typing
 Jaguar is a statically-typed format. All data must have a corresponding type. This is useful for decoding because it allows for easier validation of the intended structure and also helps with maintaining internal consistency.  
@@ -74,10 +77,13 @@ Below is the list of types in Jaguar and their `TypeTag`s:
 | Unstructured Object (Dictionary) | `0x3B` |
 | Structured Object | `0x3C` |
 | Structured Object Type Declaration | `0x3D` |
+| Object Scope Boundary | `0x3E` |
 | Vector | `0x4A` |
 | Matrix | `0x4B` |  
 
-More details about complex object types will be provided in later sections.
+More details about complex object types will be provided in later sections.  
+
+The object scope boundary `TypeTag` does not function as a traditional `Value`; it serves to delimit object boundaries and has no header or body and may only appear in certain locations. More information will be provided in section 7.
 
 ## 3. Containers
 In order to support storing a Jaguar stream on disk in an identifiable format, the stream can be wrapped in a Jaguar container.  
@@ -90,10 +96,13 @@ The container header takes the following form:
 | Magic data | 6 |
 | File intent byte | 1 |
 | Null separator for alignment | 1 |
+| Integrity hash | 16 |
 
 The magic data string is `JAGUAR` in ASCII bytes (or `4A 41 47 55 41 52` in hex bytes).  
 
-The file intent byte is application-defined, and is used to identify what the stream is supposed to be to the application. Decoders **must not** rely on this byte to determine how to parse the stream, as this value has no formal definition. The only exception is that a null byte here (`00`) is reserved to mean a freeform stream (i.e. have no expectations for what you get). This is primarily for higher-level consumers of parsed Jaguar data as opposed to the decoder itself.
+The file intent byte is application-defined, and is used to identify what the stream is supposed to be to the application. Decoders **must not** rely on this byte to determine how to parse the stream, as this value has no formal definition. The only exception is that a null byte here (`00`) is reserved to mean a freeform stream (i.e. have no expectations for what you get). This is primarily for higher-level consumers of parsed Jaguar data as opposed to the decoder itself.  
+
+The integrity hash is a system meant to ensure that the data stream has not been corrupted. It is an MD5 hash computed from the contents of the stream. Decoders are advised to incrementally read the stream and generate the hash before rewinding and parsing, but they may implement this however they wish. As Jaguar streams may be large, an incremental approach to hash generation is recommended.  
 
 ## 4. Numerical Types
 Numerical types are very simple in Jaguar. They are the signed and unsigned integers, floating-point numbers, and booleans (while not technically numbers, they are stored as `0` for false and `1` for true; any other value is **invalid**). All necessary information to read the data is contained in the `TypeTag`.  
@@ -118,8 +127,10 @@ Do note that a list overrun could be misinterpreted and break the decoder, espec
 ## 6. Math Types
 Vector and matrix types are built in to Jaguar. There are limitations on what data these math types may contain:  
 
-* **ONLY** floating-point numbers and (un)signed integers are permitted
-* Vectors may have a size in the range of 2-4
+* **ONLY** floating-point numbers and (un)signed integers are permitted. 
+
+* Vectors may have a size in the range of 2-4. 
+
 * Matrices may have a size in the range of 2x2-4x4
 
 These limitations are enforced to ensure easier parsing behavior and provide separation between vectors and lists. Any violation of these rules means the `Value` is **invalid**. Vectors are very similar to lists; their primary difference is the presence of these limitations. The main benefit comes from context; the decoder is able to provide a more intuitive access interface for vectors to consuming applications.  
@@ -149,18 +160,17 @@ Matrix headers follow the below format:
 | # of Rows | 1 |  
 
 ## 7. Objects
-Objects allow for subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. Objects **may** be nested up to a maximum depth of 64. In the event that the maximum nesting depth is reached, different rules apply depending on context. More information is available later in this section. There are two primary types of objects:  
+Objects allow for subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:  
 
 **Unstructured objects** (like dictionaries) provide a generic key-value mapping. Decoders **must not** attempt to interpret the structure of unstructured objects.  
 
-**Strutured objects** provide a type-consistent method of encoding and coordinating information together at a deeper level than the primary stream, using a system of stream-defined typenames to identify the appropriate structure. All structured objects with the same typename must have the same structure; a structured object that does not conform to the declared structure is **invalid**, and decoders must ignore it. Decoders **may** either declare the stream invalid and terminate decoding **or** continue without the invalid object in this case.
+**Structured objects** provide a type-consistent method of encoding and coordinating information together at a deeper level than the primary stream, using a system of stream-defined typenames to identify the appropriate structure. All structured objects with the same typename must have the same structure; a structured object that does not conform to the declared structure is **invalid**, and decoders must ignore it. Decoders **may** either declare the stream invalid and terminate decoding **or** continue without the invalid object in this case.
 
 Unstructured object headers are fairly simple; they consist of a 16-bit unsigned integer field count.
 
-Structured object headers consist of an 8-bit unsigned integer typename string length followed by the typename string data of that length.
+Structured object headers consist of an 8-bit unsigned integer typename string length followed by the typename string data of that length.  
 
-The body structure is shared between object types. It is identical to the regular `Value` stream layout. There is no "end of object" marker; as such decoders must accurately keep track of nesting depth and object boundaries. As such, any additional values beyond the specified number will be treated as belonging to the containing scope until the root level (the primary stream) is reached. Likewise, an insufficient number of values will cause the values after that to be assigned to the object scope.
-
+### Structured Object Type Declarations
 Before a structured object typename may be used, it must appear as part of a structured object type declaration. A structured object type declaration follows this header format:  
 | Field | Size (bytes) |
 | ----- | ------------ |
@@ -174,9 +184,21 @@ The body of a declaration is very similar to an unstructured object, with the ex
 
 Structured object type declarations **may not** contain other type declarations.
 
-If the maximum nesting depth for objects is reached, decoders **may** either declare the stream invalid and terminate decoding **or** attempt recovery using the following rules:
-* If within a structured object type declaration, the entire declaration is invalid. Decoders **must** continue until back to the root level, ignoring all data. The typename is still reserved, and should it be referenced by a structured object, decoders may **may** either declare the stream invalid and terminate decoding **or** ignore the broken object.
+### Object Body Data
+
+If the typename string of a structured object references a typename that has not yet been declared, decoders **must** declare the stream invalid and terminate decoding, as there is no way to accurately know the bounds of the broken object scope (since it could contain subobjects, using the scope boundary system does not work here). However, decoders **must** allow for the consuming application to reposition the stream reader head and continue decoding, provided the new position is valid data.  
+
+Within a structured object, fields do not need to appear in the exact order that they are declared in the type declaration, provided that all fields are given a value.  
+
+The body structure is shared between object types. It is identical to the regular `Value` stream layout, with the exception that at the end of the scope, a scope boundary `Value` with the Object Scope Boundary `TypeTag` (`0x3E`) must be added. This type has no header or body, and serves only to delimit object boundaries. Decoders **must** ensure that they accurately track nesting depth using object headers and scope boundaries in order to ensure that the parsed layout is correct.  
+
+Objects **may** be nested up to a maximum depth of 64. In the event that the maximum nesting depth is reached, different rules apply depending on context. If the maximum nesting depth for objects is reached, decoders **may** either declare the stream invalid and terminate decoding **or** attempt recovery using the following rules:  
+
+* If within a structured object type declaration, the entire declaration is invalid. Decoders **must** continue until back to the root level, ignoring all data. The typename is still reserved, and should it be referenced by a structured object, decoders may **may** either declare the stream invalid and terminate decoding **or** ignore the broken object.  
+
 * Otherwise, decoders **must** continue unwinding scopes, ignoring all data, until either at the root stream level or within an unstructured object. Any `Value`s passed through during the unwinding are invalid and **must** be ignored.
+
+If an object does not contain the amount of fields specified (which may be detected using scope boundary `Values` if they are found earlier than expected or not present where they are expected), decoders **may** either declare the stream invalid and terminate decoding **or**, if the boundary object was found early attempt recovery, **may** attempt to recover following the same procedure as the maximum nesting depth reached.
 
 ## 8. Buffer Values
 Buffer-type `Value`s are fairly straightforward. Their header consists of an unsigned integer size (32 bits for strings, 64 for byte buffers and substreams), and the body is simply the data.  
@@ -194,7 +216,7 @@ Substreams are a unique feature of Jaguar that allows one stream to exist within
 
 3. The contents of substreams are not considered a part of the value tree of the containing stream; that is, they must be accessed separately
 
-4. Skipping an object during parsing requires traversing the tree and skipping each field individually, as there is no set size. By contrasts, substreams are embedded identically to byte buffers, allowing them to be skipped in O(1) time.
+4. Skipping an object during parsing requires traversing the tree and skipping each field individually, as there is no set size. By contrast, substreams are embedded identically to byte buffers, allowing them to be skipped in O(1) time.
 
 It is advised that decoders do not automatically parse substreams during parsing of the main stream; they should wait until the substream is requested. However, this is not a hard requirement.  
 
