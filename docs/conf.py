@@ -18,7 +18,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'README.md', '.venv']
 
 html_theme = 'pydata_sphinx_theme'
 html_title = "Jaguar Documentation"
-#html_favicon = "TODO"
+html_favicon = "../jaguar_logo.png"
 html_permalinks_icon = "<span/>"
 html_use_index = False
 html_domain_indices = False
@@ -57,8 +57,8 @@ html_context = {
 html_theme_options = {
     "logo": {
         "text": "Jaguar Documentation",
-        #"image_light": html_favicon,
-        #"image_dark": html_favicon
+        "image_light": html_favicon,
+        "image_dark": html_favicon
     },
     "icon_links": [
         {
