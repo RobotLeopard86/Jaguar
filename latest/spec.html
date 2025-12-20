@@ -368,24 +368,24 @@
 <p class="topic-title">Specification Licensing</p>
 <p>The Jaguar specification and supporting documents are provided and licensed under Creative Commons Attribution-ShareAlike 4.0 International. To view a copy of this license, visit <a class="reference external" href="https://creativecommons.org/licenses/by-sa/4.0/">https://creativecommons.org/licenses/by-sa/4.0/</a>.</p>
 </aside>
+<p>The Jaguar stream format is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Jaguar streams are self-descriptive and statically typed, feature built-in vector and matrix math types, and allow for the embedding of substreams and byte buffers.</p>
 <p>This is the definitive specification for the Jaguar stream format. This is mainly for people looking to more deeply understand the format itself, or those wishing to write their own encoder/decoder (we recommend taking a look at <code class="docutils literal notranslate"><span class="pre">libjaguar</span></code>, the reference library, to understand how this might be accomplished).</p>
-<p>All conforming implementations must follow this specification. Please note: Jaguar is not designed to be an extensible format; as such any custom extensions or features <strong>will not</strong> be described here.</p>
+<p>All conforming implementations must follow this specification. Please note: Jaguar is not designed to be an extensible format; as such, any custom extensions or features <strong>will not</strong> be described here.</p>
 <section id="before-we-begin-a-few-simple-notes">
 <h2>0. Before We Begin - A Few Simple Notes<a class="headerlink" href="#before-we-begin-a-few-simple-notes" title="Link to this heading"><span/></a></h2>
 <p>Before the more complicated parts of the specification, here are a few small rules that are important but don’t require a whole section themselves:</p>
 <ul class="simple">
-<li><p>Jaguar streams use little-endian byte order</p></li>
-<li><p>All strings are stored using Pascal format - a size in bytes followed by the actual string data, which has no terminator</p></li>
-<li><p>All strings are encoded using UTF-8</p></li>
-<li><p>Jaguar is byte-packed, but does not contain an explicit synchronization system. This is because Jaguar is not designed to be used in a lossy environment (such as networking)</p></li>
-<li><p>All floating-point values are encoded in accordance with the IEEE 754 LE standard</p></li>
-<li><p>While Jaguar can be used to encode hierarchical data, it is worth noting that <strong>Jaguar is not an object tree</strong>; it is fundamentally a data stream system and has no concept of a top-level tree or DOM</p></li>
-<li><p>In cases where decoders declare the stream invalid and terminate decoding, they <strong>must</strong> allow for the consuming application to reposition the stream and continue parsing assuming the new location is valid data</p></li>
+<li><p>Jaguar streams use little-endian byte order.</p></li>
+<li><p>All strings are stored using Pascal format - a size in bytes followed by the actual string data, which has no terminator.</p></li>
+<li><p>All strings are encoded using UTF-8.</p></li>
+<li><p>Jaguar is byte-packed, but does not contain an explicit synchronization system. This is because Jaguar is not designed to be used in a lossy environment (such as networking).</p></li>
+<li><p>All floating-point values are encoded in accordance with the IEEE 754 LE standard.</p></li>
+<li><p>While Jaguar can be used to encode hierarchical data, it is worth noting that <strong>Jaguar is not an object tree</strong>; it is fundamentally a data stream system and has no concept of a top-level tree or DOM.</p></li>
 </ul>
 </section>
 <section id="values-and-data">
 <h2>1. Values and Data<a class="headerlink" href="#values-and-data" title="Link to this heading"><span/></a></h2>
-<p>A Jaguar stream is fairly simple conceptually. It is simply a continued stream of multiple <code class="docutils literal notranslate"><span class="pre">Value</span></code>s.</p>
+<p>A Jaguar stream is fairly simple, conceptually. It is simply a continued stream of multiple <code class="docutils literal notranslate"><span class="pre">Value</span></code>s.</p>
 <p>A <code class="docutils literal notranslate"><span class="pre">Value</span></code> consists of the following information:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -411,19 +411,19 @@
 </div>
 <p>The data itself is determined by what type the value belongs to, identified by the <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>.</p>
 <p>All data is split into a header and a body. The header contains the data required to identify the size of and correctly interpret the body data (such as the element count for lists). This allows decoders to skip over the body data and continue reading headers to identify the structure of the stream without needing to parse the data immediately.</p>
-<p>The name string is case-sensitive and must be unique across all <code class="docutils literal notranslate"><span class="pre">Values</span></code>s in its scope (stream root or within the same parent object). In the event that a field with a duplicate name is encountered, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> continue, ignoring the invalid object.</p>
+<p>The name string is case-sensitive and must be unique across all <code class="docutils literal notranslate"><span class="pre">Value</span></code>s in its scope (stream root or within the same parent object). If a field with a duplicate name is encountered, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> continue, ignoring the invalid object.</p>
 <p>If, according to this specification, a decoder is supposed to “ignore” a <code class="docutils literal notranslate"><span class="pre">Value</span></code>, that means that the decoder <strong>must</strong> automatically advance the stream to the next valid position and not inform the consuming application of the <code class="docutils literal notranslate"><span class="pre">Value</span></code>’s existence. If it has already done so due to the <code class="docutils literal notranslate"><span class="pre">Value</span></code> being valid before that point, the decoder <strong>must</strong> invalidate the returned data as it is able.</p>
 </section>
 <section id="typing">
 <h2>2. Typing<a class="headerlink" href="#typing" title="Link to this heading"><span/></a></h2>
 <p>Jaguar is a statically-typed format. All data must have a corresponding type. This is useful for decoding because it allows for easier validation of the intended structure and also helps with maintaining internal consistency.</p>
 <p>All <code class="docutils literal notranslate"><span class="pre">Value</span></code>s in a Jaguar stream have a <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>, a one-byte sequence which identifies the start of a new <code class="docutils literal notranslate"><span class="pre">Value</span></code> and determines its type (except in cases of value embedding where the enclosing type provides a method for clarifying this).</p>
-<p><code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s are grouped using their upper nibble (4 bits) by category, those categories being:
-0. Buffers, floating-point numbers, and booleans</p>
-<ol class="arabic simple">
+<p><code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s are grouped using their upper nibble (4 bits) by category, those categories being:</p>
+<ol class="arabic simple" start="0">
+<li><p>Buffers, floating-point numbers, and booleans</p></li>
 <li><p>Signed integers</p></li>
 <li><p>Unsigned integers</p></li>
-<li><p>Containers</p></li>
+<li><p>Element containers</p></li>
 <li><p>Math types</p></li>
 </ol>
 <p>Below is the list of types in Jaguar and their <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s:</p>
@@ -501,7 +501,7 @@
 </table>
 </div>
 <p>More details about complex object types will be provided in later sections.</p>
-<p>The object scope boundary <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> does not function as a traditional <code class="docutils literal notranslate"><span class="pre">Value</span></code>; it serves to delimit object boundaries and has no header or body and may only appear in certain locations. More information will be provided in section 7.</p>
+<p>The object scope boundary <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> does not function as a traditional <code class="docutils literal notranslate"><span class="pre">Value</span></code>; it serves to delimit object boundaries, has no header or body, and may only appear in certain locations. More information will be provided in section 7.</p>
 </section>
 <section id="containers">
 <h2>3. Containers<a class="headerlink" href="#containers" title="Link to this heading"><span/></a></h2>
@@ -531,7 +531,7 @@
 </table>
 </div>
 <p>The magic data string is <code class="docutils literal notranslate"><span class="pre">JAGUAR</span></code> in ASCII bytes (or <code class="docutils literal notranslate"><span class="pre">4A</span> <span class="pre">41</span> <span class="pre">47</span> <span class="pre">55</span> <span class="pre">41</span> <span class="pre">52</span></code> in hex bytes).</p>
-<p>The file intent byte is application-defined, and is used to identify what the stream is supposed to be to the application. Decoders <strong>must not</strong> rely on this byte to determine how to parse the stream, as this value has no formal definition. The only exception is that a null byte here (<code class="docutils literal notranslate"><span class="pre">00</span></code>) is reserved to mean a freeform stream (i.e. have no expectations for what you get). This is primarily for higher-level consumers of parsed Jaguar data as opposed to the decoder itself.</p>
+<p>The file intent byte is application-defined and is used to identify what the stream is supposed to be to the application. Decoders <strong>must not</strong> rely on this byte to determine how to parse the stream, as this value has no formal definition. The only exception is that a null byte here (<code class="docutils literal notranslate"><span class="pre">00</span></code>) is reserved to mean a freeform stream (i.e., have no expectations for what you get). This is primarily for higher-level consumers of parsed Jaguar data as opposed to the decoder itself.</p>
 <p>The integrity hash is a system meant to ensure that the data stream has not been corrupted. It is an MD5 hash computed from the contents of the stream. Decoders are advised to incrementally read the stream and generate the hash before rewinding and parsing, but they may implement this however they wish. As Jaguar streams may be large, an incremental approach to hash generation is recommended.</p>
 </section>
 <section id="numerical-types">
@@ -559,13 +559,13 @@
 </table>
 </div>
 <p>The body is then the list elements in sequential order, with zero-based indexing.</p>
-<p>All elements in the list <strong>must</strong> be of the type specified by the element <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> field, and there <strong>must</strong> be exactly the amount of elements specified by the element count field.</p>
-<p>Elements within a list do not have the typical <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> followed by name string prefix before their headers, as this is not needed to identify them.</p>
+<p>All elements in the list <strong>must</strong> be of the type specified by the element <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> field, and there <strong>must</strong> be exactly the number of elements specified by the element count field.</p>
+<p>Elements within a list do not have the typical <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> followed by the name string prefix before their headers, as this is not needed to identify them.</p>
 <p>Do note that a list overrun could be misinterpreted and break the decoder, especially if the bytes in the list overlap with real <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s. For this reason, decoders are advised to always read and validate in its entirety the next presumed <code class="docutils literal notranslate"><span class="pre">Value</span></code> header after a list to ensure that this is not the case.</p>
 </section>
 <section id="math-types">
 <h2>6. Math Types<a class="headerlink" href="#math-types" title="Link to this heading"><span/></a></h2>
-<p>Vector and matrix types are built in to Jaguar. There are limitations on what data these math types may contain:</p>
+<p>Vector and matrix types are built into Jaguar. There are limitations on what data these math types may contain:</p>
 <ul class="simple">
 <li><p><strong>ONLY</strong> floating-point numbers and (un)signed integers are permitted.</p></li>
 <li><p>Vectors may have a size in the range of 2-4.</p></li>
@@ -590,7 +590,7 @@
 </table>
 </div>
 <p>In cases of invalid vectors or matrices, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> continue decoding, ignoring the broken value. It is <strong>illegal</strong> for the decoder to allow an invalid vector or matrix to be presented to the consuming application.</p>
-<p>Matrices are stored in column-major format, like with OpenGL. This means that the below matrix:</p>
+<p>Matrices are stored in column-major format, like with OpenGL. This means that the matrix below:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">3</span>
 <span class="mi">4</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="mi">7</span>
 <span class="mi">8</span><span class="w"> </span><span class="mi">9</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span>
@@ -621,11 +621,11 @@
 </section>
 <section id="objects">
 <h2>7. Objects<a class="headerlink" href="#objects" title="Link to this heading"><span/></a></h2>
-<p>Objects allow for subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:</p>
+<p>Objects allow for the subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:</p>
 <p><strong>Unstructured objects</strong> (like dictionaries) provide a generic key-value mapping. Decoders <strong>must not</strong> attempt to interpret the structure of unstructured objects.</p>
 <p><strong>Structured objects</strong> provide a type-consistent method of encoding and coordinating information together at a deeper level than the primary stream, using a system of stream-defined typenames to identify the appropriate structure. All structured objects with the same typename must have the same structure; a structured object that does not conform to the declared structure is <strong>invalid</strong>, and decoders must ignore it. Decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> continue without the invalid object in this case.</p>
 <p>Unstructured object headers are fairly simple; they consist of a 16-bit unsigned integer field count.</p>
-<p>Structured object headers consist of an 8-bit unsigned integer typename string length followed by the typename string data of that length.</p>
+<p>Structured object headers consist of an 8-bit unsigned integer typename string length, followed by the typename string data of that length.</p>
 <section id="structured-object-type-declarations">
 <h3>Structured Object Type Declarations<a class="headerlink" href="#structured-object-type-declarations" title="Link to this heading"><span/></a></h3>
 <p>Before a structured object typename may be used, it must appear as part of a structured object type declaration. A structured object type declaration follows this header format:</p>
@@ -657,9 +657,9 @@
 <p>If the typename string of a structured object references a typename that has not yet been declared, decoders <strong>must</strong> declare the stream invalid and terminate decoding, as there is no way to accurately know the bounds of the broken object scope (since it could contain subobjects, using the scope boundary system does not work here). However, decoders <strong>must</strong> allow for the consuming application to reposition the stream reader head and continue decoding, provided the new position is valid data.</p>
 <p>Within a structured object, fields do not need to appear in the exact order that they are declared in the type declaration, provided that all fields are given a value.</p>
 <p>The body structure is shared between object types. It is identical to the regular <code class="docutils literal notranslate"><span class="pre">Value</span></code> stream layout, with the exception that at the end of the scope, a scope boundary <code class="docutils literal notranslate"><span class="pre">Value</span></code> with the Object Scope Boundary <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> (<code class="docutils literal notranslate"><span class="pre">0x3E</span></code>) must be added. This type has no header or body, and serves only to delimit object boundaries. Decoders <strong>must</strong> ensure that they accurately track nesting depth using object headers and scope boundaries in order to ensure that the parsed layout is correct.</p>
-<p>Objects <strong>may</strong> be nested up to a maximum depth of 64. In the event that the maximum nesting depth is reached, different rules apply depending on context. If the maximum nesting depth for objects is reached, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> attempt recovery using the following rules:</p>
+<p>Objects <strong>may</strong> be nested up to a maximum depth of 64. If the maximum nesting depth is reached, different rules apply depending on context. If the maximum nesting depth for objects is reached, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> attempt recovery using the following rules:</p>
 <ul class="simple">
-<li><p>If within a structured object type declaration, the entire declaration is invalid. Decoders <strong>must</strong> continue until back to the root level, ignoring all data. The typename is still reserved, and should it be referenced by a structured object, decoders may <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> ignore the broken object.</p></li>
+<li><p>If within a structured object type declaration, the entire declaration is invalid. Decoders <strong>must</strong> continue until back to the root level, ignoring all data. The typename is still reserved, and should it be referenced by a structured object, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> ignore the broken object.</p></li>
 <li><p>Otherwise, decoders <strong>must</strong> continue unwinding scopes, ignoring all data, until either at the root stream level or within an unstructured object. Any <code class="docutils literal notranslate"><span class="pre">Value</span></code>s passed through during the unwinding are invalid and <strong>must</strong> be ignored.</p></li>
 </ul>
 <p>If an object does not contain the amount of fields specified (which may be detected using scope boundary <code class="docutils literal notranslate"><span class="pre">Values</span></code> if they are found earlier than expected or not present where they are expected), decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong>, if the boundary object was found early attempt recovery, <strong>may</strong> attempt to recover following the same procedure as the maximum nesting depth reached.</p>
@@ -674,12 +674,12 @@
 <h3>Substreams<a class="headerlink" href="#substreams" title="Link to this heading"><span/></a></h3>
 <p>Substreams are a unique feature of Jaguar that allows one stream to exist within another in an independent manner. Though they may initially appear similar to objects, they differ in a number of ways:</p>
 <ol class="arabic simple">
-<li><p>Objects require metadata about how many fields they contain, whereas substreams do not</p></li>
-<li><p>There is no equivalent of structured objects for substreams</p></li>
-<li><p>The contents of substreams are not considered a part of the value tree of the containing stream; that is, they must be accessed separately</p></li>
+<li><p>Objects require metadata about how many fields they contain, whereas substreams do not.</p></li>
+<li><p>There is no equivalent of structured objects for substreams.</p></li>
+<li><p>The contents of substreams are not considered a part of the value tree of the containing stream; that is, they must be accessed separately.</p></li>
 <li><p>Skipping an object during parsing requires traversing the tree and skipping each field individually, as there is no set size. By contrast, substreams are embedded identically to byte buffers, allowing them to be skipped in O(1) time.</p></li>
 </ol>
-<p>It is advised that decoders do not automatically parse substreams during parsing of the main stream; they should wait until the substream is requested. However, this is not a hard requirement.</p>
+<p>It is advised that decoders do not automatically parse substreams during the parsing of the main stream; they should wait until the substream is requested. However, this is not a hard requirement.</p>
 <p>Substreams <strong>may not</strong> contain other substreams.</p>
 <p>If, during the parsing of a substream, a decoder makes the determination that the substream is invalid and decoding should be terminated, this <strong>must not</strong> affect the containing stream, and that stream must continue to remain valid for parsing <strong>unless it is also invalid for a separate reason</strong>.</p>
 </section>
