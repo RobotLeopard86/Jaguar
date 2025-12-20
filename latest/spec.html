@@ -379,6 +379,7 @@
 <li><p>All strings are encoded using UTF-8</p></li>
 <li><p>Jaguar is byte-packed, but does not contain an explicit synchronization system. This is because Jaguar is not designed to be used in a lossy environment (such as networking)</p></li>
 <li><p>All floating-point values are encoded in accordance with the IEEE 754 LE standard</p></li>
+<li><p>While Jaguar can be used to encode hierarchical data, it is worth nothing that <strong>Jaguar is not an object tree</strong>; it is fundamentally a data stream system and has no concept of a top-level tree or DOM</p></li>
 </ul>
 </section>
 <section id="values-and-data">
@@ -396,24 +397,28 @@
 <td><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p>Name string size</p></td>
-<td><p>2</p></td>
+<td><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p>Name string</p></td>
 <td><p>(size above)</p></td>
 </tr>
-<tr class="row-odd"><td><p>Data</p></td>
+<tr class="row-odd"><td><p>Integrity hash</p></td>
+<td><p>16</p></td>
+</tr>
+<tr class="row-even"><td><p>Data</p></td>
 <td><p>(size determined by <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>)</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>The integrity hash is a system meant to ensure that the data stream has not been corrupted. It is an MD5 hash computed from the contents of the stream. Decoders are advised to incrementally read the stream and generate the hash before rewinding and parsing, but they may implement this however they wish. As Jaguar streams may be large, an incremental approach to hash generation is recommended.</p>
 <p>The data itself is determined by what type the value belongs to, identified by the <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>.</p>
 <p>All data is split into a header and a body. The header contains the data required to identify the size of and correctly interpret the body data (such as the element count for lists). This allows decoders to skip over the body data and continue reading headers to identify the structure of the stream without needing to parse the data immediately.</p>
 </section>
 <section id="typing">
 <h2>2. Typing<a class="headerlink" href="#typing" title="Link to this heading"><span/></a></h2>
 <p>Jaguar is a statically-typed format. All data must have a corresponding type. This is useful for decoding because it allows for easier validation of the intended structure and also helps with maintaining internal consistency.</p>
-<p>All <code class="docutils literal notranslate"><span class="pre">Value</span></code>s in a Jaguar stream have a <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>, a one-byte sequence which identifies the start of a new <code class="docutils literal notranslate"><span class="pre">Value</span></code> and determines its type.</p>
+<p>All <code class="docutils literal notranslate"><span class="pre">Value</span></code>s in a Jaguar stream have a <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>, a one-byte sequence which identifies the start of a new <code class="docutils literal notranslate"><span class="pre">Value</span></code> and determines its type (except in cases of value embedding where the enclosing type provides a method for clarifying this).</p>
 <p><code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s are grouped using their upper nibble (4 bits) by category, those categories being:
 0. Buffers, floating-point numbers, and booleans</p>
 <ol class="arabic simple">
@@ -524,7 +529,7 @@
 </section>
 <section id="numerical-types">
 <h2>4. Numerical Types<a class="headerlink" href="#numerical-types" title="Link to this heading"><span/></a></h2>
-<p>Numerical types are very simple in Jaguar. They are the signed and unsigned integers, floating-point numbers, and booleans (while not technically numbers, they are stored as <code class="docutils literal notranslate"><span class="pre">0</span></code> for true and <code class="docutils literal notranslate"><span class="pre">1</span></code> for false). All necessary information to read the data is contained in the <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>.</p>
+<p>Numerical types are very simple in Jaguar. They are the signed and unsigned integers, floating-point numbers, and booleans (while not technically numbers, they are stored as <code class="docutils literal notranslate"><span class="pre">0</span></code> for false and <code class="docutils literal notranslate"><span class="pre">1</span></code> for true; any other value is <strong>invalid</strong>). All necessary information to read the data is contained in the <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>.</p>
 <p>As such, they do not have a header <em>per se</em>, and the body size is negligible enough that decoders are advised to immediately parse them as opposed to delaying parsing as may be done for more complex types.</p>
 </section>
 <section id="lists">
@@ -613,7 +618,7 @@
 <p><strong>Unstructured objects</strong> (like dictionaries) provide a generic key-value mapping. Decoders <strong>must not</strong> attempt to interpret the structure of unstructured objects.</p>
 <p><strong>Strutured objects</strong> provide a type-consistent method of encoding and coordinating information together at a deeper level than the primary stream, using a system of stream-defined typenames to identify the appropriate structure. All structured objects with the same typename must have the same structure; a structured object that does not conform to the declared structure is <strong>invalid</strong>, and decoders must ignore it. Decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> continue without the invalid object in this case.</p>
 <p>Unstructured object headers are fairly simple; they consist of a 16-bit unsigned integer field count.</p>
-<p>Structured object headers are similar; they consist of an 8-bit unsigned integer typename string length followed by the typename string data of that length.</p>
+<p>Structured object headers consist of an 8-bit unsigned integer typename string length followed by the typename string data of that length.</p>
 <p>The body structure is shared between object types. It is identical to the regular <code class="docutils literal notranslate"><span class="pre">Value</span></code> stream layout. There is no “end of object” marker; as such decoders must accurately keep track of nesting depth and object boundaries. As such, any additional values beyond the specified number will be treated as belonging to the containing scope until the root level (the primary stream) is reached. Likewise, an insufficient number of values will cause the values after that to be assigned to the object scope.</p>
 <p>Before a structured object typename may be used, it must appear as part of a structured object type declaration. A structured object type declaration follows this header format:</p>
 <div class="pst-scrollable-table-container"><table class="table">
