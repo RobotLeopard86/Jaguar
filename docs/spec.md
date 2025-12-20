@@ -21,6 +21,8 @@ Before the more complicated parts of the specification, here are a few small rul
 
 * All floating-point values are encoded in accordance with the IEEE 754 LE standard
 
+* While Jaguar can be used to encode hierarchical data, it is worth nothing that **Jaguar is not an object tree**; it is fundamentally a data stream system and has no concept of a top-level tree or DOM
+
 ## 1. Values and Data
 A Jaguar stream is fairly simple conceptually. It is simply a continued stream of multiple `Value`s.  
 
@@ -28,9 +30,12 @@ A `Value` consists of the following information:
 | Field | Size (bytes) |
 | ----- | ---- |
 | `TypeTag` | 1 |
-| Name string size | 2 |
+| Name string size | 1 |
 | Name string | (size above) |
+| Integrity hash | 16 |
 | Data | (size determined by `TypeTag`) |  
+
+The integrity hash is a system meant to ensure that the data stream has not been corrupted. It is an MD5 hash computed from the contents of the stream. Decoders are advised to incrementally read the stream and generate the hash before rewinding and parsing, but they may implement this however they wish. As Jaguar streams may be large, an incremental approach to hash generation is recommended.
 
 The data itself is determined by what type the value belongs to, identified by the `TypeTag`.  
 
@@ -39,7 +44,7 @@ All data is split into a header and a body. The header contains the data require
 ## 2. Typing
 Jaguar is a statically-typed format. All data must have a corresponding type. This is useful for decoding because it allows for easier validation of the intended structure and also helps with maintaining internal consistency.  
 
-All `Value`s in a Jaguar stream have a `TypeTag`, a one-byte sequence which identifies the start of a new `Value` and determines its type.  
+All `Value`s in a Jaguar stream have a `TypeTag`, a one-byte sequence which identifies the start of a new `Value` and determines its type (except in cases of value embedding where the enclosing type provides a method for clarifying this).  
 
 `TypeTag`s are grouped using their upper nibble (4 bits) by category, those categories being:
 0. Buffers, floating-point numbers, and booleans
@@ -91,7 +96,7 @@ The magic data string is `JAGUAR` in ASCII bytes (or `4A 41 47 55 41 52` in hex 
 The file intent byte is application-defined, and is used to identify what the stream is supposed to be to the application. Decoders **must not** rely on this byte to determine how to parse the stream, as this value has no formal definition. The only exception is that a null byte here (`00`) is reserved to mean a freeform stream (i.e. have no expectations for what you get). This is primarily for higher-level consumers of parsed Jaguar data as opposed to the decoder itself.
 
 ## 4. Numerical Types
-Numerical types are very simple in Jaguar. They are the signed and unsigned integers, floating-point numbers, and booleans (while not technically numbers, they are stored as `0` for true and `1` for false). All necessary information to read the data is contained in the `TypeTag`.  
+Numerical types are very simple in Jaguar. They are the signed and unsigned integers, floating-point numbers, and booleans (while not technically numbers, they are stored as `0` for false and `1` for true; any other value is **invalid**). All necessary information to read the data is contained in the `TypeTag`.  
 
 As such, they do not have a header _per se_, and the body size is negligible enough that decoders are advised to immediately parse them as opposed to delaying parsing as may be done for more complex types.
 
@@ -152,7 +157,7 @@ Objects allow for subdivision of a Jaguar stream into multiple groups of fields.
 
 Unstructured object headers are fairly simple; they consist of a 16-bit unsigned integer field count.
 
-Structured object headers are similar; they consist of an 8-bit unsigned integer typename string length followed by the typename string data of that length.
+Structured object headers consist of an 8-bit unsigned integer typename string length followed by the typename string data of that length.
 
 The body structure is shared between object types. It is identical to the regular `Value` stream layout. There is no "end of object" marker; as such decoders must accurately keep track of nesting depth and object boundaries. As such, any additional values beyond the specified number will be treated as belonging to the containing scope until the root level (the primary stream) is reached. Likewise, an insufficient number of values will cause the values after that to be assigned to the object scope.
 
