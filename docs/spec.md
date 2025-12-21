@@ -115,7 +115,7 @@ Lists are a fairly simple construct in Jaguar. The header for a list `Value` is 
 | Field | Size (bytes) |
 | ----- | ------------ |
 | Element `TypeTag` | 1 |
-| Element Count (unsigned) | 4 |
+| Element Count (unsigned int) | 4 |
 
 The body is then the list elements in sequential order, with zero-based indexing.  
 
@@ -140,7 +140,7 @@ Vector headers follow the below format:
 | Field | Size (bytes) |
 | ----- | ------------ |
 | Element `TypeTag` | 1 |
-| Element Count (unsigned) | 1 |
+| Element Count (unsigned int) | 1 |
 
 In cases of invalid vectors or matrices, decoders **may** either declare the stream invalid and terminate decoding **or** continue decoding, ignoring the broken value. It is **illegal** for the decoder to allow an invalid vector or matrix to be presented to the consuming application.  
 
@@ -157,8 +157,8 @@ Matrix headers follow the below format:
 | Field | Size (bytes) |
 | ----- | ------------ |
 | Element `TypeTag` | 1 |
-| # of Columns | 1 |
-| # of Rows | 1 |  
+| # of Columns (unsigned int) | 1 |
+| # of Rows (unsigned int) | 1 |  
 
 ## 7. Objects
 Objects allow for the subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:  
@@ -175,7 +175,7 @@ Structured object headers consist of an 8-bit unsigned integer typename string l
 Before a structured object typename may be used, it must appear as part of a structured object type declaration. A structured object type declaration follows this header format:  
 | Field | Size (bytes) |
 | ----- | ------------ |
-| Typename string size | 1 |
+| Typename string size (unsigned int) | 1 |
 | Typename string | (size above) |
 | Field count | 2 |  
 
