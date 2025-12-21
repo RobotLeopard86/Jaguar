@@ -1,7 +1,7 @@
 [
-    {
-        "name": "Latest development commit",
-        "version": "main",
-        "url": "https://robotleopard86.github.io/Jaguar/latest"
-    }
+	{
+		"name": "Latest development commit",
+		"version": "latest",
+		"url": "https://robotleopard86.github.io/Jaguar/latest"
+	}
 ]
