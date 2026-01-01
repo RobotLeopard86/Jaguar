@@ -326,6 +326,9 @@
 <li class="toctree-l1"><a class="reference internal" href="namespace_libjaguar.html">Namespace libjaguar</a></li>
 </ul>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html">Struct ValueHeader</a></li>
+</ul>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Reader.html">Class Reader</a></li>
 </ul>
 <ul class="current nav bd-sidenav">
@@ -399,7 +402,7 @@
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6WriterE">
 <span id="_CPPv3N9libjaguar6WriterE"></span><span id="_CPPv2N9libjaguar6WriterE"></span><span id="libjaguar::Writer"></span><span class="target" id="classlibjaguar_1_1Writer"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Writer</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar6WriterE" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Low-level stateless Jaguar stream writer. </p>
-<p>The sole purpose of this class is to write values to the stream, not to keep track of the data context</p>
+<p>The sole purpose of this class is to write values to the stream, not to keep track of the data context, so misuse will result in an improperly formatted stream</p>
 <p>This class is move-only! </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
@@ -417,11 +420,112 @@
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6WriterptEv">
 <span id="_CPPv3N9libjaguar6WriterptEv"></span><span id="_CPPv2N9libjaguar6WriterptEv"></span><span id="libjaguar::Writer::pointer-operator"></span><span class="target" id="classlibjaguar_1_1Writer_1a37f1976e4da6a7269120853db931ed85"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-&gt;</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6WriterptEv" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Access the underlying stream to perform operations outside of the parser. </p>
+<dd><p>Access the underlying stream to perform operations outside of the writer. </p>
 <p>This is to allow for applications to still control the stream, while ensuring that only one <a class="reference internal" href="#classlibjaguar_1_1Writer"><span class="std std-ref">Writer</span></a> can use it at a time</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The stream, or <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> if this object has been moved from </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6WritermlEv">
+<span id="_CPPv3N9libjaguar6WritermlEv"></span><span id="_CPPv2N9libjaguar6WritermlEv"></span><span id="libjaguar::Writer::mul-operator"></span><span class="target" id="classlibjaguar_1_1Writer_1a10be2164519e3f88d4943d3690146b44"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6WritermlEv" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Access the underlying stream to perform operations outside of the writer. </p>
+<p>This is to allow for applications to still control the stream, while ensuring that only one <a class="reference internal" href="#classlibjaguar_1_1Writer"><span class="std std-ref">Writer</span></a> can use it at a time</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The stream, or <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> if this object has been moved from </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Writer11WriteHeaderERK11ValueHeaderb">
+<span id="_CPPv3N9libjaguar6Writer11WriteHeaderERK11ValueHeaderb"></span><span id="_CPPv2N9libjaguar6Writer11WriteHeaderERK11ValueHeaderb"></span><span id="libjaguar::Writer::WriteHeader__ValueHeaderCR.b"></span><span class="target" id="classlibjaguar_1_1Writer_1ad6cea6ddf510c544995398acca12c2e0"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WriteHeader</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeaderE" title="libjaguar::ValueHeader"><span class="n"><span class="pre">ValueHeader</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">header</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">noIdentifier</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">false</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Writer11WriteHeaderERK11ValueHeaderb" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Write a value header to the stream. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header</strong> – The header to write </p></li>
+<li><p><strong>noIdentifier</strong> – Whether or not to omit the value identifier (not used in lists, for example) </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_7integerEN9libjaguar6Writer12WriteIntegerEv1T">
+<span id="_CPPv3I_7integerEN9libjaguar6Writer12WriteIntegerE1T"></span><span id="_CPPv2I_7integerEN9libjaguar6Writer12WriteIntegerE1T"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">integer</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classlibjaguar_1_1Writer_1aa2cdd16760eb8a06cf5a7cbd3a6e20a8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WriteInteger</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_7integerEN9libjaguar6Writer12WriteIntegerEv1T" title="libjaguar::Writer::WriteInteger::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I_7integerEN9libjaguar6Writer12WriteIntegerEv1T" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Write an integer value to the stream. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> – The integer type - signed or unsigned from 8 to 64 bits</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>value</strong> – The integer to write </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_NSt14floating_pointEEN9libjaguar6Writer10WriteFloatEv1T">
+<span id="_CPPv3I_NSt14floating_pointEEN9libjaguar6Writer10WriteFloatE1T"></span><span id="_CPPv2I_NSt14floating_pointEEN9libjaguar6Writer10WriteFloatE1T"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">floating_point</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classlibjaguar_1_1Writer_1a1f2a8ed073a57cf7164ad9c243c4aef5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WriteFloat</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_NSt14floating_pointEEN9libjaguar6Writer10WriteFloatEv1T" title="libjaguar::Writer::WriteFloat::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I_NSt14floating_pointEEN9libjaguar6Writer10WriteFloatEv1T" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Write a floating-point value to the stream. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> – The type - float or double</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>value</strong> – The floating-point number to write </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Writer9WriteBoolEb">
+<span id="_CPPv3N9libjaguar6Writer9WriteBoolEb"></span><span id="_CPPv2N9libjaguar6Writer9WriteBoolEb"></span><span id="libjaguar::Writer::WriteBool__b"></span><span class="target" id="classlibjaguar_1_1Writer_1ae79218088011d6abf3c88b55fb5f860b"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WriteBool</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Writer9WriteBoolEb" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Write a boolean value to the stream. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> – The boolean to write </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Writer11WriteStringERKNSt6stringE">
+<span id="_CPPv3N9libjaguar6Writer11WriteStringERKNSt6stringE"></span><span id="_CPPv2N9libjaguar6Writer11WriteStringERKNSt6stringE"></span><span id="libjaguar::Writer::WriteString__ssCR"></span><span class="target" id="classlibjaguar_1_1Writer_1ae2dd6f3dc29d301de04549802bf35549"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WriteString</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Writer11WriteStringERKNSt6stringE" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Write a string to the stream. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> – The string to write </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Writer11WriteBufferERKNSt4spanINSt4byteEEE">
+<span id="_CPPv3N9libjaguar6Writer11WriteBufferERKNSt4spanINSt4byteEEE"></span><span id="_CPPv2N9libjaguar6Writer11WriteBufferERKNSt4spanINSt4byteEEE"></span><span id="libjaguar::Writer::WriteBuffer__std::span:std::byte:CR"></span><span class="target" id="classlibjaguar_1_1Writer_1aaddaaa677c2f57b1c5f0dd2d6ed4daec"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WriteBuffer</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">byte</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Writer11WriteBufferERKNSt4spanINSt4byteEEE" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Write a buffer to the stream. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> – The buffer to write </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Writer21WriteBufferFromStreamEPNSt7istreamENSt6size_tE">
+<span id="_CPPv3N9libjaguar6Writer21WriteBufferFromStreamEPNSt7istreamENSt6size_tE"></span><span id="_CPPv2N9libjaguar6Writer21WriteBufferFromStreamEPNSt7istreamENSt6size_tE"></span><span id="libjaguar::Writer::WriteBufferFromStream__isP.std::s"></span><span class="target" id="classlibjaguar_1_1Writer_1a1234741363afb6308128d6e7cbf6786b"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WriteBufferFromStream</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">istream</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">istream</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">length</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Writer21WriteBufferFromStreamEPNSt7istreamENSt6size_tE" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Write a buffer to the stream from another stream. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>istream</strong> – The stream to source data from (must not be <code class="docutils literal notranslate"><span class="pre">nullptr</span></code>) </p></li>
+<li><p><strong>length</strong> – The length (in bytes) of data to copy </p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -483,6 +587,14 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6WriterE"><code class="docutils literal notranslate"><span class="pre">Writer</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer6WriterERRNSt7ostreamE"><code class="docutils literal notranslate"><span class="pre">Writer::Writer()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6WriterptEv"><code class="docutils literal notranslate"><span class="pre">Writer::operator-&gt;()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6WritermlEv"><code class="docutils literal notranslate"><span class="pre">Writer::operator*()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer11WriteHeaderERK11ValueHeaderb"><code class="docutils literal notranslate"><span class="pre">Writer::WriteHeader()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_7integerEN9libjaguar6Writer12WriteIntegerEv1T"><code class="docutils literal notranslate"><span class="pre">Writer::WriteInteger()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_NSt14floating_pointEEN9libjaguar6Writer10WriteFloatEv1T"><code class="docutils literal notranslate"><span class="pre">Writer::WriteFloat()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer9WriteBoolEb"><code class="docutils literal notranslate"><span class="pre">Writer::WriteBool()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer11WriteStringERKNSt6stringE"><code class="docutils literal notranslate"><span class="pre">Writer::WriteString()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer11WriteBufferERKNSt4spanINSt4byteEEE"><code class="docutils literal notranslate"><span class="pre">Writer::WriteBuffer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer21WriteBufferFromStreamEPNSt7istreamENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">Writer::WriteBufferFromStream()</span></code></a></li>
 </ul>
 </li>
 </ul>
