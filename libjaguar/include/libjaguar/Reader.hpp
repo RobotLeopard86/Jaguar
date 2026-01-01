@@ -37,6 +37,15 @@ namespace libjaguar {
 		 */
 		std::istream* operator->();
 
+		/**
+		 * @brief Access the underlying stream to perform operations outside of the parser
+		 *
+		 * This is to allow for applications to still control the stream, while ensuring that only one Reader can use it at a time
+		 *
+		 * @return The stream, or @c nullptr if this object has been moved from
+		 */
+		std::istream* operator*();
+
 	  private:
 		std::istream stream;
 		bool moved = false;

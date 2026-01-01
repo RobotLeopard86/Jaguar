@@ -3,7 +3,8 @@ install_subdir('include' / 'libjaguar', install_dir: 'include')
 
 # libjaguar
 libjaguar = both_libraries('jaguar', sources: [
-	'src' / 'Reader.cpp'
+	'src' / 'Reader.cpp',
+	'src' / 'Writer.cpp'
 ], include_directories: 'include', pic: true, install: true)
 
 # Dependency
