@@ -9,12 +9,14 @@
 #include <cstdint>
 #include <type_traits>
 #include <span>
+#include <memory>
 
 namespace libjaguar {
 	/**
 	 * @brief Low-level stateless Jaguar stream writer
 	 *
-	 * The sole purpose of this class is to write values to the stream, not to keep track of the data context, so misuse will result in an improperly formatted stream
+	 * The sole purpose of this class is to write values to the stream, not to keep track of the data context, so misuse will result in an improperly formatted stream. Errors will only be thrown when they present a
+	 * technical limitation (e.g. invalid UTF-8). Structural issues are ignored.
 	 *
 	 * This class is move-only!
 	 */
@@ -23,9 +25,9 @@ namespace libjaguar {
 		/**
 		 * @brief Create a writer, providing it exclusive ownership of the stream to write to
 		 *
-		 * @param stream The stream into which to write Jaguar data
+		 * @param ostream The stream into which to write Jaguar data
 		 */
-		Writer(std::ostream&& stream);
+		Writer(std::unique_ptr<std::ostream>&& ostream);
 
 		///@cond
 		Writer(const Writer&) = delete;
@@ -57,6 +59,8 @@ namespace libjaguar {
 		 *
 		 * @param header The header to write
 		 * @param noIdentifier Whether or not to omit the value identifier (not used in lists, for example)
+		 *
+		 * @throws std::runtime_error If the provided name string is invalid UTF-8 or has the wrong length
 		 */
 		void WriteHeader(const ValueHeader& header, bool noIdentifier = false);
 
@@ -121,8 +125,7 @@ namespace libjaguar {
 		void WriteBufferFromStream(std::istream* istream, std::size_t length);
 
 	  private:
-		std::ostream stream;
-		bool moved = false;
+		std::unique_ptr<std::ostream> stream;
 
 		void _WriteIntegerInternal(uint64_t value, uint8_t bits);
 	};

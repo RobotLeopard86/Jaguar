@@ -3,6 +3,7 @@
 #include "DllHelper.hpp"
 
 #include <istream>
+#include <memory>
 
 namespace libjaguar {
 	/**
@@ -17,9 +18,9 @@ namespace libjaguar {
 		/**
 		 * @brief Create a reader, providing it exclusive ownership of the stream to read from
 		 *
-		 * @param stream The stream containing Jaguar data
+		 * @param istream The stream containing Jaguar data
 		 */
-		Reader(std::istream&& stream);
+		Reader(std::unique_ptr<std::istream>&& istream);
 
 		///@cond
 		Reader(const Reader&) = delete;
@@ -47,7 +48,6 @@ namespace libjaguar {
 		std::istream* operator*();
 
 	  private:
-		std::istream stream;
-		bool moved = false;
+		std::unique_ptr<std::istream> stream;
 	};
 }
