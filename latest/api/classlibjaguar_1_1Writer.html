@@ -402,17 +402,17 @@
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6WriterE">
 <span id="_CPPv3N9libjaguar6WriterE"></span><span id="_CPPv2N9libjaguar6WriterE"></span><span id="libjaguar::Writer"></span><span class="target" id="classlibjaguar_1_1Writer"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Writer</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar6WriterE" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Low-level stateless Jaguar stream writer. </p>
-<p>The sole purpose of this class is to write values to the stream, not to keep track of the data context, so misuse will result in an improperly formatted stream</p>
+<p>The sole purpose of this class is to write values to the stream, not to keep track of the data context, so misuse will result in an improperly formatted stream. Errors will only be thrown when they present a technical limitation (e.g. invalid UTF-8). Structural issues are ignored.</p>
 <p>This class is move-only! </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Writer6WriterERRNSt7ostreamE">
-<span id="_CPPv3N9libjaguar6Writer6WriterERRNSt7ostreamE"></span><span id="_CPPv2N9libjaguar6Writer6WriterERRNSt7ostreamE"></span><span id="libjaguar::Writer::Writer__osRR"></span><span class="target" id="classlibjaguar_1_1Writer_1a99295d7b108156ca74ab53213deb67aa"></span><span class="sig-name descname"><span class="n"><span class="pre">Writer</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">stream</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Writer6WriterERRNSt7ostreamE" title="Link to this definition"><span/></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Writer6WriterERRNSt10unique_ptrINSt7ostreamEEE">
+<span id="_CPPv3N9libjaguar6Writer6WriterERRNSt10unique_ptrINSt7ostreamEEE"></span><span id="_CPPv2N9libjaguar6Writer6WriterERRNSt10unique_ptrINSt7ostreamEEE"></span><span id="libjaguar::Writer::Writer__std::unique_ptr:os:RR"></span><span class="target" id="classlibjaguar_1_1Writer_1af2bb415b5ef1e3145243af401008fd77"></span><span class="sig-name descname"><span class="n"><span class="pre">Writer</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unique_ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">ostream</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Writer6WriterERRNSt10unique_ptrINSt7ostreamEEE" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Create a writer, providing it exclusive ownership of the stream to write to. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stream</strong> – The stream into which to write Jaguar data </p>
+<dd class="field-odd"><p><strong>ostream</strong> – The stream into which to write Jaguar data </p>
 </dd>
 </dl>
 </dd></dl>
@@ -449,8 +449,11 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>header</strong> – The header to write </p></li>
-<li><p><strong>noIdentifier</strong> – Whether or not to omit the value identifier (not used in lists, for example) </p></li>
+<li><p><strong>noIdentifier</strong> – Whether or not to omit the value identifier (not used in lists, for example)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the provided name string is invalid UTF-8 or has the wrong length </p>
 </dd>
 </dl>
 </dd></dl>
@@ -585,7 +588,7 @@
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-documentation">Class Documentation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6WriterE"><code class="docutils literal notranslate"><span class="pre">Writer</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer6WriterERRNSt7ostreamE"><code class="docutils literal notranslate"><span class="pre">Writer::Writer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer6WriterERRNSt10unique_ptrINSt7ostreamEEE"><code class="docutils literal notranslate"><span class="pre">Writer::Writer()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6WriterptEv"><code class="docutils literal notranslate"><span class="pre">Writer::operator-&gt;()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6WritermlEv"><code class="docutils literal notranslate"><span class="pre">Writer::operator*()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer11WriteHeaderERK11ValueHeaderb"><code class="docutils literal notranslate"><span class="pre">Writer::WriteHeader()</span></code></a></li>
