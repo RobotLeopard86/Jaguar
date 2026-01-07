@@ -18,7 +18,7 @@ namespace libjaguar {
 	 * The sole purpose of this class is to write values to the stream, not to keep track of the data context, so misuse will result in an improperly formatted stream. Errors will only be thrown when they present a
 	 * technical limitation (e.g. invalid UTF-8). Structural issues are ignored.
 	 *
-	 * This class is move-only!
+	 * <b>This class is move-only!</b>
 	 */
 	class LJAPI Writer {
 	  public:
@@ -61,6 +61,7 @@ namespace libjaguar {
 		 * @param noIdentifier Whether or not to omit the value identifier (not used in lists, for example)
 		 *
 		 * @throws std::runtime_error If the provided name string is invalid UTF-8 or has the wrong length
+		 * @throws std::runtime_error If the provided type ID string is invalid UTF-8 or has the wrong length (for types requiring that)
 		 */
 		void WriteHeader(const ValueHeader& header, bool noIdentifier = false);
 
@@ -106,6 +107,8 @@ namespace libjaguar {
 		 * @brief Write a string to the stream
 		 *
 		 * @param value The string to write
+		 *
+		 * @throws std::runtime_error If the string is not valid UTF-8
 		 */
 		void WriteString(const std::string& value);
 
@@ -121,6 +124,9 @@ namespace libjaguar {
 		 *
 		 * @param istream The stream to source data from (must not be @c nullptr)
 		 * @param length The length (in bytes) of data to copy
+		 *
+		 * @throws std::runtime_error If the source stream is null or invalid
+		 * @throws std::runtime_error If reading from the source stream fails
 		 */
 		void WriteBufferFromStream(std::istream* istream, std::size_t length);
 

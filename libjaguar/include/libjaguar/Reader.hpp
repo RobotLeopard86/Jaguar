@@ -4,17 +4,21 @@
 #include "Value.hpp"
 #include "Traits.hpp"
 
+#include <bit>
 #include <istream>
+#include <cstdint>
+#include <type_traits>
 #include <memory>
+#include <vector>
 
 namespace libjaguar {
 	/**
 	 * @brief Low-level stateless Jaguar stream parser
 	 *
 	 * The sole purpose of this class is to read the stream and extract value data. It does @b not persist data between calls and is thus not compliant with the specification on its own. This class puts data directly from the stream into
-	 * returned structures; it is the consumer's responsibility to validate this data.
+	 * returned structures; it is the consumer's responsibility to validate this data. Errors will only be thrown when they present a technical limitation (e.g. invalid UTF-8).
 	 *
-	 * This class is move-only!
+	 * <b>This class is move-only!</b>
 	 */
 	class LJAPI Reader {
 	  public:
@@ -54,6 +58,10 @@ namespace libjaguar {
 		 * @brief Read a value header from the stream
 		 *
 		 * @return The read ValueHeader
+		 *
+		 * @throws std::runtime_error If the TypeTag found is invalid
+		 * @throws std::runtime_error If the value name string is empty or not valid UTF-8
+		 * @throws std::runtime_error If a element TypeTag is invalid (e.g. for a list)
 		 */
 		ValueHeader ReadHeader();
 
@@ -90,6 +98,8 @@ namespace libjaguar {
 		 * @brief Read a boolean value from the stream
 		 *
 		 * @return The read boolean
+		 *
+		 * @throws std::runtime_error If the read value is not a possible boolean
 		 */
 		bool ReadBool();
 
@@ -99,10 +109,20 @@ namespace libjaguar {
 		 * @param length The length of the string to read
 		 *
 		 * @return The read string
+		 *
+		 * @throws std::runtime_error If the read string is invalid UTF-8
+		 * @throws std::runtime_error If the requested length is longer than the stream supports
 		 */
 		std::string ReadString(uint32_t length);
 
-		//TODO: ReadBuffer --- not sure what the API shape should look like yet
+		/**
+		 * @brief Read a certain amount of bytes from the stream as a buffer
+		 *
+		 * @param byteCount The number of bytes to read
+		 *
+		 * @return A buffer of the requested size
+		 */
+		std::vector<unsigned char> ReadBuffer(uint64_t byteCount);
 
 	  private:
 		std::unique_ptr<std::istream> stream;

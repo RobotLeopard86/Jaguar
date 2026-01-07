@@ -7,6 +7,7 @@
 #include <array>
 #include <stdexcept>
 #include <algorithm>
+#include <sys/types.h>
 
 namespace libjaguar {
 	Writer::Writer(std::unique_ptr<std::ostream>&& ostream) : stream(std::move(ostream)) {}
@@ -88,6 +89,14 @@ namespace libjaguar {
 
 	void Writer::WriteHeader(const ValueHeader& header, bool noIdentifier) {
 		if(!stream) return;
+
+		//Scope boundary edge-case
+		if(header.type == TypeTag::ScopeBoundary) {
+			stream->put(static_cast<uint8_t>(TypeTag::ScopeBoundary));
+			return;
+		}
+
+		//Basic checks for other types
 		if(header.name.size() < 1 || header.name.size() > UINT8_MAX) throw std::runtime_error("Header name string is invalid length!");
 		if(!internal::CheckUTF8(header.name)) throw std::runtime_error("Header name string is not valid UTF-8!");
 		if(header.type == TypeTag::StructuredObj || header.type == TypeTag::StructuredObjTypeDecl) {

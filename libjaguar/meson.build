@@ -6,7 +6,7 @@ libjaguar = both_libraries('jaguar', sources: [
 	'src' / 'Reader.cpp',
 	'src' / 'Writer.cpp',
 	'src' / 'Unicode.cpp'
-], include_directories: 'include', pic: true, install: true)
+], include_directories: ['include', 'src'], pic: true, install: true)
 
 # Dependency
 libjaguar_dep = declare_dependency(link_with: libjaguar, include_directories: 'include')
