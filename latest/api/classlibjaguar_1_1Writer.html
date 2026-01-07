@@ -403,7 +403,7 @@
 <span id="_CPPv3N9libjaguar6WriterE"></span><span id="_CPPv2N9libjaguar6WriterE"></span><span id="libjaguar::Writer"></span><span class="target" id="classlibjaguar_1_1Writer"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Writer</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar6WriterE" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Low-level stateless Jaguar stream writer. </p>
 <p>The sole purpose of this class is to write values to the stream, not to keep track of the data context, so misuse will result in an improperly formatted stream. Errors will only be thrown when they present a technical limitation (e.g. invalid UTF-8). Structural issues are ignored.</p>
-<p>This class is move-only! </p>
+<p><strong>This class is move-only!</strong></p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
@@ -453,7 +453,10 @@
 </ul>
 </dd>
 <dt class="field-even">Throws<span class="colon">:</span></dt>
-<dd class="field-even"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the provided name string is invalid UTF-8 or has the wrong length </p>
+<dd class="field-even"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the provided name string is invalid UTF-8 or has the wrong length </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the provided type ID string is invalid UTF-8 or has the wrong length (for types requiring that) </p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -503,7 +506,10 @@
 <dd><p>Write a string to the stream. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>value</strong> – The string to write </p>
+<dd class="field-odd"><p><strong>value</strong> – The string to write</p>
+</dd>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the string is not valid UTF-8 </p>
 </dd>
 </dl>
 </dd></dl>
@@ -527,7 +533,13 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>istream</strong> – The stream to source data from (must not be <code class="docutils literal notranslate"><span class="pre">nullptr</span></code>) </p></li>
-<li><p><strong>length</strong> – The length (in bytes) of data to copy </p></li>
+<li><p><strong>length</strong> – The length (in bytes) of data to copy</p></li>
+</ul>
+</dd>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the source stream is null or invalid </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If reading from the source stream fails </p></li>
 </ul>
 </dd>
 </dl>

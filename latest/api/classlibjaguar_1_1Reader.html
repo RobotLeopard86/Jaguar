@@ -402,8 +402,8 @@
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6ReaderE">
 <span id="_CPPv3N9libjaguar6ReaderE"></span><span id="_CPPv2N9libjaguar6ReaderE"></span><span id="libjaguar::Reader"></span><span class="target" id="classlibjaguar_1_1Reader"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Reader</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar6ReaderE" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Low-level stateless Jaguar stream parser. </p>
-<p>The sole purpose of this class is to read the stream and extract value data. It does <strong>not</strong> persist data between calls and is thus not compliant with the specification on its own. This class puts data directly from the stream into returned structures; it is the consumer’s responsibility to validate this data.</p>
-<p>This class is move-only! </p>
+<p>The sole purpose of this class is to read the stream and extract value data. It does <strong>not</strong> persist data between calls and is thus not compliant with the specification on its own. This class puts data directly from the stream into returned structures; it is the consumer’s responsibility to validate this data. Errors will only be thrown when they present a technical limitation (e.g. invalid UTF-8).</p>
+<p><strong>This class is move-only!</strong></p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
@@ -446,8 +446,15 @@
 <span id="_CPPv3N9libjaguar6Reader10ReadHeaderEv"></span><span id="_CPPv2N9libjaguar6Reader10ReadHeaderEv"></span><span id="libjaguar::Reader::ReadHeader"></span><span class="target" id="classlibjaguar_1_1Reader_1ac2641e1568397a472f9d2dd4002e648e"></span><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeaderE" title="libjaguar::ValueHeader"><span class="n"><span class="pre">ValueHeader</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ReadHeader</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Reader10ReadHeaderEv" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Read a value header from the stream. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The read <a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#structlibjaguar_1_1ValueHeader"><span class="std std-ref">ValueHeader</span></a></p>
+<dt class="field-odd">Throws<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the TypeTag found is invalid </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the value name string is empty or not valid UTF-8 </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If a element TypeTag is invalid (e.g. for a list) </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The read <a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#structlibjaguar_1_1ValueHeader"><span class="std std-ref">ValueHeader</span></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -485,8 +492,11 @@
 <span id="_CPPv3N9libjaguar6Reader8ReadBoolEv"></span><span id="_CPPv2N9libjaguar6Reader8ReadBoolEv"></span><span id="libjaguar::Reader::ReadBool"></span><span class="target" id="classlibjaguar_1_1Reader_1aae409643e37072caa5c73c6055019062"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ReadBool</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Reader8ReadBoolEv" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Read a boolean value from the stream. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The read boolean </p>
+<dt class="field-odd">Throws<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the read value is not a possible boolean </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The read boolean</p>
 </dd>
 </dl>
 </dd></dl>
@@ -499,8 +509,28 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>length</strong> – The length of the string to read</p>
 </dd>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the read string is invalid UTF-8 </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the requested length is longer than the stream supports </p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The read string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Reader10ReadBufferE8uint64_t">
+<span id="_CPPv3N9libjaguar6Reader10ReadBufferE8uint64_t"></span><span id="_CPPv2N9libjaguar6Reader10ReadBufferE8uint64_t"></span><span id="libjaguar::Reader::ReadBuffer__uint64_t"></span><span class="target" id="classlibjaguar_1_1Reader_1aac3635e0857e8d8f9c2e1dc4f6c09b11"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ReadBuffer</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">byteCount</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Reader10ReadBufferE8uint64_t" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Read a certain amount of bytes from the stream as a buffer. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>byteCount</strong> – The number of bytes to read</p>
+</dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The read string </p>
+<dd class="field-even"><p>A buffer of the requested size </p>
 </dd>
 </dl>
 </dd></dl>
@@ -568,6 +598,7 @@
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_NSt14floating_pointEEN9libjaguar6Reader9ReadFloatE1Tv"><code class="docutils literal notranslate"><span class="pre">Reader::ReadFloat()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Reader8ReadBoolEv"><code class="docutils literal notranslate"><span class="pre">Reader::ReadBool()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Reader10ReadStringE8uint32_t"><code class="docutils literal notranslate"><span class="pre">Reader::ReadString()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Reader10ReadBufferE8uint64_t"><code class="docutils literal notranslate"><span class="pre">Reader::ReadBuffer()</span></code></a></li>
 </ul>
 </li>
 </ul>
