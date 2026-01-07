@@ -6,6 +6,9 @@
 #include <cstdint>
 #include <stdexcept>
 
+#define STREAMCHECK \
+	if(!stream->good()) throw std::runtime_error("Unexpected stream IO error! Stream is broken - please reset manually.")
+
 namespace libjaguar {
 	Reader::Reader(std::unique_ptr<std::istream>&& istream) : stream(std::move(istream)) {}
 
@@ -33,6 +36,7 @@ namespace libjaguar {
 		for(uint8_t i = 0; i < bytes; ++i) {
 			//Read the next byte
 			const uint8_t byte = stream->get();
+			STREAMCHECK;
 
 			//Apply it to the appropriate position in the work value
 			work |= (uint64_t(byte) << (i * 8));
@@ -46,6 +50,7 @@ namespace libjaguar {
 		if(!stream) return false;
 
 		uint8_t byte = stream->get();
+		STREAMCHECK;
 		if(byte > 1) throw std::runtime_error("Read byte is not a possible boolean value!");
 		return byte == 1;
 	}
@@ -59,6 +64,7 @@ namespace libjaguar {
 
 		//Extract data
 		stream->read(data.data(), length);
+		STREAMCHECK;
 
 		//Check UTF-8 and return
 		if(!internal::CheckUTF8(data)) throw std::runtime_error("Read string is not valid UTF-8!");
@@ -74,6 +80,7 @@ namespace libjaguar {
 
 		//Extract data and return
 		stream->read(reinterpret_cast<char*>(data.data()), byteCount);
+		STREAMCHECK;
 		return data;
 	}
 
@@ -96,6 +103,7 @@ namespace libjaguar {
 
 		//Read and validate type tag
 		uint8_t tagByte = stream->get();
+		STREAMCHECK;
 		if(!ValidateTypeTag(tagByte)) throw std::runtime_error("Read TypeTag is invalid!");
 		uint8_t upperNibble = (tagByte & 0b1111'0000) >> 4;
 		header.type = (TypeTag)tagByte;
@@ -106,6 +114,7 @@ namespace libjaguar {
 		if(nameLen == 0) throw std::runtime_error("Read name string is empty!");
 		header.name.resize(nameLen);
 		stream->read(header.name.data(), nameLen);
+		STREAMCHECK;
 		if(!internal::CheckUTF8(header.name)) throw std::runtime_error("Read name string is not valid UTF-8!");
 
 		//For simple types, we're done
@@ -117,6 +126,7 @@ namespace libjaguar {
 			case TypeTag::List: {
 				//Get element TypeTag
 				uint8_t elemTagByte = stream->get();
+				STREAMCHECK;
 				if(!ValidateTypeTag(elemTagByte)) throw std::runtime_error("Encountered invalid element TypeTag!");
 				header.elementType = (TypeTag)elemTagByte;
 
@@ -127,6 +137,7 @@ namespace libjaguar {
 			case TypeTag::Vector: {
 				//Get element TypeTag
 				uint8_t elemTagByte = stream->get();
+				STREAMCHECK;
 				if(!ValidateTypeTag(elemTagByte)) throw std::runtime_error("Encountered invalid element TypeTag!");
 				header.elementType = (TypeTag)elemTagByte;
 
@@ -137,6 +148,7 @@ namespace libjaguar {
 			case TypeTag::Matrix: {
 				//Get element TypeTag
 				uint8_t elemTagByte = stream->get();
+				STREAMCHECK;
 				if(!ValidateTypeTag(elemTagByte)) throw std::runtime_error("Encountered invalid element TypeTag!");
 				header.elementType = (TypeTag)elemTagByte;
 
@@ -152,6 +164,7 @@ namespace libjaguar {
 				if(typeIDLen == 0) throw std::runtime_error("Encountered empty type ID string!");
 				header.typeID.resize(typeIDLen);
 				stream->read(header.typeID.data(), typeIDLen);
+				STREAMCHECK;
 				if(!internal::CheckUTF8(header.typeID)) throw std::runtime_error("Encountered a type ID string that is not valid UTF-8!");
 
 				//Break for StructuredObj (StructuredObjTypeDecl has same next field as UnstructuredObj so we intentionally fallthrough there)
