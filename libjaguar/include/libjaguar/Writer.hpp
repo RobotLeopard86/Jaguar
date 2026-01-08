@@ -109,6 +109,7 @@ namespace libjaguar {
 		 * @param value The string to write
 		 *
 		 * @throws std::runtime_error If the string is not valid UTF-8
+		 * @throws std::runtime_error If the string is longer than the 24-bit integer limit for string legnths
 		 */
 		void WriteString(const std::string& value);
 

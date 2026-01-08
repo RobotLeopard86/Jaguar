@@ -28,7 +28,7 @@ namespace libjaguar {
 	}
 
 	uint64_t Reader::_ReadIntegerInternal(uint8_t bits) {
-		if(!stream) return UINT64_MAX;
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 
 		//Read integer stored in little endian
 		const uint8_t bytes = bits / 8;
@@ -47,7 +47,7 @@ namespace libjaguar {
 	}
 
 	bool Reader::ReadBool() {
-		if(!stream) return false;
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 
 		uint8_t byte = stream->get();
 		STREAMCHECK;
@@ -56,7 +56,8 @@ namespace libjaguar {
 	}
 
 	std::string Reader::ReadString(uint32_t length) {
-		if(!stream) return "";
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
+		if(length >= std::pow(2, 24)) throw std::runtime_error("String is longer than maximum legal size!");
 
 		//Setup string
 		std::string data;
@@ -68,19 +69,6 @@ namespace libjaguar {
 
 		//Check UTF-8 and return
 		if(!internal::CheckUTF8(data)) throw std::runtime_error("Read string is not valid UTF-8!");
-		return data;
-	}
-
-	std::vector<unsigned char> Reader::ReadBuffer(uint64_t byteCount) {
-		if(!stream) return {};
-
-		//Setup target buffer
-		std::vector<unsigned char> data;
-		data.resize(byteCount);
-
-		//Extract data and return
-		stream->read(reinterpret_cast<char*>(data.data()), byteCount);
-		STREAMCHECK;
 		return data;
 	}
 
@@ -96,7 +84,7 @@ namespace libjaguar {
 	}
 
 	ValueHeader Reader::ReadHeader() {
-		if(!stream) return {};
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 
 		//Create result object
 		ValueHeader header;
@@ -175,13 +163,10 @@ namespace libjaguar {
 				header.fieldCount = (uint16_t)_ReadIntegerInternal(16);
 				break;
 			case TypeTag::String:
-				//Get string size
-				header.size = (uint32_t)_ReadIntegerInternal(32);
-				break;
 			case TypeTag::ByteBuffer:
 			case TypeTag::Substream:
 				//Get buffer size
-				header.bufferSize = _ReadIntegerInternal(64);
+				header.size = _ReadIntegerInternal(32);
 				break;
 			default: break;
 		}

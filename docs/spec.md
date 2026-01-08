@@ -202,7 +202,7 @@ Objects **may** be nested up to a maximum depth of 64. If the maximum nesting de
 If an object does not contain the amount of fields specified (which may be detected using scope boundary `Values` if they are found earlier than expected or not present where they are expected), decoders **may** either declare the stream invalid and terminate decoding **or**, if the boundary object was found early attempt recovery, **may** attempt to recover following the same procedure as the maximum nesting depth reached.
 
 ## 8. Buffer Values
-Buffer-type `Value`s are fairly straightforward. Their header consists of an unsigned integer size (32 bits for strings, 64 for byte buffers and substreams), and the body is simply the data.  
+Buffer-type `Value`s are fairly straightforward. Their header consists of an 32-bit integer size (capped at the 24-bit integer limit for strings, which is roughly 16 MiB), and the body is simply the data.  
 
 Per the rules from section 0, all strings must be encoded in UTF-8. This does not apply to data within byte buffers, of course.  
 

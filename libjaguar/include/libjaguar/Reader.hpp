@@ -7,11 +7,67 @@
 #include <bit>
 #include <istream>
 #include <cstdint>
+#include <span>
 #include <type_traits>
 #include <memory>
-#include <vector>
 
 namespace libjaguar {
+	/**
+	 * @brief Abstraction for accessing a scoped area of the byte stream
+	 *
+	 * This class may not be copied or moved; it belongs to the Reader that created it. As such, it is prone to being messed up by other stream operations.
+	 * You should avoid performing other stream operations until you are done with this object.
+	 */
+	class LJAPI ScopedReadView {
+	  public:
+		/**
+		 * @brief Read some bytes from the stream into the buffer
+		 *
+		 * @param out The destination to write to
+		 * @param byteCount The number of bytes to read
+		 *
+		 * @throws std::runtime_error If the byte count to read exceeds the size of the output buffer
+		 * @throws std::runtime_error If the byte count to read exceeds the number of remaining bytes
+		 * @throws std::runtime_error If an IO error occurs while reading
+		 */
+		void Read(std::span<unsigned char>& out, uint32_t byteCount);
+
+		/**
+		 * @brief Check how many bytes remain in the scoped view that may be read
+		 *
+		 * @return The number of bytes left
+		 */
+		uint32_t GetBytesRemaining();
+
+		/**
+		 * @brief Discard a certain amount of bytes
+		 * @param byteCount The number of bytes to read
+		 *
+		 * @throws std::runtime_error If the byte count to read exceeds the size of the output buffer
+		 * @throws std::runtime_error If the byte count to read exceeds the number of remaining bytes
+		 */
+		void Discard(uint32_t byteCount);
+
+		/**
+		 * @brief Discard the rest of the bytes in the view and advance the underlying stream to the end of the view
+		 */
+		void DiscardAll();
+
+		///@cond
+		ScopedReadView(const ScopedReadView&) = delete;
+		ScopedReadView& operator=(const ScopedReadView&) = delete;
+		ScopedReadView(ScopedReadView&&) = delete;
+		ScopedReadView& operator=(const ScopedReadView&&) = delete;
+		///@endcond
+
+	  private:
+		ScopedReadView(std::istream* streamPtr, std::streamoff rangeBegin, std::streamoff rangeEnd);
+		friend class Reader;
+
+		std::istream* stream;
+		std::streamoff begin, end;
+	};
+
 	/**
 	 * @brief Low-level stateless Jaguar stream parser
 	 *
@@ -62,6 +118,7 @@ namespace libjaguar {
 		 * @throws std::runtime_error If the TypeTag found is invalid
 		 * @throws std::runtime_error If the value name string is empty or not valid UTF-8
 		 * @throws std::runtime_error If a element TypeTag is invalid (e.g. for a list)
+		 * @throws std::runtime_error If an IO error occurs while reading
 		 */
 		ValueHeader ReadHeader();
 
@@ -71,6 +128,8 @@ namespace libjaguar {
 		 * @tparam T The integer type - signed or unsigned from 8 to 64 bits
 		 *
 		 * @return The read integer
+		 *
+		 * @throws std::runtime_error If an IO error occurs while reading
 		 */
 		template<integer T>
 		T ReadInteger() {
@@ -83,6 +142,8 @@ namespace libjaguar {
 		 * @tparam T The type - float or double
 		 *
 		 * @return The read floating-point value
+		 *
+		 * @throws std::runtime_error If an IO error occurs while reading
 		 */
 		template<std::floating_point T>
 			requires std::is_same_v<T, float> || std::is_same_v<T, double>
@@ -100,6 +161,7 @@ namespace libjaguar {
 		 * @return The read boolean
 		 *
 		 * @throws std::runtime_error If the read value is not a possible boolean
+		 * @throws std::runtime_error If an IO error occurs while reading
 		 */
 		bool ReadBool();
 
@@ -111,18 +173,12 @@ namespace libjaguar {
 		 * @return The read string
 		 *
 		 * @throws std::runtime_error If the read string is invalid UTF-8
-		 * @throws std::runtime_error If the requested length is longer than the stream supports
+		 * @throws std::runtime_error If the requested length is larger than the 24-bit integer limit for allowed string lengths
+		 * @throws std::runtime_error If an IO error occurs while reading
 		 */
 		std::string ReadString(uint32_t length);
 
-		/**
-		 * @brief Read a certain amount of bytes from the stream as a buffer
-		 *
-		 * @param byteCount The number of bytes to read
-		 *
-		 * @return A buffer of the requested size
-		 */
-		std::vector<unsigned char> ReadBuffer(uint64_t byteCount);
+		//TODO: ReadBuffer rework
 
 	  private:
 		std::unique_ptr<std::istream> stream;

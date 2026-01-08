@@ -28,7 +28,7 @@ namespace libjaguar {
 	}
 
 	void Writer::_WriteIntegerInternal(uint64_t value, uint8_t bits) {
-		if(!stream) return;
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 
 		//Write out integer in little endian
 		const uint8_t bytes = bits / 8;
@@ -44,27 +44,28 @@ namespace libjaguar {
 	}
 
 	void Writer::WriteBool(bool value) {
-		if(!stream) return;
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 
 		uint8_t val = (value ? 1 : 0);
 		stream->put(val);
 	}
 
 	void Writer::WriteString(const std::string& value) {
-		if(!stream) return;
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 		if(!internal::CheckUTF8(value)) throw std::runtime_error("String is not valid UTF-8!");
+		if(value.size() >= std::pow(2, 24)) throw std::runtime_error("String is longer than maximum legal size!");
 
 		stream->write(value.data(), value.size());
 	}
 
 	void Writer::WriteBuffer(const std::span<std::byte>& value) {
-		if(!stream) return;
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 
 		stream->write(reinterpret_cast<const char*>(value.data()), value.size());
 	}
 
 	void Writer::WriteBufferFromStream(std::istream* istream, std::size_t length) {
-		if(!stream) return;
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 		if(istream == nullptr) throw std::runtime_error("Cannot write buffer from a null source stream!");
 		if(!(*istream)) throw std::runtime_error("Cannot write buffer from an invalid source stream!");
 
@@ -88,7 +89,7 @@ namespace libjaguar {
 	}
 
 	void Writer::WriteHeader(const ValueHeader& header, bool noIdentifier) {
-		if(!stream) return;
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 
 		//Scope boundary edge-case
 		if(header.type == TypeTag::ScopeBoundary) {
@@ -139,11 +140,9 @@ namespace libjaguar {
 				_WriteIntegerInternal(header.fieldCount, bits_v<decltype(header.fieldCount)>);
 				break;
 			case TypeTag::String:
-				_WriteIntegerInternal(header.size, bits_v<decltype(header.size)>);
-				break;
 			case TypeTag::ByteBuffer:
 			case TypeTag::Substream:
-				_WriteIntegerInternal(header.bufferSize, bits_v<decltype(header.bufferSize)>);
+				_WriteIntegerInternal(header.size, bits_v<decltype(header.size)>);
 				break;
 			default: break;
 		}
