@@ -332,6 +332,9 @@
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Reader.html">Class Reader</a></li>
 </ul>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1ScopedReadView.html">Class ScopedReadView</a></li>
+</ul>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Writer.html">Class Writer</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -428,13 +431,7 @@
 <dl class="cpp var">
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeader4sizeE">
 <span id="_CPPv3N9libjaguar11ValueHeader4sizeE"></span><span id="_CPPv2N9libjaguar11ValueHeader4sizeE"></span><span id="libjaguar::ValueHeader::size__uint32_t"></span><span class="target" id="structlibjaguar_1_1ValueHeader_1a65b2bcdd6c330a6d516252f36b115457"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeader4sizeE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Number of elements in a list or length of a string. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeader10bufferSizeE">
-<span id="_CPPv3N9libjaguar11ValueHeader10bufferSizeE"></span><span id="_CPPv2N9libjaguar11ValueHeader10bufferSizeE"></span><span id="libjaguar::ValueHeader::bufferSize__uint64_t"></span><span class="target" id="structlibjaguar_1_1ValueHeader_1ad62560926666610837a3c01163c3ad3b"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bufferSize</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeader10bufferSizeE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Size in bytes of a byte buffer or substream. </p>
+<dd><p>Number of elements in a list, or size of a buffer object (string, byte buffer, substream); string size must be less than 24-bit integer limit. </p>
 </dd></dl>
 
 <dl class="cpp var">
@@ -520,7 +517,6 @@
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader4nameE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::name</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader11elementTypeE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::elementType</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader4sizeE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::size</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader10bufferSizeE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::bufferSize</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader5widthE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::width</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader6heightE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::height</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader10fieldCountE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::fieldCount</span></code></a></li>

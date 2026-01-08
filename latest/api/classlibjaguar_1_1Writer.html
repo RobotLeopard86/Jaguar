@@ -55,7 +55,7 @@
     <link rel="icon" href="../_static/jaguar_logo.png"/>
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Enum TypeTag" href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html" />
-    <link rel="prev" title="Class Reader" href="classlibjaguar_1_1Reader.html" />
+    <link rel="prev" title="Class ScopedReadView" href="classlibjaguar_1_1ScopedReadView.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -331,6 +331,9 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Reader.html">Class Reader</a></li>
 </ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1ScopedReadView.html">Class ScopedReadView</a></li>
+</ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Class Writer</a></li>
 </ul>
@@ -509,7 +512,10 @@
 <dd class="field-odd"><p><strong>value</strong> – The string to write</p>
 </dd>
 <dt class="field-even">Throws<span class="colon">:</span></dt>
-<dd class="field-even"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the string is not valid UTF-8 </p>
+<dd class="field-even"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the string is not valid UTF-8 </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the string is longer than the 24-bit integer limit for string legnths </p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -562,12 +568,12 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="classlibjaguar_1_1Reader.html"
+       href="classlibjaguar_1_1ScopedReadView.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Class Reader</p>
+        <p class="prev-next-title">Class ScopedReadView</p>
       </div>
     </a>
     <a class="right-next"

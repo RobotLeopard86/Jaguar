@@ -678,7 +678,7 @@
 </section>
 <section id="buffer-values">
 <h2>8. Buffer Values<a class="headerlink" href="#buffer-values" title="Link to this heading"><span/></a></h2>
-<p>Buffer-type <code class="docutils literal notranslate"><span class="pre">Value</span></code>s are fairly straightforward. Their header consists of an unsigned integer size (32 bits for strings, 64 for byte buffers and substreams), and the body is simply the data.</p>
+<p>Buffer-type <code class="docutils literal notranslate"><span class="pre">Value</span></code>s are fairly straightforward. Their header consists of an 32-bit integer size (capped at the 24-bit integer limit for strings, which is roughly 16 MiB), and the body is simply the data.</p>
 <p>Per the rules from section 0, all strings must be encoded in UTF-8. This does not apply to data within byte buffers, of course.</p>
 <p>Byte buffers are a blob of raw bytes embedded in the Jaguar stream. They can contain whatever binary data you like. Decoders <strong>must not</strong> attempt to parse the contents of byte buffers themselves; this is reserved for the consuming application.</p>
 <section id="substreams">

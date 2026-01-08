@@ -54,7 +54,7 @@
         </script>
     <link rel="icon" href="../_static/jaguar_logo.png"/>
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Class Writer" href="classlibjaguar_1_1Writer.html" />
+    <link rel="next" title="Class ScopedReadView" href="classlibjaguar_1_1ScopedReadView.html" />
     <link rel="prev" title="Struct ValueHeader" href="structlibjaguar_1_1ValueHeader.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -332,6 +332,9 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Class Reader</a></li>
 </ul>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1ScopedReadView.html">Class ScopedReadView</a></li>
+</ul>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Writer.html">Class Writer</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -451,6 +454,7 @@
 <li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the TypeTag found is invalid </p></li>
 <li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the value name string is empty or not valid UTF-8 </p></li>
 <li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If a element TypeTag is invalid (e.g. for a list) </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If an IO error occurs while reading </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -467,8 +471,11 @@
 <dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>T</strong> – The integer type - signed or unsigned from 8 to 64 bits</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The read integer </p>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If an IO error occurs while reading </p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The read integer</p>
 </dd>
 </dl>
 </dd></dl>
@@ -481,8 +488,11 @@
 <dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>T</strong> – The type - float or double</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The read floating-point value </p>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If an IO error occurs while reading </p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The read floating-point value</p>
 </dd>
 </dl>
 </dd></dl>
@@ -493,7 +503,10 @@
 <dd><p>Read a boolean value from the stream. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Throws<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the read value is not a possible boolean </p>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the read value is not a possible boolean </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If an IO error occurs while reading </p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The read boolean</p>
@@ -512,25 +525,12 @@
 <dt class="field-even">Throws<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the read string is invalid UTF-8 </p></li>
-<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the requested length is longer than the stream supports </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the requested length is larger than the 24-bit integer limit for allowed string lengths </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If an IO error occurs while reading </p></li>
 </ul>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The read string</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Reader10ReadBufferE8uint64_t">
-<span id="_CPPv3N9libjaguar6Reader10ReadBufferE8uint64_t"></span><span id="_CPPv2N9libjaguar6Reader10ReadBufferE8uint64_t"></span><span id="libjaguar::Reader::ReadBuffer__uint64_t"></span><span class="target" id="classlibjaguar_1_1Reader_1aac3635e0857e8d8f9c2e1dc4f6c09b11"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ReadBuffer</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">byteCount</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Reader10ReadBufferE8uint64_t" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Read a certain amount of bytes from the stream as a buffer. </p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>byteCount</strong> – The number of bytes to read</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A buffer of the requested size </p>
 </dd>
 </dl>
 </dd></dl>
@@ -561,11 +561,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="classlibjaguar_1_1Writer.html"
+       href="classlibjaguar_1_1ScopedReadView.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Class Writer</p>
+        <p class="prev-next-title">Class ScopedReadView</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -598,7 +598,6 @@
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_NSt14floating_pointEEN9libjaguar6Reader9ReadFloatE1Tv"><code class="docutils literal notranslate"><span class="pre">Reader::ReadFloat()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Reader8ReadBoolEv"><code class="docutils literal notranslate"><span class="pre">Reader::ReadBool()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Reader10ReadStringE8uint32_t"><code class="docutils literal notranslate"><span class="pre">Reader::ReadString()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Reader10ReadBufferE8uint64_t"><code class="docutils literal notranslate"><span class="pre">Reader::ReadBuffer()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Namespace libjaguar &#8212; Jaguar Documentation</title>
+    <title>Class ScopedReadView &#8212; Jaguar Documentation</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js?v=73120307"></script>
     <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js?v=660e4f45"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/namespace_libjaguar';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/classlibjaguar_1_1ScopedReadView';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/RobotLeopard86/Jaguar/refs/heads/main/docs/switcher.json';
@@ -54,8 +54,8 @@
         </script>
     <link rel="icon" href="../_static/jaguar_logo.png"/>
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Struct ValueHeader" href="structlibjaguar_1_1ValueHeader.html" />
-    <link rel="prev" title="libjaguar API Reference" href="index.html" />
+    <link rel="next" title="Class Writer" href="classlibjaguar_1_1Writer.html" />
+    <link rel="prev" title="Class Reader" href="classlibjaguar_1_1Reader.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -322,8 +322,8 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Namespace libjaguar</a></li>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="namespace_libjaguar.html">Namespace libjaguar</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html">Struct ValueHeader</a></li>
@@ -331,8 +331,8 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Reader.html">Class Reader</a></li>
 </ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1ScopedReadView.html">Class ScopedReadView</a></li>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Class ScopedReadView</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Writer.html">Class Writer</a></li>
@@ -377,7 +377,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">libjaguar API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Namespace libjaguar</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Class ScopedReadView</span></li>
   </ul>
 </nav>
 </div>
@@ -394,29 +394,78 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="namespace-libjaguar">
-<span id="id1"></span><h1>Namespace libjaguar<a class="headerlink" href="#namespace-libjaguar" title="Link to this heading"><span/></a></h1>
-<nav class="contents local" id="contents">
-<p class="topic-title">Contents</p>
+  <section id="class-scopedreadview">
+<span id="exhale-class-classlibjaguar-1-1scopedreadview"></span><h1>Class ScopedReadView<a class="headerlink" href="#class-scopedreadview" title="Link to this heading"><span/></a></h1>
 <ul class="simple">
-<li><p><a class="reference internal" href="#classes" id="id2">Classes</a></p></li>
-<li><p><a class="reference internal" href="#enums" id="id3">Enums</a></p></li>
+<li><p>Defined in <a class="reference internal" href="file_libjaguar_include_libjaguar_Reader.hpp.html#file-libjaguar-include-libjaguar-reader-hpp"><span class="std std-ref">File Reader.hpp</span></a></p></li>
 </ul>
-</nav>
-<section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"><span/></a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#exhale-struct-structlibjaguar-1-1valueheader"><span class="std std-ref">Struct ValueHeader</span></a></p></li>
-<li><p><a class="reference internal" href="classlibjaguar_1_1Reader.html#exhale-class-classlibjaguar-1-1reader"><span class="std std-ref">Class Reader</span></a></p></li>
-<li><p><a class="reference internal" href="classlibjaguar_1_1ScopedReadView.html#exhale-class-classlibjaguar-1-1scopedreadview"><span class="std std-ref">Class ScopedReadView</span></a></p></li>
-<li><p><a class="reference internal" href="classlibjaguar_1_1Writer.html#exhale-class-classlibjaguar-1-1writer"><span class="std std-ref">Class Writer</span></a></p></li>
+<section id="class-documentation">
+<h2>Class Documentation<a class="headerlink" href="#class-documentation" title="Link to this heading"><span/></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar14ScopedReadViewE">
+<span id="_CPPv3N9libjaguar14ScopedReadViewE"></span><span id="_CPPv2N9libjaguar14ScopedReadViewE"></span><span id="libjaguar::ScopedReadView"></span><span class="target" id="classlibjaguar_1_1ScopedReadView"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ScopedReadView</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar14ScopedReadViewE" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Abstraction for accessing a scoped area of the byte stream. </p>
+<p>This class may not be copied or moved; it belongs to the <a class="reference internal" href="classlibjaguar_1_1Reader.html#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a> that created it. As such, it is prone to being messed up by other stream operations. You should avoid performing other stream operations until you are done with this object. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar14ScopedReadView4ReadERNSt4spanIhEE8uint32_t">
+<span id="_CPPv3N9libjaguar14ScopedReadView4ReadERNSt4spanIhEE8uint32_t"></span><span id="_CPPv2N9libjaguar14ScopedReadView4ReadERNSt4spanIhEE8uint32_t"></span><span id="libjaguar::ScopedReadView::Read__std::span:unsigned-c:R.uint32_t"></span><span class="target" id="classlibjaguar_1_1ScopedReadView_1aa72b6dcbe06b14a5bec2249de81d04cc"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Read</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">out</span></span>, <span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">byteCount</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar14ScopedReadView4ReadERNSt4spanIhEE8uint32_t" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Read some bytes from the stream into the buffer. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>out</strong> – The destination to write to </p></li>
+<li><p><strong>byteCount</strong> – The number of bytes to read</p></li>
 </ul>
-</section>
-<section id="enums">
-<h2>Enums<a class="headerlink" href="#enums" title="Link to this heading"><span/></a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html#exhale-enum-typetags-8hpp-1aeb1054c5aab114f844a08b5158020814"><span class="std std-ref">Enum TypeTag</span></a></p></li>
+</dd>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the byte count to read exceeds the size of the output buffer </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the byte count to read exceeds the number of remaining bytes </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If an IO error occurs while reading </p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar14ScopedReadView17GetBytesRemainingEv">
+<span id="_CPPv3N9libjaguar14ScopedReadView17GetBytesRemainingEv"></span><span id="_CPPv2N9libjaguar14ScopedReadView17GetBytesRemainingEv"></span><span id="libjaguar::ScopedReadView::GetBytesRemaining"></span><span class="target" id="classlibjaguar_1_1ScopedReadView_1a83dff3c879a5d77f22cdd3417852e87c"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetBytesRemaining</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar14ScopedReadView17GetBytesRemainingEv" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Check how many bytes remain in the scoped view that may be read. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of bytes left </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar14ScopedReadView7DiscardE8uint32_t">
+<span id="_CPPv3N9libjaguar14ScopedReadView7DiscardE8uint32_t"></span><span id="_CPPv2N9libjaguar14ScopedReadView7DiscardE8uint32_t"></span><span id="libjaguar::ScopedReadView::Discard__uint32_t"></span><span class="target" id="classlibjaguar_1_1ScopedReadView_1a7f5391290f250132b539ae33c9414ea5"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Discard</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">byteCount</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar14ScopedReadView7DiscardE8uint32_t" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Discard a certain amount of bytes. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>byteCount</strong> – The number of bytes to read</p>
+</dd>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the byte count to read exceeds the size of the output buffer </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the byte count to read exceeds the number of remaining bytes </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar14ScopedReadView10DiscardAllEv">
+<span id="_CPPv3N9libjaguar14ScopedReadView10DiscardAllEv"></span><span id="_CPPv2N9libjaguar14ScopedReadView10DiscardAllEv"></span><span id="libjaguar::ScopedReadView::DiscardAll"></span><span class="target" id="classlibjaguar_1_1ScopedReadView_1a485c7f6c72b1380ea9cc45b73d2a8867"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DiscardAll</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar14ScopedReadView10DiscardAllEv" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Discard the rest of the bytes in the view and advance the underlying stream to the end of the view. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
 </section>
 </section>
 
@@ -431,20 +480,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="index.html"
+       href="classlibjaguar_1_1Reader.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">libjaguar API Reference</p>
+        <p class="prev-next-title">Class Reader</p>
       </div>
     </a>
     <a class="right-next"
-       href="structlibjaguar_1_1ValueHeader.html"
+       href="classlibjaguar_1_1Writer.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Struct ValueHeader</p>
+        <p class="prev-next-title">Class Writer</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -467,8 +516,16 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#enums">Enums</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-documentation">Class Documentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar14ScopedReadViewE"><code class="docutils literal notranslate"><span class="pre">ScopedReadView</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar14ScopedReadView4ReadERNSt4spanIhEE8uint32_t"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::Read()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar14ScopedReadView17GetBytesRemainingEv"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::GetBytesRemaining()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar14ScopedReadView7DiscardE8uint32_t"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::Discard()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar14ScopedReadView10DiscardAllEv"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::DiscardAll()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
