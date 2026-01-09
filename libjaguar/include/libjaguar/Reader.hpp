@@ -29,6 +29,7 @@ namespace libjaguar {
 		 * @throws std::runtime_error If the byte count to read exceeds the size of the output buffer
 		 * @throws std::runtime_error If the byte count to read exceeds the number of remaining bytes
 		 * @throws std::runtime_error If an IO error occurs while reading
+		 * @throws std::runtime_error If the view is invalid
 		 */
 		void Read(std::span<unsigned char>& out, uint32_t byteCount);
 
@@ -36,22 +37,34 @@ namespace libjaguar {
 		 * @brief Check how many bytes remain in the scoped view that may be read
 		 *
 		 * @return The number of bytes left
+		 *
+		 * @throws std::runtime_error If the view is invalid
 		 */
-		uint32_t GetBytesRemaining();
+		uint32_t GetBytesRemaining() const;
 
 		/**
 		 * @brief Discard a certain amount of bytes
 		 * @param byteCount The number of bytes to read
 		 *
-		 * @throws std::runtime_error If the byte count to read exceeds the size of the output buffer
 		 * @throws std::runtime_error If the byte count to read exceeds the number of remaining bytes
+		 * @throws std::runtime_error If an IO error occurs
+		 * @throws std::runtime_error If the view is invalid
 		 */
 		void Discard(uint32_t byteCount);
 
 		/**
 		 * @brief Discard the rest of the bytes in the view and advance the underlying stream to the end of the view
+		 *
+		 * @throws std::runtime_error If the view is invalid
 		 */
 		void DiscardAll();
+
+		/**
+		 * @brief Check if the view is still valid
+		 */
+		bool IsValid() const noexcept {
+			return valid;
+		}
 
 		///@cond
 		ScopedReadView(const ScopedReadView&) = delete;
@@ -61,11 +74,12 @@ namespace libjaguar {
 		///@endcond
 
 	  private:
-		ScopedReadView(std::istream* streamPtr, std::streamoff rangeBegin, std::streamoff rangeEnd);
+		ScopedReadView(std::istream* streamPtr, std::streamoff size);
 		friend class Reader;
 
 		std::istream* stream;
-		std::streamoff begin, end;
+		std::streampos end;
+		bool valid;
 	};
 
 	/**
@@ -178,11 +192,23 @@ namespace libjaguar {
 		 */
 		std::string ReadString(uint32_t length);
 
-		//TODO: ReadBuffer rework
+		/**
+		 * @brief Access a region of bytes from the stream
+		 *
+		 * @param length The size in bytes of the region to access
+		 *
+		 * @return A reference to a scoped view to read from that region, replacing the previous view if one exists
+		 *
+		 * @warning While a view is active, the rest of the Reader's functionality will be disabled. Use the DiscardAll function
+		 * to deactivate the view and continue reading.
+		 */
+		ScopedReadView& ReadBuffer(uint32_t length);
 
 	  private:
 		std::unique_ptr<std::istream> stream;
+		std::unique_ptr<ScopedReadView> view;
 
 		uint64_t _ReadIntegerInternal(uint8_t bits);
+		void VerifyOk();
 	};
 }

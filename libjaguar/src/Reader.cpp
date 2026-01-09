@@ -19,16 +19,35 @@ namespace libjaguar {
 		return *this;
 	}
 
+	void Reader::VerifyOk() {
+		//Check stream integrity
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
+		if(!stream->good()) throw std::runtime_error("Cannot perform operations with a broken stream!");
+
+		//Check read view state
+		if(view) {
+			if(view->GetBytesRemaining() == 0 || !view->valid) {
+				//The view is exhausted or invalid, we can destroy it and proceed
+				view.reset();
+			} else {
+				//The view is still active - operation not allowed
+				throw std::runtime_error("Cannot perform operations while a ScopedReadView is active!");
+			}
+		}
+	}
+
 	std::istream* Reader::operator->() {
+		if(view && (view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
 		return (stream ? stream.get() : nullptr);
 	}
 
 	std::istream* Reader::operator*() {
+		if(view && (view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
 		return (stream ? stream.get() : nullptr);
 	}
 
 	uint64_t Reader::_ReadIntegerInternal(uint8_t bits) {
-		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
+		VerifyOk();
 
 		//Read integer stored in little endian
 		const uint8_t bytes = bits / 8;
@@ -47,7 +66,7 @@ namespace libjaguar {
 	}
 
 	bool Reader::ReadBool() {
-		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
+		VerifyOk();
 
 		uint8_t byte = stream->get();
 		STREAMCHECK;
@@ -56,7 +75,7 @@ namespace libjaguar {
 	}
 
 	std::string Reader::ReadString(uint32_t length) {
-		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
+		VerifyOk();
 		if(length >= std::pow(2, 24)) throw std::runtime_error("String is longer than maximum legal size!");
 
 		//Setup string
@@ -83,8 +102,16 @@ namespace libjaguar {
 		return true;
 	}
 
+	ScopedReadView& Reader::ReadBuffer(uint32_t length) {
+		VerifyOk();
+
+		//Setup view and return
+		view.reset(new ScopedReadView(stream.get(), length));
+		return *view;
+	}
+
 	ValueHeader Reader::ReadHeader() {
-		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
+		VerifyOk();
 
 		//Create result object
 		ValueHeader header;
@@ -171,5 +198,35 @@ namespace libjaguar {
 			default: break;
 		}
 		return header;
+	}
+
+	ScopedReadView::ScopedReadView(std::istream* streamPtr, std::streamoff size)
+	  : stream(streamPtr), end(stream->tellg() + size), valid(true) {}
+
+	void ScopedReadView::Read(std::span<unsigned char>& out, uint32_t byteCount) {
+		if(!valid) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
+		if(byteCount > out.size_bytes()) throw std::runtime_error("Byte read count exceeds the size of the output buffer!");
+		if(byteCount > GetBytesRemaining()) throw std::runtime_error("Byte read count exceeds number of remaining bytes!");
+
+		stream->read(reinterpret_cast<char*>(out.data()), byteCount);
+		STREAMCHECK;
+	}
+
+	uint32_t ScopedReadView::GetBytesRemaining() const {
+		if(!valid) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
+		return end - stream->tellg();
+	}
+
+	void ScopedReadView::Discard(uint32_t byteCount) {
+		if(!valid) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
+		if(byteCount > GetBytesRemaining()) throw std::runtime_error("Byte discard count exceeds number of remaining bytes!");
+
+		stream->ignore(byteCount);
+		STREAMCHECK;
+	}
+
+	void ScopedReadView::DiscardAll() {
+		if(!valid) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
+		Discard(GetBytesRemaining());
 	}
 }
