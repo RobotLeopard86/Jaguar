@@ -535,6 +535,24 @@
 </dl>
 </dd></dl>
 
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Reader10ReadBufferE8uint32_t">
+<span id="_CPPv3N9libjaguar6Reader10ReadBufferE8uint32_t"></span><span id="_CPPv2N9libjaguar6Reader10ReadBufferE8uint32_t"></span><span id="libjaguar::Reader::ReadBuffer__uint32_t"></span><span class="target" id="classlibjaguar_1_1Reader_1ac88b552d6494d190efcb81ec5ed735d9"></span><a class="reference internal" href="classlibjaguar_1_1ScopedReadView.html#_CPPv4N9libjaguar14ScopedReadViewE" title="libjaguar::ScopedReadView"><span class="n"><span class="pre">ScopedReadView</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">ReadBuffer</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">length</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Reader10ReadBufferE8uint32_t" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Access a region of bytes from the stream. </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>While a view is active, the rest of the <a class="reference internal" href="#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a>’s functionality will be disabled. Use the DiscardAll function to deactivate the view and continue reading. </p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>length</strong> – The size in bytes of the region to access</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A reference to a scoped view to read from that region, replacing the previous view if one exists</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </dd></dl>
 
@@ -598,6 +616,7 @@
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_NSt14floating_pointEEN9libjaguar6Reader9ReadFloatE1Tv"><code class="docutils literal notranslate"><span class="pre">Reader::ReadFloat()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Reader8ReadBoolEv"><code class="docutils literal notranslate"><span class="pre">Reader::ReadBool()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Reader10ReadStringE8uint32_t"><code class="docutils literal notranslate"><span class="pre">Reader::ReadString()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Reader10ReadBufferE8uint32_t"><code class="docutils literal notranslate"><span class="pre">Reader::ReadBuffer()</span></code></a></li>
 </ul>
 </li>
 </ul>
