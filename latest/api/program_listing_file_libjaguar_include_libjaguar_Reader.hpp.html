@@ -389,15 +389,20 @@
 <span class="k">namespace</span><span class="w"> </span><span class="nn">libjaguar</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">ScopedReadView</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="k">public</span><span class="o">:</span>
-<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="n">Read</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">byteCount</span><span class="p">);</span>
+<span class="w">        </span><span class="k">template</span><span class="o">&lt;</span><span class="n">byte_range</span><span class="w"> </span><span class="n">R</span><span class="o">&gt;</span>
+<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="n">Read</span><span class="p">(</span><span class="n">R</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">byteCount</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">span</span><span class="p">(</span><span class="n">out</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">out</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="w">            </span><span class="n">_ReadInternal</span><span class="p">(</span><span class="n">span</span><span class="p">,</span><span class="w"> </span><span class="n">byteCount</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
 
-<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">GetBytesRemaining</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">GetBytesRemaining</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
 
 <span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">Discard</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">byteCount</span><span class="p">);</span>
 
 <span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">DiscardAll</span><span class="p">();</span>
 
-<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsValid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsValid</span><span class="p">()</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">stream</span><span class="o">-&gt;</span><span class="n">good</span><span class="p">())</span><span class="w"> </span><span class="n">valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">valid</span><span class="p">;</span>
 <span class="w">        </span><span class="p">}</span>
 
@@ -413,6 +418,9 @@
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">istream</span><span class="o">*</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">streampos</span><span class="w"> </span><span class="n">end</span><span class="p">;</span>
 <span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">valid</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">eof</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">_ReadInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">byte</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">byteCount</span><span class="p">);</span>
 <span class="w">    </span><span class="p">};</span>
 
 <span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">Reader</span><span class="w"> </span><span class="p">{</span>
@@ -449,7 +457,7 @@
 
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">ReadString</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">length</span><span class="p">);</span>
 
-<span class="w">        </span><span class="n">ScopedReadView</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">ReadBuffer</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">length</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ScopedReadView</span><span class="o">*</span><span class="w"> </span><span class="nf">ReadBuffer</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">length</span><span class="p">);</span>
 
 <span class="w">      </span><span class="k">private</span><span class="o">:</span>
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">istream</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>

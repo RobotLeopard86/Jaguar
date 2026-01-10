@@ -409,8 +409,8 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar14ScopedReadView4ReadERNSt4spanIhEE8uint32_t">
-<span id="_CPPv3N9libjaguar14ScopedReadView4ReadERNSt4spanIhEE8uint32_t"></span><span id="_CPPv2N9libjaguar14ScopedReadView4ReadERNSt4spanIhEE8uint32_t"></span><span id="libjaguar::ScopedReadView::Read__std::span:unsigned-c:R.uint32_t"></span><span class="target" id="classlibjaguar_1_1ScopedReadView_1aa72b6dcbe06b14a5bec2249de81d04cc"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Read</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">out</span></span>, <span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">byteCount</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar14ScopedReadView4ReadERNSt4spanIhEE8uint32_t" title="Link to this definition"><span/></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I_10byte_rangeEN9libjaguar14ScopedReadView4ReadEvR1R8uint32_t">
+<span id="_CPPv3I_10byte_rangeEN9libjaguar14ScopedReadView4ReadER1R8uint32_t"></span><span id="_CPPv2I_10byte_rangeEN9libjaguar14ScopedReadView4ReadER1R8uint32_t"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">byte_range</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">R</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classlibjaguar_1_1ScopedReadView_1a2c11250555cd6345e136fc8e91c69a82"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Read</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I_10byte_rangeEN9libjaguar14ScopedReadView4ReadEvR1R8uint32_t" title="libjaguar::ScopedReadView::Read::R"><span class="n"><span class="pre">R</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">out</span></span>, <span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">byteCount</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I_10byte_rangeEN9libjaguar14ScopedReadView4ReadEvR1R8uint32_t" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Read some bytes from the stream into the buffer. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -474,9 +474,14 @@
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4NK9libjaguar14ScopedReadView7IsValidEv">
-<span id="_CPPv3NK9libjaguar14ScopedReadView7IsValidEv"></span><span id="_CPPv2NK9libjaguar14ScopedReadView7IsValidEv"></span><span id="libjaguar::ScopedReadView::IsValidC"></span><span class="target" id="classlibjaguar_1_1ScopedReadView_1a16fe20ebb41915b53a03b9f031c023d1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IsValid</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK9libjaguar14ScopedReadView7IsValidEv" title="Link to this definition"><span/></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar14ScopedReadView7IsValidEv">
+<span id="_CPPv3N9libjaguar14ScopedReadView7IsValidEv"></span><span id="_CPPv2N9libjaguar14ScopedReadView7IsValidEv"></span><span id="libjaguar::ScopedReadView::IsValid"></span><span class="target" id="classlibjaguar_1_1ScopedReadView_1a9fef118b86cf5b6017707c79c2276493"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IsValid</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4N9libjaguar14ScopedReadView7IsValidEv" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Check if the view is still valid. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The view’s validity state </p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -534,11 +539,11 @@
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-documentation">Class Documentation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar14ScopedReadViewE"><code class="docutils literal notranslate"><span class="pre">ScopedReadView</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar14ScopedReadView4ReadERNSt4spanIhEE8uint32_t"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::Read()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_10byte_rangeEN9libjaguar14ScopedReadView4ReadEvR1R8uint32_t"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::Read()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK9libjaguar14ScopedReadView17GetBytesRemainingEv"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::GetBytesRemaining()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar14ScopedReadView7DiscardE8uint32_t"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::Discard()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar14ScopedReadView10DiscardAllEv"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::DiscardAll()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK9libjaguar14ScopedReadView7IsValidEv"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::IsValid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar14ScopedReadView7IsValidEv"><code class="docutils literal notranslate"><span class="pre">ScopedReadView::IsValid()</span></code></a></li>
 </ul>
 </li>
 </ul>

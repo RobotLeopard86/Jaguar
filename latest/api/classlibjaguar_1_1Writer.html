@@ -521,12 +521,15 @@
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Writer11WriteBufferERKNSt4spanINSt4byteEEE">
-<span id="_CPPv3N9libjaguar6Writer11WriteBufferERKNSt4spanINSt4byteEEE"></span><span id="_CPPv2N9libjaguar6Writer11WriteBufferERKNSt4spanINSt4byteEEE"></span><span id="libjaguar::Writer::WriteBuffer__std::span:std::byte:CR"></span><span class="target" id="classlibjaguar_1_1Writer_1aaddaaa677c2f57b1c5f0dd2d6ed4daec"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WriteBuffer</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">span</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">byte</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Writer11WriteBufferERKNSt4spanINSt4byteEEE" title="Link to this definition"><span/></a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4I_10byte_rangeEN9libjaguar6Writer11WriteBufferEvRK1R">
+<span id="_CPPv3I_10byte_rangeEN9libjaguar6Writer11WriteBufferERK1R"></span><span id="_CPPv2I_10byte_rangeEN9libjaguar6Writer11WriteBufferERK1R"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">byte_range</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">R</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classlibjaguar_1_1Writer_1a21f99e67cffea4126f5a0ddad9a8d766"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">WriteBuffer</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_10byte_rangeEN9libjaguar6Writer11WriteBufferEvRK1R" title="libjaguar::Writer::WriteBuffer::R"><span class="n"><span class="pre">R</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I_10byte_rangeEN9libjaguar6Writer11WriteBufferEvRK1R" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Write a buffer to the stream. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>value</strong> – The buffer to write </p>
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>R</strong> – The container type to source the buffer from</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>value</strong> – The buffer to write </p>
 </dd>
 </dl>
 </dd></dl>
@@ -614,7 +617,7 @@
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_NSt14floating_pointEEN9libjaguar6Writer10WriteFloatEv1T"><code class="docutils literal notranslate"><span class="pre">Writer::WriteFloat()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer9WriteBoolEb"><code class="docutils literal notranslate"><span class="pre">Writer::WriteBool()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer11WriteStringERKNSt6stringE"><code class="docutils literal notranslate"><span class="pre">Writer::WriteString()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer11WriteBufferERKNSt4spanINSt4byteEEE"><code class="docutils literal notranslate"><span class="pre">Writer::WriteBuffer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_10byte_rangeEN9libjaguar6Writer11WriteBufferEvRK1R"><code class="docutils literal notranslate"><span class="pre">Writer::WriteBuffer()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar6Writer21WriteBufferFromStreamEPNSt7istreamENSt6size_tE"><code class="docutils literal notranslate"><span class="pre">Writer::WriteBufferFromStream()</span></code></a></li>
 </ul>
 </li>
