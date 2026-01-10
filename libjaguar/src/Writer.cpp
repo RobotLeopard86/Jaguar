@@ -7,7 +7,7 @@
 #include <array>
 #include <stdexcept>
 #include <algorithm>
-#include <sys/types.h>
+#include <cmath>
 
 namespace libjaguar {
 	Writer::Writer(std::unique_ptr<std::ostream>&& ostream) : stream(std::move(ostream)) {}
@@ -43,6 +43,12 @@ namespace libjaguar {
 		}
 	}
 
+	void Writer::_WriteBufferInternal(std::span<std::byte>& value) {
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
+
+		stream->write(reinterpret_cast<const char*>(value.data()), value.size());
+	}
+
 	void Writer::WriteBool(bool value) {
 		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 
@@ -56,12 +62,6 @@ namespace libjaguar {
 		if(value.size() >= std::pow(2, 24)) throw std::runtime_error("String is longer than maximum legal size!");
 
 		stream->write(value.data(), value.size());
-	}
-
-	void Writer::WriteBuffer(const std::span<std::byte>& value) {
-		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
-
-		stream->write(reinterpret_cast<const char*>(value.data()), value.size());
 	}
 
 	void Writer::WriteBufferFromStream(std::istream* istream, std::size_t length) {

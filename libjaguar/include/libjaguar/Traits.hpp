@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <ranges>
 #include <type_traits>
 
 namespace libjaguar {
@@ -76,5 +77,20 @@ namespace libjaguar {
 
 	template<number T>
 	inline constexpr uint8_t bits_v = bits<T>::value;
+
+	template<typename T>
+	struct is_byte_range : public std::false_type {
+	};
+
+	template<std::ranges::range T>
+		requires std::is_same_v<unsigned char, std::ranges::range_value_t<T>> || std::is_same_v<std::byte, std::ranges::range_value_t<T>>
+	struct is_byte_range<T> : public std::true_type {
+	};
+
+	template<typename T>
+	inline constexpr bool is_byte_range_v = is_byte_range<T>::value;
+
+	template<typename T>
+	concept byte_range = std::ranges::range<T> && is_byte_range_v<T>;
 	///@endcond
 }

@@ -7,6 +7,7 @@
 #include <bit>
 #include <ostream>
 #include <cstdint>
+#include <ranges>
 #include <type_traits>
 #include <span>
 #include <memory>
@@ -116,9 +117,15 @@ namespace libjaguar {
 		/**
 		 * @brief Write a buffer to the stream
 		 *
+		 * @tparam R The container type to source the buffer from
+		 *
 		 * @param value The buffer to write
 		 */
-		void WriteBuffer(const std::span<std::byte>& value);
+		template<byte_range R>
+		void WriteBuffer(const R& value) {
+			std::span<std::byte> span(value.begin(), value.end());
+			_WriteBufferInternal(span);
+		}
 
 		/**
 		 * @brief Write a buffer to the stream from another stream
@@ -135,5 +142,6 @@ namespace libjaguar {
 		std::unique_ptr<std::ostream> stream;
 
 		void _WriteIntegerInternal(uint64_t value, uint8_t bits);
+		void _WriteBufferInternal(std::span<std::byte>& value);
 	};
 }

@@ -31,7 +31,11 @@ namespace libjaguar {
 		 * @throws std::runtime_error If an IO error occurs while reading
 		 * @throws std::runtime_error If the view is invalid
 		 */
-		void Read(std::span<unsigned char>& out, uint32_t byteCount);
+		template<byte_range R>
+		void Read(R& out, uint32_t byteCount) {
+			std::span<std::byte> span(out.begin(), out.end());
+			_ReadInternal(span, byteCount);
+		}
 
 		/**
 		 * @brief Check how many bytes remain in the scoped view that may be read
@@ -61,8 +65,11 @@ namespace libjaguar {
 
 		/**
 		 * @brief Check if the view is still valid
+		 *
+		 * @return The view's validity state
 		 */
-		bool IsValid() const noexcept {
+		bool IsValid() noexcept {
+			if(!stream->good()) valid = false;
 			return valid;
 		}
 
@@ -80,6 +87,9 @@ namespace libjaguar {
 		std::istream* stream;
 		std::streampos end;
 		bool valid;
+		bool eof;
+
+		void _ReadInternal(std::span<std::byte>& out, uint32_t byteCount);
 	};
 
 	/**
@@ -197,12 +207,17 @@ namespace libjaguar {
 		 *
 		 * @param length The size in bytes of the region to access
 		 *
-		 * @return A reference to a scoped view to read from that region, replacing the previous view if one exists
+		 * @return A non-owning pointer to a scoped view to read from that region, replacing the previous view if one exists
 		 *
-		 * @warning While a view is active, the rest of the Reader's functionality will be disabled. Use the DiscardAll function
+		 * @warning While a view is active, the rest of the Reader's functionality will be disabled. Use the @c DiscardAll function
 		 * to deactivate the view and continue reading.
+		 *
+		 * @warning <b>Do not delete this pointer!</b> Its lifetime is controlled by the Reader and will be freed by it at the appropriate time. This pointer will remain valid until one of the following occurs:
+		 * 1. @c ReadBuffer is called again, invalidating the view this pointer references
+		 * 2. The Reader is destroyed
+		 * 3. The Reader is moved from
 		 */
-		ScopedReadView& ReadBuffer(uint32_t length);
+		ScopedReadView* ReadBuffer(uint32_t length);
 
 	  private:
 		std::unique_ptr<std::istream> stream;

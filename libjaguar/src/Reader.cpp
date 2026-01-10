@@ -5,9 +5,21 @@
 
 #include <cstdint>
 #include <stdexcept>
+#include <cmath>
 
-#define STREAMCHECK \
-	if(!stream->good()) throw std::runtime_error("Unexpected stream IO error! Stream is broken - please reset manually.")
+#define STREAMCHECK                                                          \
+	if(stream->eof()) throw std::runtime_error("Unexpected EOF in stream!"); \
+	if(!stream->good()) throw std::runtime_error("Unexpected stream IO error!")
+
+#define VIEW_STREAMCHECK                                                                                   \
+	if(stream->eof()) {                                                                                    \
+		valid = false;                                                                                     \
+		throw std::runtime_error("Unexpected EOF in stream! View is now invalid; do not continue use.");   \
+	}                                                                                                      \
+	if(!stream->good()) {                                                                                  \
+		valid = false;                                                                                     \
+		throw std::runtime_error("Unexpected stream IO error! View is now invalid; do not continue use."); \
+	}
 
 namespace libjaguar {
 	Reader::Reader(std::unique_ptr<std::istream>&& istream) : stream(std::move(istream)) {}
@@ -28,6 +40,7 @@ namespace libjaguar {
 		if(view) {
 			if(view->GetBytesRemaining() == 0 || !view->valid) {
 				//The view is exhausted or invalid, we can destroy it and proceed
+				view->valid = false;
 				view.reset();
 			} else {
 				//The view is still active - operation not allowed
@@ -102,12 +115,13 @@ namespace libjaguar {
 		return true;
 	}
 
-	ScopedReadView& Reader::ReadBuffer(uint32_t length) {
+	ScopedReadView* Reader::ReadBuffer(uint32_t length) {
 		VerifyOk();
 
 		//Setup view and return
+		if(view) view->valid = false;
 		view.reset(new ScopedReadView(stream.get(), length));
-		return *view;
+		return view.get();
 	}
 
 	ValueHeader Reader::ReadHeader() {
@@ -201,32 +215,37 @@ namespace libjaguar {
 	}
 
 	ScopedReadView::ScopedReadView(std::istream* streamPtr, std::streamoff size)
-	  : stream(streamPtr), end(stream->tellg() + size), valid(true) {}
+	  : stream(streamPtr), end(stream->tellg() + size), valid(true), eof(false) {}
 
-	void ScopedReadView::Read(std::span<unsigned char>& out, uint32_t byteCount) {
-		if(!valid) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
+	void ScopedReadView::_ReadInternal(std::span<std::byte>& out, uint32_t byteCount) {
+		if(!valid || eof) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
 		if(byteCount > out.size_bytes()) throw std::runtime_error("Byte read count exceeds the size of the output buffer!");
 		if(byteCount > GetBytesRemaining()) throw std::runtime_error("Byte read count exceeds number of remaining bytes!");
 
 		stream->read(reinterpret_cast<char*>(out.data()), byteCount);
-		STREAMCHECK;
+		VIEW_STREAMCHECK;
+
+		if(GetBytesRemaining() == 0) eof = true;
 	}
 
 	uint32_t ScopedReadView::GetBytesRemaining() const {
+		if(eof) return 0;
 		if(!valid) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
 		return end - stream->tellg();
 	}
 
 	void ScopedReadView::Discard(uint32_t byteCount) {
-		if(!valid) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
+		if(!valid || eof) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
 		if(byteCount > GetBytesRemaining()) throw std::runtime_error("Byte discard count exceeds number of remaining bytes!");
 
 		stream->ignore(byteCount);
-		STREAMCHECK;
+		VIEW_STREAMCHECK;
+
+		if(GetBytesRemaining() == 0) eof = true;
 	}
 
 	void ScopedReadView::DiscardAll() {
-		if(!valid) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
+		if(!valid || eof) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
 		Discard(GetBytesRemaining());
 	}
 }
