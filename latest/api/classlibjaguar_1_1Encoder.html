@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Struct ValueHeader &#8212; Jaguar Documentation</title>
+    <title>Class Encoder &#8212; Jaguar Documentation</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js?v=73120307"></script>
     <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js?v=660e4f45"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/structlibjaguar_1_1ValueHeader';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/classlibjaguar_1_1Encoder';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/RobotLeopard86/Jaguar/refs/heads/main/docs/switcher.json';
@@ -54,8 +54,8 @@
         </script>
     <link rel="icon" href="../_static/jaguar_logo.png"/>
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Class Decoder" href="classlibjaguar_1_1Decoder.html" />
-    <link rel="prev" title="Namespace libjaguar" href="namespace_libjaguar.html" />
+    <link rel="next" title="Class Reader" href="classlibjaguar_1_1Reader.html" />
+    <link rel="prev" title="Class Decoder" href="classlibjaguar_1_1Decoder.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -325,14 +325,14 @@
   <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="namespace_libjaguar.html">Namespace libjaguar</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Struct ValueHeader</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html">Struct ValueHeader</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Decoder.html">Class Decoder</a></li>
 </ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Encoder.html">Class Encoder</a></li>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Class Encoder</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Reader.html">Class Reader</a></li>
@@ -383,7 +383,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">libjaguar API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Struct ValueHeader</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Class Encoder</span></li>
   </ul>
 </nav>
 </div>
@@ -400,71 +400,18 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="struct-valueheader">
-<span id="exhale-struct-structlibjaguar-1-1valueheader"></span><h1>Struct ValueHeader<a class="headerlink" href="#struct-valueheader" title="Link to this heading"><span/></a></h1>
+  <section id="class-encoder">
+<span id="exhale-class-classlibjaguar-1-1encoder"></span><h1>Class Encoder<a class="headerlink" href="#class-encoder" title="Link to this heading"><span/></a></h1>
 <ul class="simple">
-<li><p>Defined in <a class="reference internal" href="file_libjaguar_include_libjaguar_Value.hpp.html#file-libjaguar-include-libjaguar-value-hpp"><span class="std std-ref">File Value.hpp</span></a></p></li>
+<li><p>Defined in <a class="reference internal" href="file_libjaguar_include_libjaguar_Encoder.hpp.html#file-libjaguar-include-libjaguar-encoder-hpp"><span class="std std-ref">File Encoder.hpp</span></a></p></li>
 </ul>
-<section id="struct-documentation">
-<h2>Struct Documentation<a class="headerlink" href="#struct-documentation" title="Link to this heading"><span/></a></h2>
-<dl class="cpp struct">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeaderE">
-<span id="_CPPv3N9libjaguar11ValueHeaderE"></span><span id="_CPPv2N9libjaguar11ValueHeaderE"></span><span id="libjaguar::ValueHeader"></span><span class="target" id="structlibjaguar_1_1ValueHeader"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ValueHeader</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeaderE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Header for a Jaguar value, declaring metadata needed to read the contents. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-generic-data-for-all-headers-(the-&quot;value-identifier&quot;)">Generic data for all headers (the “value identifier”)</p>
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeader4typeE">
-<span id="_CPPv3N9libjaguar11ValueHeader4typeE"></span><span id="_CPPv2N9libjaguar11ValueHeader4typeE"></span><span id="libjaguar::ValueHeader::type__TypeTag"></span><span class="target" id="structlibjaguar_1_1ValueHeader_1a0dc3ba7c07445251a1e4d69531f5523c"></span><a class="reference internal" href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html#_CPPv4N9libjaguar7TypeTagE" title="libjaguar::TypeTag"><span class="n"><span class="pre">TypeTag</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">type</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeader4typeE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>The type of the value. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeader4nameE">
-<span id="_CPPv3N9libjaguar11ValueHeader4nameE"></span><span id="_CPPv2N9libjaguar11ValueHeader4nameE"></span><span id="libjaguar::ValueHeader::name__ss"></span><span class="target" id="structlibjaguar_1_1ValueHeader_1a99f0da65bd92e64e1cbdac51fa549727"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">name</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeader4nameE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>UTF-8 encoded field name. </p>
-</dd></dl>
-
-</div>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-type-specific-data">Type-specific data</p>
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeader11elementTypeE">
-<span id="_CPPv3N9libjaguar11ValueHeader11elementTypeE"></span><span id="_CPPv2N9libjaguar11ValueHeader11elementTypeE"></span><span id="libjaguar::ValueHeader::elementType__TypeTag"></span><span class="target" id="structlibjaguar_1_1ValueHeader_1a25782226d10c73ea4399ba38f34f5bb1"></span><a class="reference internal" href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html#_CPPv4N9libjaguar7TypeTagE" title="libjaguar::TypeTag"><span class="n"><span class="pre">TypeTag</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">elementType</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeader11elementTypeE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Type of contained element (for vectors, matrices, and lists) </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeader4sizeE">
-<span id="_CPPv3N9libjaguar11ValueHeader4sizeE"></span><span id="_CPPv2N9libjaguar11ValueHeader4sizeE"></span><span id="libjaguar::ValueHeader::size__uint32_t"></span><span class="target" id="structlibjaguar_1_1ValueHeader_1a65b2bcdd6c330a6d516252f36b115457"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeader4sizeE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Number of elements in a list, or size of a buffer object (string, byte buffer, substream); string size must be less than 24-bit integer limit. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeader5widthE">
-<span id="_CPPv3N9libjaguar11ValueHeader5widthE"></span><span id="_CPPv2N9libjaguar11ValueHeader5widthE"></span><span id="libjaguar::ValueHeader::width__uint8_t"></span><span class="target" id="structlibjaguar_1_1ValueHeader_1a8ac91f07531f3f1579b239aa279eeba2"></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">width</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeader5widthE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Number of components in a vector or columns in a matrix. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeader6heightE">
-<span id="_CPPv3N9libjaguar11ValueHeader6heightE"></span><span id="_CPPv2N9libjaguar11ValueHeader6heightE"></span><span id="libjaguar::ValueHeader::height__uint8_t"></span><span class="target" id="structlibjaguar_1_1ValueHeader_1a40bb34ad126ba7f87a7a4046ccf0f0ba"></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">height</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeader6heightE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Number of rows in a matrix. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeader10fieldCountE">
-<span id="_CPPv3N9libjaguar11ValueHeader10fieldCountE"></span><span id="_CPPv2N9libjaguar11ValueHeader10fieldCountE"></span><span id="libjaguar::ValueHeader::fieldCount__uint16_t"></span><span class="target" id="structlibjaguar_1_1ValueHeader_1acda57f35bb5062b3ecb79e00b6556371"></span><span class="n"><span class="pre">uint16_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fieldCount</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeader10fieldCountE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Number of fields in an unstructured object or a structured object type declaration. </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar11ValueHeader6typeIDE">
-<span id="_CPPv3N9libjaguar11ValueHeader6typeIDE"></span><span id="_CPPv2N9libjaguar11ValueHeader6typeIDE"></span><span id="libjaguar::ValueHeader::typeID__ss"></span><span class="target" id="structlibjaguar_1_1ValueHeader_1a7de50b013cee817a9500c4f10678ff53"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">typeID</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar11ValueHeader6typeIDE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Structured object type ID. </p>
-</dd></dl>
-
-</div>
+<section id="class-documentation">
+<h2>Class Documentation<a class="headerlink" href="#class-documentation" title="Link to this heading"><span/></a></h2>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar7EncoderE">
+<span id="_CPPv3N9libjaguar7EncoderE"></span><span id="_CPPv2N9libjaguar7EncoderE"></span><span id="libjaguar::Encoder"></span><span class="target" id="classlibjaguar_1_1Encoder"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Encoder</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar7EncoderE" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Stateful and contextual Jaguar data builder. </p>
+<p><strong>This class is move-only!</strong></p>
 </dd></dl>
 
 </section>
@@ -481,20 +428,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="namespace_libjaguar.html"
+       href="classlibjaguar_1_1Decoder.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Namespace libjaguar</p>
+        <p class="prev-next-title">Class Decoder</p>
       </div>
     </a>
     <a class="right-next"
-       href="classlibjaguar_1_1Decoder.html"
+       href="classlibjaguar_1_1Reader.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Class Decoder</p>
+        <p class="prev-next-title">Class Reader</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -517,18 +464,8 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#struct-documentation">Struct Documentation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeaderE"><code class="docutils literal notranslate"><span class="pre">ValueHeader</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader4typeE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::type</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader4nameE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::name</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader11elementTypeE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::elementType</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader4sizeE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::size</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader5widthE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::width</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader6heightE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::height</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader10fieldCountE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::fieldCount</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar11ValueHeader6typeIDE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::typeID</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-documentation">Class Documentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7EncoderE"><code class="docutils literal notranslate"><span class="pre">Encoder</span></code></a></li>
 </ul>
 </li>
 </ul>
