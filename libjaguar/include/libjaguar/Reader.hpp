@@ -93,7 +93,7 @@ namespace libjaguar {
 	};
 
 	/**
-	 * @brief Low-level stateless Jaguar stream parser
+	 * @brief Low-level stateless Jaguar stream reader
 	 *
 	 * The sole purpose of this class is to read the stream and extract value data. It does @b not persist data between calls and is thus not compliant with the specification on its own. This class puts data directly from the stream into
 	 * returned structures; it is the consumer's responsibility to validate this data. Errors will only be thrown when they present a technical limitation (e.g. invalid UTF-8).
