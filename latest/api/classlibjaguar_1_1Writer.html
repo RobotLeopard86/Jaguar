@@ -430,7 +430,7 @@
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6WriterptEv">
 <span id="_CPPv3N9libjaguar6WriterptEv"></span><span id="_CPPv2N9libjaguar6WriterptEv"></span><span id="libjaguar::Writer::pointer-operator"></span><span class="target" id="classlibjaguar_1_1Writer_1a37f1976e4da6a7269120853db931ed85"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-&gt;</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6WriterptEv" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Access the underlying stream to perform operations outside of the writer. </p>
-<p>This is to allow for applications to still control the stream, while ensuring that only one <a class="reference internal" href="#classlibjaguar_1_1Writer"><span class="std std-ref">Writer</span></a> can use it at a time</p>
+<p>This is to allow for applications to still control the stream, while ensuring that ownership stays with the <a class="reference internal" href="#classlibjaguar_1_1Writer"><span class="std std-ref">Writer</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The stream, or <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> if this object has been moved from </p>
@@ -442,7 +442,7 @@
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6WritermlEv">
 <span id="_CPPv3N9libjaguar6WritermlEv"></span><span id="_CPPv2N9libjaguar6WritermlEv"></span><span id="libjaguar::Writer::mul-operator"></span><span class="target" id="classlibjaguar_1_1Writer_1a10be2164519e3f88d4943d3690146b44"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6WritermlEv" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Access the underlying stream to perform operations outside of the writer. </p>
-<p>This is to allow for applications to still control the stream, while ensuring that only one <a class="reference internal" href="#classlibjaguar_1_1Writer"><span class="std std-ref">Writer</span></a> can use it at a time</p>
+<p>This is to allow for applications to still control the stream, while ensuring that ownership stays with the <a class="reference internal" href="#classlibjaguar_1_1Writer"><span class="std std-ref">Writer</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The stream, or <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> if this object has been moved from </p>

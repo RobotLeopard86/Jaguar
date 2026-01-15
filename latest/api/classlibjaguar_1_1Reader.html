@@ -430,7 +430,7 @@
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6ReaderptEv">
 <span id="_CPPv3N9libjaguar6ReaderptEv"></span><span id="_CPPv2N9libjaguar6ReaderptEv"></span><span id="libjaguar::Reader::pointer-operator"></span><span class="target" id="classlibjaguar_1_1Reader_1a98d204e53678cb0d98ca393a2345e6ef"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">istream</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-&gt;</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6ReaderptEv" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Access the underlying stream to perform operations outside of the parser. </p>
-<p>This is to allow for applications to still control the stream, while ensuring that only one <a class="reference internal" href="#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a> can use it at a time</p>
+<p>This is to allow for applications to still control the stream, while ensuring that ownership stays with the <a class="reference internal" href="#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The stream, or <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> if this object has been moved from </p>
@@ -442,7 +442,7 @@
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6ReadermlEv">
 <span id="_CPPv3N9libjaguar6ReadermlEv"></span><span id="_CPPv2N9libjaguar6ReadermlEv"></span><span id="libjaguar::Reader::mul-operator"></span><span class="target" id="classlibjaguar_1_1Reader_1a17dd2c309843924c88490eb4814f1a65"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">istream</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">*</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6ReadermlEv" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Access the underlying stream to perform operations outside of the parser. </p>
-<p>This is to allow for applications to still control the stream, while ensuring that only one <a class="reference internal" href="#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a> can use it at a time</p>
+<p>This is to allow for applications to still control the stream, while ensuring that ownership stays with the <a class="reference internal" href="#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The stream, or <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> if this object has been moved from </p>
