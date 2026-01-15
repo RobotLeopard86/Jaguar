@@ -119,7 +119,7 @@ namespace libjaguar {
 		/**
 		 * @brief Access the underlying stream to perform operations outside of the parser
 		 *
-		 * This is to allow for applications to still control the stream, while ensuring that only one Reader can use it at a time
+		 * This is to allow for applications to still control the stream, while ensuring that ownership stays with the Reader
 		 *
 		 * @return The stream, or @c nullptr if this object has been moved from
 		 */
@@ -128,7 +128,7 @@ namespace libjaguar {
 		/**
 		 * @brief Access the underlying stream to perform operations outside of the parser
 		 *
-		 * This is to allow for applications to still control the stream, while ensuring that only one Reader can use it at a time
+		 * This is to allow for applications to still control the stream, while ensuring that ownership stays with the Reader
 		 *
 		 * @return The stream, or @c nullptr if this object has been moved from
 		 */

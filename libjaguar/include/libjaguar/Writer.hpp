@@ -40,7 +40,7 @@ namespace libjaguar {
 		/**
 		 * @brief Access the underlying stream to perform operations outside of the writer
 		 *
-		 * This is to allow for applications to still control the stream, while ensuring that only one Writer can use it at a time
+		 * This is to allow for applications to still control the stream, while ensuring that ownership stays with the Writer
 		 *
 		 * @return The stream, or @c nullptr if this object has been moved from
 		 */
@@ -49,7 +49,7 @@ namespace libjaguar {
 		/**
 		 * @brief Access the underlying stream to perform operations outside of the writer
 		 *
-		 * This is to allow for applications to still control the stream, while ensuring that only one Writer can use it at a time
+		 * This is to allow for applications to still control the stream, while ensuring that ownership stays with the Writer
 		 *
 		 * @return The stream, or @c nullptr if this object has been moved from
 		 */
