@@ -187,7 +187,7 @@ Structured object type declarations **may not** contain other type declarations.
 
 ### Object Body Data
 
-If the typename string of a structured object references a typename that has not yet been declared, decoders **must** declare the stream invalid and terminate decoding, as there is no way to accurately know the bounds of the broken object scope (since it could contain subobjects, using the scope boundary system does not work here). However, decoders **must** allow for the consuming application to reposition the stream reader head and continue decoding, provided the new position is valid data.  
+If the typename string of a structured object references a typename that has not yet been declared, decoders **must** declare the stream invalid and terminate decoding, as there is no way to accurately know the bounds of the broken object scope (since it could contain subobjects, using the scope boundary system does not work here).  
 
 Within a structured object, fields do not need to appear in the exact order that they are declared in the type declaration, provided that all fields are given a value.  
 
