@@ -83,6 +83,7 @@ namespace libjaguar {
 	  private:
 		ScopedReadView(std::istream* streamPtr, std::streamoff size);
 		friend class Reader;
+		friend class ScopedViewStreambuf;
 
 		std::istream* stream;
 		std::streampos end;

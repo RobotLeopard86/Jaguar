@@ -1,7 +1,7 @@
 #include "libjaguar/Reader.hpp"
-#include "Internal.hpp"
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/Value.hpp"
+#include "Unicode.hpp"
 
 #include <cstdint>
 #include <stdexcept>
@@ -100,7 +100,7 @@ namespace libjaguar {
 		STREAMCHECK;
 
 		//Check UTF-8 and return
-		if(!internal::CheckUTF8(data)) throw std::runtime_error("Read string is not valid UTF-8!");
+		if(!CheckUTF8(data)) throw std::runtime_error("Read string is not valid UTF-8!");
 		return data;
 	}
 
@@ -144,7 +144,7 @@ namespace libjaguar {
 		header.name.resize(nameLen);
 		stream->read(header.name.data(), nameLen);
 		STREAMCHECK;
-		if(!internal::CheckUTF8(header.name)) throw std::runtime_error("Read name string is not valid UTF-8!");
+		if(!CheckUTF8(header.name)) throw std::runtime_error("Read name string is not valid UTF-8!");
 
 		//For simple types, we're done
 		//We can check this easily using the tag byte
@@ -194,7 +194,7 @@ namespace libjaguar {
 				header.typeID.resize(typeIDLen);
 				stream->read(header.typeID.data(), typeIDLen);
 				STREAMCHECK;
-				if(!internal::CheckUTF8(header.typeID)) throw std::runtime_error("Encountered a type ID string that is not valid UTF-8!");
+				if(!CheckUTF8(header.typeID)) throw std::runtime_error("Encountered a type ID string that is not valid UTF-8!");
 
 				//Break for StructuredObj (StructuredObjTypeDecl has same next field as UnstructuredObj so we intentionally fallthrough there)
 				if(header.type == TypeTag::StructuredObj) break;

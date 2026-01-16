@@ -1,9 +1,10 @@
-#include "Internal.hpp"
+#pragma once
 
 #include <cstdint>
+#include <string>
 
-namespace libjaguar::internal {
-	bool CheckUTF8(const std::string& string) {
+namespace libjaguar {
+	inline bool CheckUTF8(const std::string& string) {
 		//Keep track of expected continuation bytes (to prevent overlong encodings)
 		uint8_t expectedContinuations = 0;
 

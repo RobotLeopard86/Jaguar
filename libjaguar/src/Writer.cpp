@@ -1,7 +1,7 @@
 #include "libjaguar/Writer.hpp"
-#include "Internal.hpp"
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/Value.hpp"
+#include "Unicode.hpp"
 
 #include <istream>
 #include <array>
@@ -58,7 +58,7 @@ namespace libjaguar {
 
 	void Writer::WriteString(const std::string& value) {
 		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
-		if(!internal::CheckUTF8(value)) throw std::runtime_error("String is not valid UTF-8!");
+		if(!CheckUTF8(value)) throw std::runtime_error("String is not valid UTF-8!");
 		if(value.size() >= std::pow(2, 24)) throw std::runtime_error("String is longer than maximum legal size!");
 
 		stream->write(value.data(), value.size());
@@ -99,10 +99,10 @@ namespace libjaguar {
 
 		//Basic checks for other types
 		if(header.name.size() < 1 || header.name.size() > UINT8_MAX) throw std::runtime_error("Header name string is invalid length!");
-		if(!internal::CheckUTF8(header.name)) throw std::runtime_error("Header name string is not valid UTF-8!");
+		if(!CheckUTF8(header.name)) throw std::runtime_error("Header name string is not valid UTF-8!");
 		if(header.type == TypeTag::StructuredObj || header.type == TypeTag::StructuredObjTypeDecl) {
 			if(header.typeID.size() < 1 || header.typeID.size() > UINT8_MAX) throw std::runtime_error("Header type ID string is invalid length!");
-			if(!internal::CheckUTF8(header.typeID)) throw std::runtime_error("Header type ID string is not valid UTF-8!");
+			if(!CheckUTF8(header.typeID)) throw std::runtime_error("Header type ID string is not valid UTF-8!");
 		}
 
 		//Write identifier
