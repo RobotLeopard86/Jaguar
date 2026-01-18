@@ -101,14 +101,25 @@ namespace libjaguar {
 		SVHandle& operator=(SVHandle&&);
 		///@endcond
 
-		ScopedView* operator->() {
-			if(valid && *valid) return view;
-			throw std::runtime_error("Cannot access an invalid scoped view!");
+		/**
+		 * @brief Check if the handle is valid
+		 *
+		 * @return If the stored view is still safe to access
+		 *
+		 * @warning Even if this method returns @c true, <b>the view itself may not still be valid</b> (it may be exhausted). @b Always check the view's @c IsValid method as well to determine if the view is safe to use.
+		 */
+		bool IsHandleValid() {
+			return valid && *valid;
 		}
 
-		bool IsHandleValid() {
-			if(valid && *valid) return view->IsValid();
-			return false;
+		/**
+		 * @brief Access the view
+		 *
+		 * @return The contained ScopedView object — <b>do not delete this pointer!</b>
+		 */
+		ScopedView* operator->() {
+			if(IsHandleValid()) return view;
+			throw std::runtime_error("Cannot access an invalid scoped view!");
 		}
 
 	  private:

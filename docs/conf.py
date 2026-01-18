@@ -44,6 +44,7 @@ exhale_args = {
                                     EXCLUDE_SYMBOLS = std*,LJAPI,LJBUILD
 									HIDE_UNDOC_MEMBERS = YES
 									MAX_INITIALIZER_LINES = 0
+								 	INPUT_ENCODING = UTF-8
 									''')
 }
 
