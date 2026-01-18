@@ -54,7 +54,7 @@
         </script>
     <link rel="icon" href="../_static/jaguar_logo.png"/>
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Class ScopedReadView" href="classlibjaguar_1_1ScopedReadView.html" />
+    <link rel="next" title="Class ScopedView" href="classlibjaguar_1_1ScopedView.html" />
     <link rel="prev" title="Class Encoder" href="classlibjaguar_1_1Encoder.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -338,7 +338,10 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Class Reader</a></li>
 </ul>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1ScopedReadView.html">Class ScopedReadView</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1ScopedView.html">Class ScopedView</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1SVHandle.html">Class SVHandle</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Writer.html">Class Writer</a></li>
@@ -543,7 +546,7 @@
 
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar6Reader10ReadBufferE8uint32_t">
-<span id="_CPPv3N9libjaguar6Reader10ReadBufferE8uint32_t"></span><span id="_CPPv2N9libjaguar6Reader10ReadBufferE8uint32_t"></span><span id="libjaguar::Reader::ReadBuffer__uint32_t"></span><span class="target" id="classlibjaguar_1_1Reader_1a8ebcf90135eccdb00154f33bf00dd256"></span><a class="reference internal" href="classlibjaguar_1_1ScopedReadView.html#_CPPv4N9libjaguar14ScopedReadViewE" title="libjaguar::ScopedReadView"><span class="n"><span class="pre">ScopedReadView</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ReadBuffer</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">length</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Reader10ReadBufferE8uint32_t" title="Link to this definition"><span/></a><br /></dt>
+<span id="_CPPv3N9libjaguar6Reader10ReadBufferE8uint32_t"></span><span id="_CPPv2N9libjaguar6Reader10ReadBufferE8uint32_t"></span><span id="libjaguar::Reader::ReadBuffer__uint32_t"></span><span class="target" id="classlibjaguar_1_1Reader_1a4d388be3c81596b6f4ccd9bef01811b4"></span><a class="reference internal" href="classlibjaguar_1_1SVHandle.html#_CPPv4N9libjaguar8SVHandleE" title="libjaguar::SVHandle"><span class="n"><span class="pre">SVHandle</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ReadBuffer</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">length</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar6Reader10ReadBufferE8uint32_t" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Access a region of bytes from the stream. </p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -551,8 +554,8 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p><strong>Do not delete this pointer!</strong> Its lifetime is controlled by the <a class="reference internal" href="#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a> and will be freed by it at the appropriate time. This pointer will remain valid until one of the following occurs:<ol class="lowerroman simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">ReadBuffer</span></code> is called again, invalidating the view this pointer references</p></li>
+<p>The lifetime of the scoped view is controlled by the <a class="reference internal" href="#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a>. This handle will remain valid until one of the following occurs:<ol class="lowerroman simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ReadBuffer</span></code> is called again, invalidating the view this handle references</p></li>
 <li><p>The <a class="reference internal" href="#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a> is destroyed</p></li>
 <li><p>The <a class="reference internal" href="#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a> is moved from </p></li>
 </ol>
@@ -594,11 +597,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="classlibjaguar_1_1ScopedReadView.html"
+       href="classlibjaguar_1_1ScopedView.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Class ScopedReadView</p>
+        <p class="prev-next-title">Class ScopedView</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
