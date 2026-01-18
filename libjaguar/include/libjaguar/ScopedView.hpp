@@ -97,16 +97,16 @@ namespace libjaguar {
 		///@cond
 		SVHandle(const SVHandle&) = delete;
 		SVHandle& operator=(const SVHandle&) = delete;
-		SVHandle(SVHandle&&);
+		SVHandle(SVHandle&& other) : view(std::exchange(other.view, nullptr)), valid(std::exchange(other.valid, {})) {}
 		SVHandle& operator=(SVHandle&&);
 		///@endcond
 
-		ScopedView& operator->() {
-			if(valid && *valid) return *view;
+		ScopedView* operator->() {
+			if(valid && *valid) return view;
 			throw std::runtime_error("Cannot access an invalid scoped view!");
 		}
 
-		bool IsValid() {
+		bool IsHandleValid() {
 			if(valid && *valid) return view->IsValid();
 			return false;
 		}

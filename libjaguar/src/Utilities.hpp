@@ -1,7 +1,7 @@
 #pragma once
 
 #include "libjaguar/TypeTags.hpp"
-#include "libjaguar/Reader.hpp"
+#include "libjaguar/ScopedView.hpp"
 
 #include <cstdint>
 #include <array>
@@ -12,12 +12,12 @@ constexpr inline uint32_t scopedViewChunkSize = 64 * 1024;//64 KiB (one KiB is 1
 namespace libjaguar {
 	uint32_t GetTypeSize(TypeTag type);
 
-	class ScopedViewStreambuf : public std::streambuf {
+	class SVstreambuf : public std::streambuf {
 	  public:
-		ScopedViewStreambuf(ScopedView* srv) : view(srv) {
+		SVstreambuf(SVHandle&& handle) : handle(std::move(handle)) {
 			//Check validity
-			if(!view) throw std::runtime_error("Cannot create scoped view streambuf with a null view!");
-			if(!view->IsValid() || view->GetBytesRemaining() == 0) throw std::runtime_error("Cannot create scoped view streambuf with invalid or exhausted view!");
+			if(!handle.IsHandleValid()) throw std::runtime_error("Cannot create scoped view streambuf with a null view!");
+			if(!handle->IsValid() || handle->GetBytesRemaining() == 0) throw std::runtime_error("Cannot create scoped view streambuf with invalid or exhausted view!");
 
 			//Call underflow() to populate the buffer initially
 			if(underflow() == EOF) throw std::runtime_error("Unexpected IO error during initial scoped view streambuf population!");
@@ -29,11 +29,14 @@ namespace libjaguar {
 		}
 
 		int underflow() override {
-			if(!view->IsValid() || view->GetBytesRemaining() == 0) return EOF;
+			if(!handle.IsHandleValid() || !handle->IsValid() || handle->GetBytesRemaining() == 0) {
+				okRange = 0;
+				return EOF;
+			}
 
 			//Read initial data
-			okRange = std::min<uint32_t>(chunkBuffer.size(), view->GetBytesRemaining());
-			view->Read(chunkBuffer, okRange);
+			okRange = std::min<uint32_t>(chunkBuffer.size(), handle->GetBytesRemaining());
+			handle->Read(chunkBuffer, okRange);
 
 			//Set get area
 			char* chunkBufBasePtr = reinterpret_cast<char*>(chunkBuffer.data());
@@ -43,9 +46,26 @@ namespace libjaguar {
 		}
 
 	  private:
-		ScopedView* view;
+		SVHandle handle;
 
 		uint32_t okRange;
 		std::array<unsigned char, scopedViewChunkSize> chunkBuffer;
+	};
+
+	class SVistream : public std::istream {
+	  public:
+		SVistream(SVHandle&& handle)
+		  : std::istream(bufInit(std::move(handle))) {
+			rdbuf(buf.get());
+			init(buf.get());
+		}
+
+	  private:
+		std::unique_ptr<SVstreambuf> buf;
+
+		SVstreambuf* bufInit(SVHandle&& handle) {
+			buf = std::make_unique<SVstreambuf>(std::move(handle));
+			return buf.get();
+		}
 	};
 }

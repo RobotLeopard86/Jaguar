@@ -41,6 +41,7 @@ namespace libjaguar {
 			if(view->GetBytesRemaining() == 0 || !view->valid) {
 				//The view is exhausted or invalid, we can destroy it and proceed
 				view->valid = false;
+				*viewState = false;
 				view.reset();
 			} else {
 				//The view is still active - operation not allowed
@@ -50,12 +51,12 @@ namespace libjaguar {
 	}
 
 	std::istream* Reader::operator->() {
-		if(view && (!(*viewState) || view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
+		if(view && (view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
 		return (stream ? stream.get() : nullptr);
 	}
 
 	std::istream* Reader::operator*() {
-		if(view && (!(*viewState) || view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
+		if(view && (view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
 		return (stream ? stream.get() : nullptr);
 	}
 
