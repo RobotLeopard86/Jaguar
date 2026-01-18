@@ -3,96 +3,15 @@
 #include "DllHelper.hpp"
 #include "Value.hpp"
 #include "Traits.hpp"
+#include "ScopedView.hpp"
 
 #include <bit>
 #include <istream>
 #include <cstdint>
-#include <span>
 #include <type_traits>
 #include <memory>
 
 namespace libjaguar {
-	/**
-	 * @brief Abstraction for accessing a scoped area of the byte stream
-	 *
-	 * This class may not be copied or moved; it belongs to the Reader that created it. As such, it is prone to being messed up by other stream operations.
-	 * You should avoid performing other stream operations until you are done with this object.
-	 */
-	class LJAPI ScopedReadView {
-	  public:
-		/**
-		 * @brief Read some bytes from the stream into the buffer
-		 *
-		 * @param out The destination to write to
-		 * @param byteCount The number of bytes to read
-		 *
-		 * @throws std::runtime_error If the byte count to read exceeds the size of the output buffer
-		 * @throws std::runtime_error If the byte count to read exceeds the number of remaining bytes
-		 * @throws std::runtime_error If an IO error occurs while reading
-		 * @throws std::runtime_error If the view is invalid
-		 */
-		template<byte_range R>
-		void Read(R& out, uint32_t byteCount) {
-			std::span<std::byte> span(out.begin(), out.end());
-			_ReadInternal(span, byteCount);
-		}
-
-		/**
-		 * @brief Check how many bytes remain in the scoped view that may be read
-		 *
-		 * @return The number of bytes left
-		 *
-		 * @throws std::runtime_error If the view is invalid
-		 */
-		uint32_t GetBytesRemaining() const;
-
-		/**
-		 * @brief Discard a certain amount of bytes
-		 * @param byteCount The number of bytes to read
-		 *
-		 * @throws std::runtime_error If the byte count to read exceeds the number of remaining bytes
-		 * @throws std::runtime_error If an IO error occurs
-		 * @throws std::runtime_error If the view is invalid
-		 */
-		void Discard(uint32_t byteCount);
-
-		/**
-		 * @brief Discard the rest of the bytes in the view and advance the underlying stream to the end of the view
-		 *
-		 * @throws std::runtime_error If the view is invalid
-		 */
-		void DiscardAll();
-
-		/**
-		 * @brief Check if the view is still valid
-		 *
-		 * @return The view's validity state
-		 */
-		bool IsValid() noexcept {
-			if(!stream->good()) valid = false;
-			return valid;
-		}
-
-		///@cond
-		ScopedReadView(const ScopedReadView&) = delete;
-		ScopedReadView& operator=(const ScopedReadView&) = delete;
-		ScopedReadView(ScopedReadView&&) = delete;
-		ScopedReadView& operator=(const ScopedReadView&&) = delete;
-		///@endcond
-
-	  private:
-		ScopedReadView(std::istream* streamPtr, std::streamoff size);
-		friend class Reader;
-		friend class ScopedViewStreambuf;
-
-		std::istream* stream;
-		std::streampos end;
-		bool valid;
-		bool eof;
-
-		void _ReadInternal(std::span<std::byte>& out, uint32_t byteCount);
-	};
-
 	/**
 	 * @brief Low-level stateless Jaguar stream reader
 	 *
@@ -213,16 +132,17 @@ namespace libjaguar {
 		 * @warning While a view is active, the rest of the Reader's functionality will be disabled. Use the @c DiscardAll function
 		 * to deactivate the view and continue reading.
 		 *
-		 * @warning <b>Do not delete this pointer!</b> Its lifetime is controlled by the Reader and will be freed by it at the appropriate time. This pointer will remain valid until one of the following occurs:
-		 * 1. @c ReadBuffer is called again, invalidating the view this pointer references
+		 * @warning The lifetime of the scoped view is controlled by the Reader. This handle will remain valid until one of the following occurs:
+		 * 1. @c ReadBuffer is called again, invalidating the view this handle references
 		 * 2. The Reader is destroyed
 		 * 3. The Reader is moved from
 		 */
-		ScopedReadView* ReadBuffer(uint32_t length);
+		SVHandle ReadBuffer(uint32_t length);
 
 	  private:
 		std::unique_ptr<std::istream> stream;
-		std::unique_ptr<ScopedReadView> view;
+		std::unique_ptr<ScopedView> view;
+		std::shared_ptr<bool> viewState;
 
 		uint64_t _ReadIntegerInternal(uint8_t bits);
 		void VerifyOk();

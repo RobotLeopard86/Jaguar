@@ -14,7 +14,7 @@ namespace libjaguar {
 
 	class ScopedViewStreambuf : public std::streambuf {
 	  public:
-		ScopedViewStreambuf(ScopedReadView* srv) : view(srv) {
+		ScopedViewStreambuf(ScopedView* srv) : view(srv) {
 			//Check validity
 			if(!view) throw std::runtime_error("Cannot create scoped view streambuf with a null view!");
 			if(!view->IsValid() || view->GetBytesRemaining() == 0) throw std::runtime_error("Cannot create scoped view streambuf with invalid or exhausted view!");
@@ -43,7 +43,7 @@ namespace libjaguar {
 		}
 
 	  private:
-		ScopedReadView* view;
+		ScopedView* view;
 
 		uint32_t okRange;
 		std::array<unsigned char, scopedViewChunkSize> chunkBuffer;

@@ -44,18 +44,18 @@ namespace libjaguar {
 				view.reset();
 			} else {
 				//The view is still active - operation not allowed
-				throw std::runtime_error("Cannot perform operations while a ScopedReadView is active!");
+				throw std::runtime_error("Cannot perform operations while a ScopedView is active!");
 			}
 		}
 	}
 
 	std::istream* Reader::operator->() {
-		if(view && (view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
+		if(view && (!(*viewState) || view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
 		return (stream ? stream.get() : nullptr);
 	}
 
 	std::istream* Reader::operator*() {
-		if(view && (view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
+		if(view && (!(*viewState) || view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
 		return (stream ? stream.get() : nullptr);
 	}
 
@@ -115,13 +115,19 @@ namespace libjaguar {
 		return true;
 	}
 
-	ScopedReadView* Reader::ReadBuffer(uint32_t length) {
+	SVHandle Reader::ReadBuffer(uint32_t length) {
 		VerifyOk();
 
-		//Setup view and return
-		if(view) view->valid = false;
-		view.reset(new ScopedReadView(stream.get(), length));
-		return view.get();
+		//Reset view state
+		if(view) *viewState = false;
+		view.reset(new ScopedView(stream.get(), length));
+		viewState = std::make_shared<bool>(true);
+
+		//Make handle and return
+		SVHandle svh;
+		svh.valid = viewState;
+		svh.view = view.get();
+		return svh;
 	}
 
 	ValueHeader Reader::ReadHeader() {
@@ -214,10 +220,10 @@ namespace libjaguar {
 		return header;
 	}
 
-	ScopedReadView::ScopedReadView(std::istream* streamPtr, std::streamoff size)
+	ScopedView::ScopedView(std::istream* streamPtr, std::streamoff size)
 	  : stream(streamPtr), end(stream->tellg() + size), valid(true), eof(false) {}
 
-	void ScopedReadView::_ReadInternal(std::span<std::byte>& out, uint32_t byteCount) {
+	void ScopedView::_ReadInternal(std::span<std::byte>& out, uint32_t byteCount) {
 		if(!valid || eof) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
 		if(byteCount > out.size_bytes()) throw std::runtime_error("Byte read count exceeds the size of the output buffer!");
 		if(byteCount > GetBytesRemaining()) throw std::runtime_error("Byte read count exceeds number of remaining bytes!");
@@ -228,13 +234,13 @@ namespace libjaguar {
 		if(GetBytesRemaining() == 0) eof = true;
 	}
 
-	uint32_t ScopedReadView::GetBytesRemaining() const {
+	uint32_t ScopedView::GetBytesRemaining() const {
 		if(eof) return 0;
 		if(!valid) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
 		return end - stream->tellg();
 	}
 
-	void ScopedReadView::Discard(uint32_t byteCount) {
+	void ScopedView::Discard(uint32_t byteCount) {
 		if(!valid || eof) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
 		if(byteCount > GetBytesRemaining()) throw std::runtime_error("Byte discard count exceeds number of remaining bytes!");
 
@@ -244,7 +250,7 @@ namespace libjaguar {
 		if(GetBytesRemaining() == 0) eof = true;
 	}
 
-	void ScopedReadView::DiscardAll() {
+	void ScopedView::DiscardAll() {
 		if(!valid || eof) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
 		Discard(GetBytesRemaining());
 	}
