@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Program Listing for File ScopedView.hpp &#8212; Jaguar Documentation</title>
+    <title>Program Listing for File MathTypes.hpp &#8212; Jaguar Documentation</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js?v=73120307"></script>
     <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js?v=660e4f45"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/program_listing_file_libjaguar_include_libjaguar_ScopedView.hpp';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/program_listing_file_libjaguar_include_libjaguar_MathTypes.hpp';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/RobotLeopard86/Jaguar/refs/heads/main/docs/switcher.json';
@@ -317,7 +317,7 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Program Listing for File ScopedView.hpp</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Program Listing for File MathTypes.hpp</a></li>
 </ul>
 </div>
 </nav></div>
@@ -353,7 +353,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Program Listing for File ScopedView.hpp</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Program Listing for File MathTypes.hpp</span></li>
   </ul>
 </nav>
 </div>
@@ -370,79 +370,90 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="program-listing-for-file-scopedview-hpp">
-<span id="program-listing-file-libjaguar-include-libjaguar-scopedview-hpp"></span><h1>Program Listing for File ScopedView.hpp<a class="headerlink" href="#program-listing-for-file-scopedview-hpp" title="Link to this heading"><span/></a></h1>
-<p>↰ <a class="reference internal" href="file_libjaguar_include_libjaguar_ScopedView.hpp.html#file-libjaguar-include-libjaguar-scopedview-hpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">libjaguar/include/libjaguar/ScopedView.hpp</span></code>)</p>
+  <section id="program-listing-for-file-mathtypes-hpp">
+<span id="program-listing-file-libjaguar-include-libjaguar-mathtypes-hpp"></span><h1>Program Listing for File MathTypes.hpp<a class="headerlink" href="#program-listing-for-file-mathtypes-hpp" title="Link to this heading"><span/></a></h1>
+<p>↰ <a class="reference internal" href="file_libjaguar_include_libjaguar_MathTypes.hpp.html#file-libjaguar-include-libjaguar-mathtypes-hpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">libjaguar/include/libjaguar/MathTypes.hpp</span></code>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DllHelper.hpp&quot;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Traits.hpp&quot;</span>
-
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;span&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;istream&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;memory&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdexcept&gt;</span>
 
 <span class="k">namespace</span><span class="w"> </span><span class="nn">libjaguar</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">ScopedView</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">template</span><span class="o">&lt;</span><span class="n">number</span><span class="w"> </span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">C</span><span class="o">&gt;</span>
+<span class="w">        </span><span class="k">requires</span><span class="p">(</span><span class="n">C</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span>
+<span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">Vector</span><span class="w"> </span><span class="p">{};</span>
+
+<span class="w">    </span><span class="k">template</span><span class="o">&lt;</span><span class="n">number</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="k">public</span><span class="o">:</span>
-<span class="w">        </span><span class="k">template</span><span class="o">&lt;</span><span class="n">byte_range</span><span class="w"> </span><span class="n">R</span><span class="o">&gt;</span>
-<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="n">Read</span><span class="p">(</span><span class="n">R</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">byteCount</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">byte</span><span class="o">&gt;</span><span class="w"> </span><span class="n">span</span><span class="p">(</span><span class="n">out</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">out</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
-<span class="w">            </span><span class="n">_ReadInternal</span><span class="p">(</span><span class="n">span</span><span class="p">,</span><span class="w"> </span><span class="n">byteCount</span><span class="p">);</span>
-<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="c1">//This union stuff allows the two names to refer to the same storage for XY/RG access</span>
 
-<span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">GetBytesRemaining</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">        </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">T</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
 
-<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">Discard</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">byteCount</span><span class="p">);</span>
-
-<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">DiscardAll</span><span class="p">();</span>
-
-<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsValid</span><span class="p">()</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">stream</span><span class="o">-&gt;</span><span class="n">good</span><span class="p">())</span><span class="w"> </span><span class="n">valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">valid</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-
-<span class="w">        </span><span class="n">ScopedView</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">ScopedView</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
-<span class="w">        </span><span class="n">ScopedView</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">ScopedView</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
-<span class="w">        </span><span class="n">ScopedView</span><span class="p">(</span><span class="n">ScopedView</span><span class="o">&amp;&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
-<span class="w">        </span><span class="n">ScopedView</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">ScopedView</span><span class="o">&amp;&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
-
-<span class="w">      </span><span class="k">private</span><span class="o">:</span>
-<span class="w">        </span><span class="n">ScopedView</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">istream</span><span class="o">*</span><span class="w"> </span><span class="n">streamPtr</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">streamoff</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
-<span class="w">        </span><span class="k">friend</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Reader</span><span class="p">;</span>
-<span class="w">        </span><span class="k">friend</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">ScopedViewStreambuf</span><span class="p">;</span>
-
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">istream</span><span class="o">*</span><span class="w"> </span><span class="n">stream</span><span class="p">;</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">streampos</span><span class="w"> </span><span class="n">end</span><span class="p">;</span>
-<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">valid</span><span class="p">;</span>
-<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">eof</span><span class="p">;</span>
-
-<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">_ReadInternal</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">byte</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">byteCount</span><span class="p">);</span>
+<span class="w">        </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">T</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">g</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
 <span class="w">    </span><span class="p">};</span>
 
-<span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">SVHandle</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">template</span><span class="o">&lt;</span><span class="n">number</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="k">public</span><span class="o">:</span>
-<span class="w">        </span><span class="n">SVHandle</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SVHandle</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
-<span class="w">        </span><span class="n">SVHandle</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SVHandle</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
-<span class="w">        </span><span class="n">SVHandle</span><span class="p">(</span><span class="n">SVHandle</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">other</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">view</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exchange</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">view</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)),</span><span class="w"> </span><span class="n">valid</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exchange</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">valid</span><span class="p">,</span><span class="w"> </span><span class="p">{}))</span><span class="w"> </span><span class="p">{}</span>
-<span class="w">        </span><span class="n">SVHandle</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">SVHandle</span><span class="o">&amp;&amp;</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">//This union stuff allows the two names to refer to the same storage for XYZ/RGB access</span>
 
-<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsHandleValid</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">valid</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">*</span><span class="n">valid</span><span class="p">;</span>
+<span class="w">        </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">T</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+
+<span class="w">        </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">T</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">g</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+
+<span class="w">        </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">T</span><span class="w"> </span><span class="n">z</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="k">template</span><span class="o">&lt;</span><span class="n">number</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">Vector</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span>
+<span class="w">        </span><span class="c1">//This union stuff allows the two names to refer to the same storage for XYZW/RGBA access</span>
+
+<span class="w">        </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">T</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+
+<span class="w">        </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">T</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">g</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+
+<span class="w">        </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">T</span><span class="w"> </span><span class="n">z</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+
+<span class="w">        </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">T</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="k">template</span><span class="o">&lt;</span><span class="n">number</span><span class="w"> </span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">W</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">H</span><span class="o">&gt;</span>
+<span class="w">        </span><span class="k">requires</span><span class="p">(</span><span class="n">W</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">H</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span>
+<span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">Matrix</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">public</span><span class="o">:</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">H</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="k">operator</span><span class="p">[](</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">col</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">col</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">W</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Out of bounds matrix access&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">];</span>
 <span class="w">        </span><span class="p">}</span>
 
-<span class="w">        </span><span class="n">ScopedView</span><span class="o">*</span><span class="w"> </span><span class="k">operator</span><span class="o">-&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">IsHandleValid</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
-<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Cannot access an invalid scoped view!&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">H</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="k">operator</span><span class="p">[](</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">col</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="n">col</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">W</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Out of bounds matrix access&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">];</span>
 <span class="w">        </span><span class="p">}</span>
 
 <span class="w">      </span><span class="k">private</span><span class="o">:</span>
-<span class="w">        </span><span class="n">ScopedView</span><span class="o">*</span><span class="w"> </span><span class="n">view</span><span class="p">;</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">valid</span><span class="p">;</span>
-
-<span class="w">        </span><span class="n">SVHandle</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
-
-<span class="w">        </span><span class="k">friend</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Reader</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">H</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">W</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="p">}</span>
 </pre></div>

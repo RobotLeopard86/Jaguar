@@ -54,7 +54,7 @@
         </script>
     <link rel="icon" href="../_static/jaguar_logo.png"/>
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Class Writer" href="classlibjaguar_1_1Writer.html" />
+    <link rel="next" title="Template Class Vector&lt; T, 2 &gt;" href="classlibjaguar_1_1Vector_3_01T_00_012_01_4.html" />
     <link rel="prev" title="Class ScopedView" href="classlibjaguar_1_1ScopedView.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -335,6 +335,9 @@
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Encoder.html">Class Encoder</a></li>
 </ul>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Matrix.html">Template Class Matrix</a></li>
+</ul>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Reader.html">Class Reader</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -342,6 +345,15 @@
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Class SVHandle</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Vector_3_01T_00_012_01_4.html">Template Class Vector&lt; T, 2 &gt;</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Vector_3_01T_00_013_01_4.html">Template Class Vector&lt; T, 3 &gt;</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Vector_3_01T_00_014_01_4.html">Template Class Vector&lt; T, 4 &gt;</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Writer.html">Class Writer</a></li>
@@ -417,14 +429,30 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar8SVHandleptEv">
-<span id="_CPPv3N9libjaguar8SVHandleptEv"></span><span id="_CPPv2N9libjaguar8SVHandleptEv"></span><span id="libjaguar::SVHandle::pointer-operator"></span><span class="target" id="classlibjaguar_1_1SVHandle_1ae5b43bbb4d2dc57df3511d4354a82985"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="classlibjaguar_1_1ScopedView.html#_CPPv4N9libjaguar10ScopedViewE" title="libjaguar::ScopedView"><span class="n"><span class="pre">ScopedView</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-&gt;</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar8SVHandleptEv" title="Link to this definition"><span/></a><br /></dt>
-<dd></dd></dl>
-
-<dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar8SVHandle13IsHandleValidEv">
 <span id="_CPPv3N9libjaguar8SVHandle13IsHandleValidEv"></span><span id="_CPPv2N9libjaguar8SVHandle13IsHandleValidEv"></span><span id="libjaguar::SVHandle::IsHandleValid"></span><span class="target" id="classlibjaguar_1_1SVHandle_1aa09850e3c75f15decdd4fd3825112091"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IsHandleValid</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar8SVHandle13IsHandleValidEv" title="Link to this definition"><span/></a><br /></dt>
-<dd></dd></dl>
+<dd><p>Check if the handle is valid. </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Even if this method returns <code class="docutils literal notranslate"><span class="pre">true</span></code>, <strong>the view itself may not still be valid</strong> (it may be exhausted). <strong>Always</strong> check the view’s <code class="docutils literal notranslate"><span class="pre">IsValid</span></code> method as well to determine if the view is safe to use. </p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>If the stored view is still safe to access</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar8SVHandleptEv">
+<span id="_CPPv3N9libjaguar8SVHandleptEv"></span><span id="_CPPv2N9libjaguar8SVHandleptEv"></span><span id="libjaguar::SVHandle::pointer-operator"></span><span class="target" id="classlibjaguar_1_1SVHandle_1ae5b43bbb4d2dc57df3511d4354a82985"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="classlibjaguar_1_1ScopedView.html#_CPPv4N9libjaguar10ScopedViewE" title="libjaguar::ScopedView"><span class="n"><span class="pre">ScopedView</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">-&gt;</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar8SVHandleptEv" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Access the view. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The contained <a class="reference internal" href="classlibjaguar_1_1ScopedView.html#classlibjaguar_1_1ScopedView"><span class="std std-ref">ScopedView</span></a> object — <strong>do not delete this pointer!</strong></p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 </dd></dl>
@@ -452,11 +480,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="classlibjaguar_1_1Writer.html"
+       href="classlibjaguar_1_1Vector_3_01T_00_012_01_4.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Class Writer</p>
+        <p class="prev-next-title">Template Class Vector&lt; T, 2 &gt;</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -481,8 +509,8 @@
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-documentation">Class Documentation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar8SVHandleE"><code class="docutils literal notranslate"><span class="pre">SVHandle</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar8SVHandleptEv"><code class="docutils literal notranslate"><span class="pre">SVHandle::operator-&gt;()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar8SVHandle13IsHandleValidEv"><code class="docutils literal notranslate"><span class="pre">SVHandle::IsHandleValid()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar8SVHandleptEv"><code class="docutils literal notranslate"><span class="pre">SVHandle::operator-&gt;()</span></code></a></li>
 </ul>
 </li>
 </ul>
