@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DllHelper.hpp"
-#include "Value.hpp"
+#include "ValueHeader.hpp"
 #include "Traits.hpp"
 #include "ScopedView.hpp"
 

@@ -22,7 +22,7 @@ namespace libjaguar {
 		UInt32 = 0x2C,				 ///<32-bit unsigned integer (uint32_t)
 		UInt64 = 0x2D,				 ///<64-bit unsigned integer (uint64_t)
 		List = 0x3A,				 ///<List of other values
-		UnstructuredObj = 0x3B,		 ///<Object with no predefined layout, dictionary
+		UnstructuredObj = 0x3B,		 ///<Object with no predefined layout (like a dictionary)
 		StructuredObj = 0x3C,		 ///<Object with predefined layout
 		StructuredObjTypeDecl = 0x3D,///<Declaration of an object type layout
 		ScopeBoundary = 0x3E,		 ///<End of object scope marker

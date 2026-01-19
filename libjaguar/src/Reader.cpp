@@ -1,6 +1,6 @@
 #include "libjaguar/Reader.hpp"
 #include "libjaguar/TypeTags.hpp"
-#include "libjaguar/Value.hpp"
+#include "libjaguar/ValueHeader.hpp"
 #include "Unicode.hpp"
 
 #include <cstdint>
@@ -165,6 +165,16 @@ namespace libjaguar {
 				STREAMCHECK;
 				if(!ValidateTypeTag(elemTagByte)) throw std::runtime_error("Encountered invalid element TypeTag!");
 				header.elementType = (TypeTag)elemTagByte;
+
+				//Structured object typename handling
+				if(header.elementType == TypeTag::StructuredObj) {
+					uint8_t typeIDLen = _ReadIntegerInternal(8);
+					if(typeIDLen == 0) throw std::runtime_error("Encountered empty type ID string for list of structured objects!");
+					header.typeID.resize(typeIDLen);
+					stream->read(header.typeID.data(), typeIDLen);
+					STREAMCHECK;
+					if(!CheckUTF8(header.typeID)) throw std::runtime_error("Encountered a type ID string that is not valid UTF-8!");
+				}
 
 				//Get element count
 				header.size = (uint32_t)_ReadIntegerInternal(32);

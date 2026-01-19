@@ -78,13 +78,13 @@ Below is the list of types in Jaguar and their `TypeTag`s:
 | Unstructured Object (Dictionary) | `0x3B` |
 | Structured Object | `0x3C` |
 | Structured Object Type Declaration | `0x3D` |
-| Object Scope Boundary | `0x3E` |
+| Scope Boundary | `0x3E` |
 | Vector | `0x4A` |
 | Matrix | `0x4B` |  
 
 More details about complex object types will be provided in later sections.  
 
-The object scope boundary `TypeTag` does not function as a traditional `Value`; it serves to delimit object boundaries, has no header or body, and may only appear in certain locations. More information will be provided in section 7.
+The scope boundary `TypeTag` does not function as a traditional `Value`; it serves to delimit object and list boundaries, has no header or body, and may only appear in certain locations. More information will be provided in section 7.
 
 ## 3. Containers
 In order to support storing a Jaguar stream on disk in an identifiable format, the stream can be wrapped in a Jaguar container.  
@@ -110,7 +110,48 @@ Numerical types are very simple in Jaguar. They are the signed and unsigned inte
 
 As such, they do not have a header _per se_, and the body size is negligible enough that decoders are advised to immediately parse them as opposed to delaying parsing as may be done for more complex types.
 
-## 5. Lists
+## 5. Objects
+Objects allow for the subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:  
+
+**Unstructured objects** (like dictionaries) provide a generic key-value mapping. Decoders **must not** attempt to interpret the structure of unstructured objects.  
+
+**Structured objects** provide a type-consistent method of encoding and coordinating information together at a deeper level than the primary stream, using a system of stream-defined typenames to identify the appropriate structure. All structured objects with the same typename must have the same structure; a structured object that does not conform to the declared structure is **invalid**, and decoders must ignore it. Decoders **may** either declare the stream invalid and terminate decoding **or** continue without the invalid object in this case.
+
+Unstructured object headers are fairly simple; they consist of a 16-bit unsigned integer field count.
+
+Structured object headers consist of an 8-bit unsigned integer typename string length, followed by the typename string data of that length.  
+
+### Structured Object Type Declarations
+Before a structured object typename may be used, it must appear as part of a structured object type declaration. A structured object type declaration follows this header format:  
+| Field | Size (bytes) |
+| ----- | ------------ |
+| Typename string size (unsigned int) | 1 |
+| Typename string | (size above) |
+| Field count | 2 |  
+
+If a structured object type declaration is encountered with a typename that has already been declared, decoders **may** either declare the stream invalid and terminate decoding **or** continue until the end of the declaration and ignore it.
+
+The body of a declaration is very similar to an unstructured object, with the exception that only value `TypeTag`s and names are kept. The one exception to this rule is that generic data types (lists, structured objects, vectors, and matrices) maintain their headers to ensure conformity. Lists do not have a defined size in a declaration; that is decided by the actual structured object.  
+
+Structured object type declarations **may not** contain other type declarations and **may not** exist within other objects (e.g. lists or other objects)
+
+### Object Body Data
+
+If the typename string of a structured object references a typename that has not yet been declared, decoders **must** declare the stream invalid and terminate decoding, as there is no way to accurately know the bounds of the broken object scope (since it could contain subobjects, using the scope boundary system does not work here).  
+
+Within a structured object, fields do not need to appear in the exact order that they are declared in the type declaration, provided that all fields are given a value.  
+
+The body structure is shared between object types. It is identical to the regular `Value` stream layout, with the exception that at the end of the scope, a scope boundary `Value` with the Object Scope Boundary `TypeTag` (`0x3E`) must be added. This type has no header or body, and serves only to delimit object boundaries. Decoders **must** ensure that they accurately track nesting depth using object headers and scope boundaries in order to ensure that the parsed layout is correct.  
+
+Objects **may** be nested up to a maximum depth of 64. If the maximum nesting depth is reached, different rules apply depending on context. If the maximum nesting depth for objects is reached, decoders **may** either declare the stream invalid and terminate decoding **or** attempt recovery using the following rules:  
+
+* If within a structured object type declaration, the entire declaration is invalid. Decoders **must** continue until back to the root level, ignoring all data. The typename is still reserved, and should it be referenced by a structured object, decoders **may** either declare the stream invalid and terminate decoding **or** ignore the broken object.  
+
+* Otherwise, decoders **must** continue unwinding scopes, ignoring all data, until either at the root stream level or within an unstructured object. Any `Value`s passed through during the unwinding are invalid and **must** be ignored.
+
+If an object does not contain the amount of fields specified (which may be detected using scope boundary `Values` if they are found earlier than expected or not present where they are expected), decoders **may** either declare the stream invalid and terminate decoding **or**, if the boundary object was found early attempt recovery, **may** attempt to recover following the same procedure as the maximum nesting depth reached.
+
+## 6. Lists
 Lists are a fairly simple construct in Jaguar. The header for a list `Value` is as follows:
 | Field | Size (bytes) |
 | ----- | ------------ |
@@ -123,9 +164,15 @@ All elements in the list **must** be of the type specified by the element `TypeT
 
 Elements within a list do not have the typical `TypeTag` followed by the name string prefix before their headers, as this is not needed to identify them.  
 
-Do note that a list overrun could be misinterpreted and break the decoder, especially if the bytes in the list overlap with real `TypeTag`s. For this reason, decoders are advised to always read and validate in its entirety the next presumed `Value` header after a list to ensure that this is not the case.  
+If a structured object is specified as the type of the list, then a 8-bit unsigned integer typename length followed by a typename string of that size must be included before the element count field. The header thus looks like this:  
+| Field | Size (bytes) |
+| ----- | ------------ |
+| Element `TypeTag` (`0x3C`) | 1 |
+| Typename string size (unsigned int) | 1 |
+| Typename string | (size above) |
+| Element Count (unsigned int) | 4 |
 
-## 6. Math Types
+## 7. Math Types
 Vector and matrix types are built into Jaguar. There are limitations on what data these math types may contain:  
 
 * **ONLY** floating-point numbers and (un)signed integers are permitted. 
@@ -159,47 +206,6 @@ Matrix headers follow the below format:
 | Element `TypeTag` | 1 |
 | # of Columns (unsigned int) | 1 |
 | # of Rows (unsigned int) | 1 |  
-
-## 7. Objects
-Objects allow for the subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:  
-
-**Unstructured objects** (like dictionaries) provide a generic key-value mapping. Decoders **must not** attempt to interpret the structure of unstructured objects.  
-
-**Structured objects** provide a type-consistent method of encoding and coordinating information together at a deeper level than the primary stream, using a system of stream-defined typenames to identify the appropriate structure. All structured objects with the same typename must have the same structure; a structured object that does not conform to the declared structure is **invalid**, and decoders must ignore it. Decoders **may** either declare the stream invalid and terminate decoding **or** continue without the invalid object in this case.
-
-Unstructured object headers are fairly simple; they consist of a 16-bit unsigned integer field count.
-
-Structured object headers consist of an 8-bit unsigned integer typename string length, followed by the typename string data of that length.  
-
-### Structured Object Type Declarations
-Before a structured object typename may be used, it must appear as part of a structured object type declaration. A structured object type declaration follows this header format:  
-| Field | Size (bytes) |
-| ----- | ------------ |
-| Typename string size (unsigned int) | 1 |
-| Typename string | (size above) |
-| Field count | 2 |  
-
-If a structured object type declaration is encountered with a typename that has already been declared, decoders **may** either declare the stream invalid and terminate decoding **or** continue until the end of the declaration and ignore it.
-
-The body of a declaration is very similar to an unstructured object, with the exception that only value `TypeTag`s and names are kept. The one exception to this rule is that generic data types (lists, structured objects, vectors, and matrices) maintain their headers to ensure conformity. Lists do not have a defined size in a declaration; that is decided by the actual structured object.  
-
-Structured object type declarations **may not** contain other type declarations.
-
-### Object Body Data
-
-If the typename string of a structured object references a typename that has not yet been declared, decoders **must** declare the stream invalid and terminate decoding, as there is no way to accurately know the bounds of the broken object scope (since it could contain subobjects, using the scope boundary system does not work here).  
-
-Within a structured object, fields do not need to appear in the exact order that they are declared in the type declaration, provided that all fields are given a value.  
-
-The body structure is shared between object types. It is identical to the regular `Value` stream layout, with the exception that at the end of the scope, a scope boundary `Value` with the Object Scope Boundary `TypeTag` (`0x3E`) must be added. This type has no header or body, and serves only to delimit object boundaries. Decoders **must** ensure that they accurately track nesting depth using object headers and scope boundaries in order to ensure that the parsed layout is correct.  
-
-Objects **may** be nested up to a maximum depth of 64. If the maximum nesting depth is reached, different rules apply depending on context. If the maximum nesting depth for objects is reached, decoders **may** either declare the stream invalid and terminate decoding **or** attempt recovery using the following rules:  
-
-* If within a structured object type declaration, the entire declaration is invalid. Decoders **must** continue until back to the root level, ignoring all data. The typename is still reserved, and should it be referenced by a structured object, decoders **may** either declare the stream invalid and terminate decoding **or** ignore the broken object.  
-
-* Otherwise, decoders **must** continue unwinding scopes, ignoring all data, until either at the root stream level or within an unstructured object. Any `Value`s passed through during the unwinding are invalid and **must** be ignored.
-
-If an object does not contain the amount of fields specified (which may be detected using scope boundary `Values` if they are found earlier than expected or not present where they are expected), decoders **may** either declare the stream invalid and terminate decoding **or**, if the boundary object was found early attempt recovery, **may** attempt to recover following the same procedure as the maximum nesting depth reached.
 
 ## 8. Buffer Values
 Buffer-type `Value`s are fairly straightforward. Their header consists of an 32-bit integer size (capped at the 24-bit integer limit for strings, which is roughly 16 MiB), and the body is simply the data.  

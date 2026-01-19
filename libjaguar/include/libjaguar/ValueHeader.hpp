@@ -24,7 +24,7 @@ namespace libjaguar {
 		uint8_t width;		///<Number of components in a vector or columns in a matrix
 		uint8_t height;		///<Number of rows in a matrix
 		uint16_t fieldCount;///<Number of fields in an unstructured object or a structured object type declaration
-		std::string typeID; ///<Structured object type ID
+		std::string typeID; ///<Structured object type ID (for freestanding structured object or list with a structured object element type)
 
 		///@}
 	};

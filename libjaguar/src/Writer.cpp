@@ -1,6 +1,6 @@
 #include "libjaguar/Writer.hpp"
 #include "libjaguar/TypeTags.hpp"
-#include "libjaguar/Value.hpp"
+#include "libjaguar/ValueHeader.hpp"
 #include "Unicode.hpp"
 
 #include <istream>
@@ -119,6 +119,10 @@ namespace libjaguar {
 		switch(header.type) {
 			case TypeTag::List:
 				stream->put(static_cast<uint8_t>(header.elementType));
+				if(header.elementType == TypeTag::StructuredObj) {
+					_WriteIntegerInternal(header.typeID.size(), 8);
+					WriteString(header.typeID);
+				}
 				_WriteIntegerInternal(header.size, bits_v<decltype(header.size)>);
 				break;
 			case TypeTag::Vector:
