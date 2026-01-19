@@ -326,6 +326,15 @@
 <li class="toctree-l1"><a class="reference internal" href="namespace_libjaguar.html">Namespace libjaguar</a></li>
 </ul>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html">Struct StructuredTypeLayout</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html">Struct StructuredTypeLayout::Field</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html">Struct ValueHeader</a></li>
+</ul>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Decoder.html">Class Decoder</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -357,6 +366,9 @@
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html">Enum TypeTag</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="function_StructuredTypeLayout_8hpp_1ae7a9e63f065755e5f2c2d1dfdc109b7d.html">Function libjaguar::ValidateTypeLayout</a></li>
 </ul>
 </div>
 </nav></div>
@@ -417,7 +429,7 @@
 <ul class="treeView" id="class-treeView">
   <li>
     <ul class="collapsibleList">
-      <li class="lastChild">Namespace <a href="namespace_libjaguar.html#namespace-libjaguar">libjaguar</a><ul><li>Class <a href="classlibjaguar_1_1Decoder.html#exhale-class-classlibjaguar-1-1Decoder">Decoder</a></li><li>Class <a href="classlibjaguar_1_1Encoder.html#exhale-class-classlibjaguar-1-1Encoder">Encoder</a></li><li>Template Class <a href="classlibjaguar_1_1Matrix.html#exhale-class-classlibjaguar-1-1Matrix">Matrix</a></li><li>Class <a href="classlibjaguar_1_1Reader.html#exhale-class-classlibjaguar-1-1Reader">Reader</a></li><li>Class <a href="classlibjaguar_1_1ScopedView.html#exhale-class-classlibjaguar-1-1ScopedView">ScopedView</a></li><li>Class <a href="classlibjaguar_1_1SVHandle.html#exhale-class-classlibjaguar-1-1SVHandle">SVHandle</a></li><li>Template Class <a href="classlibjaguar_1_1Vector_3_01T_00_012_01_4.html#exhale-class-classlibjaguar-1-1Vector-3-01T-00-012-01-4">Vector&lt; T, 2 &gt;</a></li><li>Template Class <a href="classlibjaguar_1_1Vector_3_01T_00_013_01_4.html#exhale-class-classlibjaguar-1-1Vector-3-01T-00-013-01-4">Vector&lt; T, 3 &gt;</a></li><li>Template Class <a href="classlibjaguar_1_1Vector_3_01T_00_014_01_4.html#exhale-class-classlibjaguar-1-1Vector-3-01T-00-014-01-4">Vector&lt; T, 4 &gt;</a></li><li>Class <a href="classlibjaguar_1_1Writer.html#exhale-class-classlibjaguar-1-1Writer">Writer</a></li><li class="lastChild">Enum <a href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html#exhale-enum-TypeTags-8hpp-1aeb1054c5aab114f844a08b5158020814">TypeTag</a></li></ul></li>
+      <li class="lastChild">Namespace <a href="namespace_libjaguar.html#namespace-libjaguar">libjaguar</a><ul><li>Struct <a href="structlibjaguar_1_1StructuredTypeLayout.html#exhale-struct-structlibjaguar-1-1StructuredTypeLayout">StructuredTypeLayout</a><ul><li class="lastChild">Struct <a href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html#exhale-struct-structlibjaguar-1-1StructuredTypeLayout-1-1Field">StructuredTypeLayout::Field</a></li></ul></li><li>Struct <a href="structlibjaguar_1_1ValueHeader.html#exhale-struct-structlibjaguar-1-1ValueHeader">ValueHeader</a></li><li>Class <a href="classlibjaguar_1_1Decoder.html#exhale-class-classlibjaguar-1-1Decoder">Decoder</a></li><li>Class <a href="classlibjaguar_1_1Encoder.html#exhale-class-classlibjaguar-1-1Encoder">Encoder</a></li><li>Template Class <a href="classlibjaguar_1_1Matrix.html#exhale-class-classlibjaguar-1-1Matrix">Matrix</a></li><li>Class <a href="classlibjaguar_1_1Reader.html#exhale-class-classlibjaguar-1-1Reader">Reader</a></li><li>Class <a href="classlibjaguar_1_1ScopedView.html#exhale-class-classlibjaguar-1-1ScopedView">ScopedView</a></li><li>Class <a href="classlibjaguar_1_1SVHandle.html#exhale-class-classlibjaguar-1-1SVHandle">SVHandle</a></li><li>Template Class <a href="classlibjaguar_1_1Vector_3_01T_00_012_01_4.html#exhale-class-classlibjaguar-1-1Vector-3-01T-00-012-01-4">Vector&lt; T, 2 &gt;</a></li><li>Template Class <a href="classlibjaguar_1_1Vector_3_01T_00_013_01_4.html#exhale-class-classlibjaguar-1-1Vector-3-01T-00-013-01-4">Vector&lt; T, 3 &gt;</a></li><li>Template Class <a href="classlibjaguar_1_1Vector_3_01T_00_014_01_4.html#exhale-class-classlibjaguar-1-1Vector-3-01T-00-014-01-4">Vector&lt; T, 4 &gt;</a></li><li>Class <a href="classlibjaguar_1_1Writer.html#exhale-class-classlibjaguar-1-1Writer">Writer</a></li><li class="lastChild">Enum <a href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html#exhale-enum-TypeTags-8hpp-1aeb1054c5aab114f844a08b5158020814">TypeTag</a></li></ul></li>
     </ul>
   </li><!-- only tree view element -->
 </ul><!-- /treeView class-treeView --></section>
@@ -426,7 +438,7 @@
 <ul class="treeView" id="file-treeView">
   <li>
     <ul class="collapsibleList">
-      <li class="lastChild">Directory <a href="dir_libjaguar.html#dir-libjaguar">libjaguar</a><ul><li class="lastChild">Directory <a href="dir_libjaguar_include.html#dir-libjaguar-include">include</a><ul><li class="lastChild">Directory <a href="dir_libjaguar_include_libjaguar.html#dir-libjaguar-include-libjaguar">libjaguar</a><ul><li>File <a href="file_libjaguar_include_libjaguar_Decoder.hpp.html#file-libjaguar-include-libjaguar-Decoder.hpp">Decoder.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_DllHelper.hpp.html#file-libjaguar-include-libjaguar-DllHelper.hpp">DllHelper.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_Encoder.hpp.html#file-libjaguar-include-libjaguar-Encoder.hpp">Encoder.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_MathTypes.hpp.html#file-libjaguar-include-libjaguar-MathTypes.hpp">MathTypes.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_Reader.hpp.html#file-libjaguar-include-libjaguar-Reader.hpp">Reader.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_ScopedView.hpp.html#file-libjaguar-include-libjaguar-ScopedView.hpp">ScopedView.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_Traits.hpp.html#file-libjaguar-include-libjaguar-Traits.hpp">Traits.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_TypeTags.hpp.html#file-libjaguar-include-libjaguar-TypeTags.hpp">TypeTags.hpp</a></li><li class="lastChild">File <a href="file_libjaguar_include_libjaguar_Writer.hpp.html#file-libjaguar-include-libjaguar-Writer.hpp">Writer.hpp</a></li></ul></li></ul></li></ul></li>
+      <li class="lastChild">Directory <a href="dir_libjaguar.html#dir-libjaguar">libjaguar</a><ul><li class="lastChild">Directory <a href="dir_libjaguar_include.html#dir-libjaguar-include">include</a><ul><li class="lastChild">Directory <a href="dir_libjaguar_include_libjaguar.html#dir-libjaguar-include-libjaguar">libjaguar</a><ul><li>File <a href="file_libjaguar_include_libjaguar_Decoder.hpp.html#file-libjaguar-include-libjaguar-Decoder.hpp">Decoder.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_DllHelper.hpp.html#file-libjaguar-include-libjaguar-DllHelper.hpp">DllHelper.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_Encoder.hpp.html#file-libjaguar-include-libjaguar-Encoder.hpp">Encoder.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_MathTypes.hpp.html#file-libjaguar-include-libjaguar-MathTypes.hpp">MathTypes.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_Reader.hpp.html#file-libjaguar-include-libjaguar-Reader.hpp">Reader.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_ScopedView.hpp.html#file-libjaguar-include-libjaguar-ScopedView.hpp">ScopedView.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_StructuredTypeLayout.hpp.html#file-libjaguar-include-libjaguar-StructuredTypeLayout.hpp">StructuredTypeLayout.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_Traits.hpp.html#file-libjaguar-include-libjaguar-Traits.hpp">Traits.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_TypeTags.hpp.html#file-libjaguar-include-libjaguar-TypeTags.hpp">TypeTags.hpp</a></li><li>File <a href="file_libjaguar_include_libjaguar_ValueHeader.hpp.html#file-libjaguar-include-libjaguar-ValueHeader.hpp">ValueHeader.hpp</a></li><li class="lastChild">File <a href="file_libjaguar_include_libjaguar_Writer.hpp.html#file-libjaguar-include-libjaguar-Writer.hpp">Writer.hpp</a></li></ul></li></ul></li></ul></li>
     </ul>
   </li><!-- only tree view element -->
 </ul><!-- /treeView file-treeView --></section>
@@ -439,6 +451,7 @@
 <li class="toctree-l1"><a class="reference internal" href="namespace_libjaguar.html">Namespace libjaguar</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="namespace_libjaguar.html#classes">Classes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="namespace_libjaguar.html#enums">Enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="namespace_libjaguar.html#functions">Functions</a></li>
 </ul>
 </li>
 </ul>
@@ -446,6 +459,75 @@
 </section>
 <section id="classes-and-structs">
 <h3>Classes and Structs<a class="headerlink" href="#classes-and-structs" title="Link to this heading"><span/></a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html">Struct StructuredTypeLayout</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#nested-relationships">Nested Relationships</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#nested-types">Nested Types</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#struct-documentation">Struct Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#_CPPv4N9libjaguar20StructuredTypeLayoutE"><code class="docutils literal notranslate"><span class="pre">StructuredTypeLayout</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#_CPPv4N9libjaguar20StructuredTypeLayout6typeIDE"><code class="docutils literal notranslate"><span class="pre">StructuredTypeLayout::typeID</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#_CPPv4N9libjaguar20StructuredTypeLayout6fieldsE"><code class="docutils literal notranslate"><span class="pre">StructuredTypeLayout::fields</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#_CPPv4N9libjaguar20StructuredTypeLayout5FieldE"><code class="docutils literal notranslate"><span class="pre">StructuredTypeLayout::Field</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field4typeE"><code class="docutils literal notranslate"><span class="pre">StructuredTypeLayout::Field::type</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field4nameE"><code class="docutils literal notranslate"><span class="pre">StructuredTypeLayout::Field::name</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field11elementTypeE"><code class="docutils literal notranslate"><span class="pre">StructuredTypeLayout::Field::elementType</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field13elementTypeIDE"><code class="docutils literal notranslate"><span class="pre">StructuredTypeLayout::Field::elementTypeID</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field5widthE"><code class="docutils literal notranslate"><span class="pre">StructuredTypeLayout::Field::width</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field6heightE"><code class="docutils literal notranslate"><span class="pre">StructuredTypeLayout::Field::height</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html">Struct StructuredTypeLayout::Field</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html#nested-relationships">Nested Relationships</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html#struct-documentation">Struct Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html#_CPPv4N9libjaguar20StructuredTypeLayout5FieldE"><code class="docutils literal notranslate"><span class="pre">Field</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field4typeE"><code class="docutils literal notranslate"><span class="pre">Field::type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field4nameE"><code class="docutils literal notranslate"><span class="pre">Field::name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field11elementTypeE"><code class="docutils literal notranslate"><span class="pre">Field::elementType</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field13elementTypeIDE"><code class="docutils literal notranslate"><span class="pre">Field::elementTypeID</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field5widthE"><code class="docutils literal notranslate"><span class="pre">Field::width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html#_CPPv4N9libjaguar20StructuredTypeLayout5Field6heightE"><code class="docutils literal notranslate"><span class="pre">Field::height</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html">Struct ValueHeader</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#struct-documentation">Struct Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeaderE"><code class="docutils literal notranslate"><span class="pre">ValueHeader</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeader4typeE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeader4nameE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeader11elementTypeE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::elementType</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeader4sizeE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeader5widthE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::width</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeader6heightE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::height</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeader10fieldCountE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::fieldCount</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html#_CPPv4N9libjaguar11ValueHeader6typeIDE"><code class="docutils literal notranslate"><span class="pre">ValueHeader::typeID</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Decoder.html">Class Decoder</a><ul>
@@ -656,6 +738,20 @@
 </ul>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading"><span/></a></h3>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="function_StructuredTypeLayout_8hpp_1ae7a9e63f065755e5f2c2d1dfdc109b7d.html">Function libjaguar::ValidateTypeLayout</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="function_StructuredTypeLayout_8hpp_1ae7a9e63f065755e5f2c2d1dfdc109b7d.html#function-documentation">Function Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="function_StructuredTypeLayout_8hpp_1ae7a9e63f065755e5f2c2d1dfdc109b7d.html#_CPPv4N9libjaguar18ValidateTypeLayoutERK20StructuredTypeLayout"><code class="docutils literal notranslate"><span class="pre">ValidateTypeLayout()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
 </section>
 </section>
 
@@ -714,6 +810,7 @@
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enums">Enums</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 </ul>
 </li>
 </ul>
