@@ -499,7 +499,7 @@
 <tr class="row-odd"><td><p>Structured Object Type Declaration</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0x3D</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Object Scope Boundary</p></td>
+<tr class="row-even"><td><p>Scope Boundary</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">0x3E</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>Vector</p></td>
@@ -512,7 +512,7 @@
 </table>
 </div>
 <p>More details about complex object types will be provided in later sections.</p>
-<p>The object scope boundary <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> does not function as a traditional <code class="docutils literal notranslate"><span class="pre">Value</span></code>; it serves to delimit object boundaries, has no header or body, and may only appear in certain locations. More information will be provided in section 7.</p>
+<p>The scope boundary <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> does not function as a traditional <code class="docutils literal notranslate"><span class="pre">Value</span></code>; it serves to delimit object and list boundaries, has no header or body, and may only appear in certain locations. More information will be provided in section 7.</p>
 </section>
 <section id="containers">
 <h2>3. Containers<a class="headerlink" href="#containers" title="Link to this heading"><span/></a></h2>
@@ -550,8 +550,54 @@
 <p>Numerical types are very simple in Jaguar. They are the signed and unsigned integers, floating-point numbers, and booleans (while not technically numbers, they are stored as <code class="docutils literal notranslate"><span class="pre">0</span></code> for false and <code class="docutils literal notranslate"><span class="pre">1</span></code> for true; any other value is <strong>invalid</strong>). All necessary information to read the data is contained in the <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>.</p>
 <p>As such, they do not have a header <em>per se</em>, and the body size is negligible enough that decoders are advised to immediately parse them as opposed to delaying parsing as may be done for more complex types.</p>
 </section>
+<section id="objects">
+<h2>5. Objects<a class="headerlink" href="#objects" title="Link to this heading"><span/></a></h2>
+<p>Objects allow for the subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:</p>
+<p><strong>Unstructured objects</strong> (like dictionaries) provide a generic key-value mapping. Decoders <strong>must not</strong> attempt to interpret the structure of unstructured objects.</p>
+<p><strong>Structured objects</strong> provide a type-consistent method of encoding and coordinating information together at a deeper level than the primary stream, using a system of stream-defined typenames to identify the appropriate structure. All structured objects with the same typename must have the same structure; a structured object that does not conform to the declared structure is <strong>invalid</strong>, and decoders must ignore it. Decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> continue without the invalid object in this case.</p>
+<p>Unstructured object headers are fairly simple; they consist of a 16-bit unsigned integer field count.</p>
+<p>Structured object headers consist of an 8-bit unsigned integer typename string length, followed by the typename string data of that length.</p>
+<section id="structured-object-type-declarations">
+<h3>Structured Object Type Declarations<a class="headerlink" href="#structured-object-type-declarations" title="Link to this heading"><span/></a></h3>
+<p>Before a structured object typename may be used, it must appear as part of a structured object type declaration. A structured object type declaration follows this header format:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Size (bytes)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Typename string size (unsigned int)</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Typename string</p></td>
+<td><p>(size above)</p></td>
+</tr>
+<tr class="row-even"><td><p>Field count</p></td>
+<td><p>2</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>If a structured object type declaration is encountered with a typename that has already been declared, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> continue until the end of the declaration and ignore it.</p>
+<p>The body of a declaration is very similar to an unstructured object, with the exception that only value <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s and names are kept. The one exception to this rule is that generic data types (lists, structured objects, vectors, and matrices) maintain their headers to ensure conformity. Lists do not have a defined size in a declaration; that is decided by the actual structured object.</p>
+<p>Structured object type declarations <strong>may not</strong> contain other type declarations and <strong>may not</strong> exist within other objects (e.g. lists or other objects)</p>
+</section>
+<section id="object-body-data">
+<h3>Object Body Data<a class="headerlink" href="#object-body-data" title="Link to this heading"><span/></a></h3>
+<p>If the typename string of a structured object references a typename that has not yet been declared, decoders <strong>must</strong> declare the stream invalid and terminate decoding, as there is no way to accurately know the bounds of the broken object scope (since it could contain subobjects, using the scope boundary system does not work here).</p>
+<p>Within a structured object, fields do not need to appear in the exact order that they are declared in the type declaration, provided that all fields are given a value.</p>
+<p>The body structure is shared between object types. It is identical to the regular <code class="docutils literal notranslate"><span class="pre">Value</span></code> stream layout, with the exception that at the end of the scope, a scope boundary <code class="docutils literal notranslate"><span class="pre">Value</span></code> with the Object Scope Boundary <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> (<code class="docutils literal notranslate"><span class="pre">0x3E</span></code>) must be added. This type has no header or body, and serves only to delimit object boundaries. Decoders <strong>must</strong> ensure that they accurately track nesting depth using object headers and scope boundaries in order to ensure that the parsed layout is correct.</p>
+<p>Objects <strong>may</strong> be nested up to a maximum depth of 64. If the maximum nesting depth is reached, different rules apply depending on context. If the maximum nesting depth for objects is reached, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> attempt recovery using the following rules:</p>
+<ul class="simple">
+<li><p>If within a structured object type declaration, the entire declaration is invalid. Decoders <strong>must</strong> continue until back to the root level, ignoring all data. The typename is still reserved, and should it be referenced by a structured object, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> ignore the broken object.</p></li>
+<li><p>Otherwise, decoders <strong>must</strong> continue unwinding scopes, ignoring all data, until either at the root stream level or within an unstructured object. Any <code class="docutils literal notranslate"><span class="pre">Value</span></code>s passed through during the unwinding are invalid and <strong>must</strong> be ignored.</p></li>
+</ul>
+<p>If an object does not contain the amount of fields specified (which may be detected using scope boundary <code class="docutils literal notranslate"><span class="pre">Values</span></code> if they are found earlier than expected or not present where they are expected), decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong>, if the boundary object was found early attempt recovery, <strong>may</strong> attempt to recover following the same procedure as the maximum nesting depth reached.</p>
+</section>
+</section>
 <section id="lists">
-<h2>5. Lists<a class="headerlink" href="#lists" title="Link to this heading"><span/></a></h2>
+<h2>6. Lists<a class="headerlink" href="#lists" title="Link to this heading"><span/></a></h2>
 <p>Lists are a fairly simple construct in Jaguar. The header for a list <code class="docutils literal notranslate"><span class="pre">Value</span></code> is as follows:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -572,10 +618,32 @@
 <p>The body is then the list elements in sequential order, with zero-based indexing.</p>
 <p>All elements in the list <strong>must</strong> be of the type specified by the element <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> field, and there <strong>must</strong> be exactly the number of elements specified by the element count field.</p>
 <p>Elements within a list do not have the typical <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> followed by the name string prefix before their headers, as this is not needed to identify them.</p>
-<p>Do note that a list overrun could be misinterpreted and break the decoder, especially if the bytes in the list overlap with real <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s. For this reason, decoders are advised to always read and validate in its entirety the next presumed <code class="docutils literal notranslate"><span class="pre">Value</span></code> header after a list to ensure that this is not the case.</p>
+<p>If a structured object is specified as the type of the list, then a 8-bit unsigned integer typename length followed by a typename string of that size must be included before the element count field. The header thus looks like this:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Size (bytes)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Element <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> (<code class="docutils literal notranslate"><span class="pre">0x3C</span></code>)</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Typename string size (unsigned int)</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>Typename string</p></td>
+<td><p>(size above)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Element Count (unsigned int)</p></td>
+<td><p>4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </section>
 <section id="math-types">
-<h2>6. Math Types<a class="headerlink" href="#math-types" title="Link to this heading"><span/></a></h2>
+<h2>7. Math Types<a class="headerlink" href="#math-types" title="Link to this heading"><span/></a></h2>
 <p>Vector and matrix types are built into Jaguar. There are limitations on what data these math types may contain:</p>
 <ul class="simple">
 <li><p><strong>ONLY</strong> floating-point numbers and (un)signed integers are permitted.</p></li>
@@ -629,52 +697,6 @@
 </tbody>
 </table>
 </div>
-</section>
-<section id="objects">
-<h2>7. Objects<a class="headerlink" href="#objects" title="Link to this heading"><span/></a></h2>
-<p>Objects allow for the subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:</p>
-<p><strong>Unstructured objects</strong> (like dictionaries) provide a generic key-value mapping. Decoders <strong>must not</strong> attempt to interpret the structure of unstructured objects.</p>
-<p><strong>Structured objects</strong> provide a type-consistent method of encoding and coordinating information together at a deeper level than the primary stream, using a system of stream-defined typenames to identify the appropriate structure. All structured objects with the same typename must have the same structure; a structured object that does not conform to the declared structure is <strong>invalid</strong>, and decoders must ignore it. Decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> continue without the invalid object in this case.</p>
-<p>Unstructured object headers are fairly simple; they consist of a 16-bit unsigned integer field count.</p>
-<p>Structured object headers consist of an 8-bit unsigned integer typename string length, followed by the typename string data of that length.</p>
-<section id="structured-object-type-declarations">
-<h3>Structured Object Type Declarations<a class="headerlink" href="#structured-object-type-declarations" title="Link to this heading"><span/></a></h3>
-<p>Before a structured object typename may be used, it must appear as part of a structured object type declaration. A structured object type declaration follows this header format:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Size (bytes)</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Typename string size (unsigned int)</p></td>
-<td><p>1</p></td>
-</tr>
-<tr class="row-odd"><td><p>Typename string</p></td>
-<td><p>(size above)</p></td>
-</tr>
-<tr class="row-even"><td><p>Field count</p></td>
-<td><p>2</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>If a structured object type declaration is encountered with a typename that has already been declared, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> continue until the end of the declaration and ignore it.</p>
-<p>The body of a declaration is very similar to an unstructured object, with the exception that only value <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code>s and names are kept. The one exception to this rule is that generic data types (lists, structured objects, vectors, and matrices) maintain their headers to ensure conformity. Lists do not have a defined size in a declaration; that is decided by the actual structured object.</p>
-<p>Structured object type declarations <strong>may not</strong> contain other type declarations.</p>
-</section>
-<section id="object-body-data">
-<h3>Object Body Data<a class="headerlink" href="#object-body-data" title="Link to this heading"><span/></a></h3>
-<p>If the typename string of a structured object references a typename that has not yet been declared, decoders <strong>must</strong> declare the stream invalid and terminate decoding, as there is no way to accurately know the bounds of the broken object scope (since it could contain subobjects, using the scope boundary system does not work here).</p>
-<p>Within a structured object, fields do not need to appear in the exact order that they are declared in the type declaration, provided that all fields are given a value.</p>
-<p>The body structure is shared between object types. It is identical to the regular <code class="docutils literal notranslate"><span class="pre">Value</span></code> stream layout, with the exception that at the end of the scope, a scope boundary <code class="docutils literal notranslate"><span class="pre">Value</span></code> with the Object Scope Boundary <code class="docutils literal notranslate"><span class="pre">TypeTag</span></code> (<code class="docutils literal notranslate"><span class="pre">0x3E</span></code>) must be added. This type has no header or body, and serves only to delimit object boundaries. Decoders <strong>must</strong> ensure that they accurately track nesting depth using object headers and scope boundaries in order to ensure that the parsed layout is correct.</p>
-<p>Objects <strong>may</strong> be nested up to a maximum depth of 64. If the maximum nesting depth is reached, different rules apply depending on context. If the maximum nesting depth for objects is reached, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> attempt recovery using the following rules:</p>
-<ul class="simple">
-<li><p>If within a structured object type declaration, the entire declaration is invalid. Decoders <strong>must</strong> continue until back to the root level, ignoring all data. The typename is still reserved, and should it be referenced by a structured object, decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> ignore the broken object.</p></li>
-<li><p>Otherwise, decoders <strong>must</strong> continue unwinding scopes, ignoring all data, until either at the root stream level or within an unstructured object. Any <code class="docutils literal notranslate"><span class="pre">Value</span></code>s passed through during the unwinding are invalid and <strong>must</strong> be ignored.</p></li>
-</ul>
-<p>If an object does not contain the amount of fields specified (which may be detected using scope boundary <code class="docutils literal notranslate"><span class="pre">Values</span></code> if they are found earlier than expected or not present where they are expected), decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong>, if the boundary object was found early attempt recovery, <strong>may</strong> attempt to recover following the same procedure as the maximum nesting depth reached.</p>
-</section>
 </section>
 <section id="buffer-values">
 <h2>8. Buffer Values<a class="headerlink" href="#buffer-values" title="Link to this heading"><span/></a></h2>
@@ -749,13 +771,13 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#typing">2. Typing</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#containers">3. Containers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#numerical-types">4. Numerical Types</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lists">5. Lists</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#math-types">6. Math Types</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#objects">7. Objects</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#objects">5. Objects</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#structured-object-type-declarations">Structured Object Type Declarations</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#object-body-data">Object Body Data</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lists">6. Lists</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#math-types">7. Math Types</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#buffer-values">8. Buffer Values</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#substreams">Substreams</a></li>
 </ul>
