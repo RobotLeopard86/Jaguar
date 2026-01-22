@@ -24,10 +24,10 @@ namespace libjaguar {
 
 			///@name Type-specific properties
 			///@{
-			TypeTag elementType;  ///<Type of contained element (for vectors, matrices, and lists)
-			TypeTag elementTypeID;///<Type ID for a structured object or a list containing structured objects
-			uint8_t width;		  ///<Number of components in a vector or columns in a matrix
-			uint8_t height;		  ///<Number of rows in a matrix
+			TypeTag elementType;	  ///<Type of contained element (for vectors, matrices, and lists)
+			std::string elementTypeID;///<Type ID for a structured object or a list containing structured objects
+			uint8_t width;			  ///<Number of components in a vector or columns in a matrix
+			uint8_t height;			  ///<Number of rows in a matrix
 
 			///@}
 		};

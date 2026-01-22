@@ -25,22 +25,13 @@ namespace libjaguar {
 		///@endcond
 
 		/**
-		 * @brief Access the underlying stream to perform operations outside of the decoder
+		 * @brief Get a reference to the Reader being used
 		 *
-		 * This is to allow for applications to still control the stream, while ensuring that ownership stays with the underlying Reader
+		 * @return The reader
 		 *
-		 * @return The stream, or @c nullptr if this object has been moved from
+		 * @throws std::runtime_error If the reader object is invalid due to moving
 		 */
-		std::istream* operator->();
-
-		/**
-		 * @brief Access the underlying stream to perform operations outside of the decoder
-		 *
-		 * This is to allow for applications to still control the stream, while ensuring that ownership stays with the underlying Reader
-		 *
-		 * @return The stream, or @c nullptr if this object has been moved from
-		 */
-		std::istream* operator*();
+		Reader& GetReader();
 
 	  private:
 		Reader reader;

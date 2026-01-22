@@ -25,22 +25,13 @@ namespace libjaguar {
 		///@endcond
 
 		/**
-		 * @brief Access the underlying stream to perform operations outside of the encoder
+		 * @brief Get a reference to the Writer being used
 		 *
-		 * This is to allow for applications to still control the stream, while ensuring that ownership stays with the underlying Writer
+		 * @return The writer
 		 *
-		 * @return The stream, or @c nullptr if this object has been moved from
+		 * @throws std::runtime_error If the writer object is invalid due to moving
 		 */
-		std::ostream* operator->();
-
-		/**
-		 * @brief Access the underlying stream to perform operations outside of the encoder
-		 *
-		 * This is to allow for applications to still control the stream, while ensuring that ownership stays with the underlying Writer
-		 *
-		 * @return The stream, or @c nullptr if this object has been moved from
-		 */
-		std::ostream* operator*();
+		Writer& GetWriter();
 
 	  private:
 		Writer writer;

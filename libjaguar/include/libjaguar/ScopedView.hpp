@@ -6,6 +6,7 @@
 #include <span>
 #include <istream>
 #include <memory>
+#include <utility>
 
 namespace libjaguar {
 	/**

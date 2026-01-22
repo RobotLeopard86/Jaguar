@@ -16,11 +16,8 @@ namespace libjaguar {
 		return *this;
 	}
 
-	std::ostream* Encoder::operator->() {
-		return (writerValid ? *writer : nullptr);
-	}
-
-	std::ostream* Encoder::operator*() {
-		return (writerValid ? *writer : nullptr);
+	Writer& Encoder::GetWriter() {
+		if(!writerValid) throw std::runtime_error("Encoder has no valid writer!");
+		return writer;
 	}
 }

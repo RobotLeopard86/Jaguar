@@ -1,5 +1,7 @@
 #include "libjaguar/Decoder.hpp"
 
+#include <stdexcept>
+
 namespace libjaguar {
 	Decoder::Decoder(Reader&& reader) : reader(std::move(reader)), readerValid(true) {}
 
@@ -16,11 +18,8 @@ namespace libjaguar {
 		return *this;
 	}
 
-	std::istream* Decoder::operator->() {
-		return (readerValid ? *reader : nullptr);
-	}
-
-	std::istream* Decoder::operator*() {
-		return (readerValid ? *reader : nullptr);
+	Reader& Decoder::GetReader() {
+		if(!readerValid) throw std::runtime_error("Decoder has no valid reader!");
+		return reader;
 	}
 }
