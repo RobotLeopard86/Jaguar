@@ -1,7 +1,7 @@
 #include "libjaguar/Reader.hpp"
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/ValueHeader.hpp"
-#include "Unicode.hpp"
+#include "Utilities.hpp"
 
 #include <cstdint>
 #include <stdexcept>

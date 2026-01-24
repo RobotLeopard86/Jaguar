@@ -1,7 +1,7 @@
 #include "libjaguar/Writer.hpp"
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/ValueHeader.hpp"
-#include "Unicode.hpp"
+#include "Utilities.hpp"
 
 #include <istream>
 #include <array>
