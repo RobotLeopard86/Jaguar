@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DllHelper.hpp"
+#include "Index.hpp"
 #include "Reader.hpp"
 
 namespace libjaguar {
@@ -32,6 +33,15 @@ namespace libjaguar {
 		 * @throws std::runtime_error If the reader object is invalid due to moving
 		 */
 		Reader& GetReader();
+
+		/**
+		 * @brief Access the stream structure index
+		 *
+		 * @return The index
+		 *
+		 * @throws
+		 */
+		const Index& GetIndex();
 
 	  private:
 		Reader reader;
