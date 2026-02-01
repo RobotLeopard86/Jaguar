@@ -43,7 +43,7 @@ namespace libjaguar {
 		}
 	}
 
-	void Writer::_WriteBufferInternal(std::span<std::byte>& value) {
+	void Writer::_WriteBufferInternal(std::span<unsigned char>& value) {
 		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 
 		stream->write(reinterpret_cast<const char*>(value.data()), value.size());

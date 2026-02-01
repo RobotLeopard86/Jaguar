@@ -123,7 +123,7 @@ namespace libjaguar {
 		 */
 		template<byte_range R>
 		void WriteBuffer(const R& value) {
-			std::span<std::byte> span(value.begin(), value.end());
+			std::span<unsigned char> span(value.begin(), value.end());
 			_WriteBufferInternal(span);
 		}
 
@@ -142,6 +142,6 @@ namespace libjaguar {
 		std::unique_ptr<std::ostream> stream;
 
 		void _WriteIntegerInternal(uint64_t value, uint8_t bits);
-		void _WriteBufferInternal(std::span<std::byte>& value);
+		void _WriteBufferInternal(std::span<unsigned char>& value);
 	};
 }

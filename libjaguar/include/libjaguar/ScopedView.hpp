@@ -30,7 +30,7 @@ namespace libjaguar {
 		 */
 		template<byte_range R>
 		void Read(R& out, uint32_t byteCount) {
-			std::span<std::byte> span(out.begin(), out.end());
+			std::span<unsigned char> span(out.begin(), out.end());
 			_ReadInternal(span, byteCount);
 		}
 
@@ -87,7 +87,7 @@ namespace libjaguar {
 		bool valid;
 		bool eof;
 
-		void _ReadInternal(std::span<std::byte>& out, uint32_t byteCount);
+		void _ReadInternal(std::span<unsigned char>& out, uint32_t byteCount);
 	};
 
 	/**

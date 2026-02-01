@@ -234,7 +234,7 @@ namespace libjaguar {
 	ScopedView::ScopedView(std::istream* streamPtr, std::streamoff size)
 	  : stream(streamPtr), end(stream->tellg() + size), valid(true), eof(false) {}
 
-	void ScopedView::_ReadInternal(std::span<std::byte>& out, uint32_t byteCount) {
+	void ScopedView::_ReadInternal(std::span<unsigned char>& out, uint32_t byteCount) {
 		if(!valid || eof) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
 		if(byteCount > out.size_bytes()) throw std::runtime_error("Byte read count exceeds the size of the output buffer!");
 		if(byteCount > GetBytesRemaining()) throw std::runtime_error("Byte read count exceeds number of remaining bytes!");
