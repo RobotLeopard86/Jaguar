@@ -453,7 +453,11 @@
 <dt class="sig sig-object cpp" id="_CPPv4N9libjaguar7DecoderE">
 <span id="_CPPv3N9libjaguar7DecoderE"></span><span id="_CPPv2N9libjaguar7DecoderE"></span><span id="libjaguar::Decoder"></span><span class="target" id="classlibjaguar_1_1Decoder"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Decoder</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar7DecoderE" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Stateful Jaguar stream interpreter and index builder. </p>
-<p><strong>This class is move-only!</strong></p>
+<p><strong>This class is move-only!</strong> </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This class does not return any values; it only builds a structure. Your stream must be seekable to allow rewinding if you want to later read those values using the produced <a class="reference internal" href="structlibjaguar_1_1Index.html#structlibjaguar_1_1Index"><span class="std std-ref">Index</span></a>.</p>
+</div>
 </dd></dl>
 
 </section>
@@ -538,7 +542,7 @@
 
   <p class="copyright">
     
-      © Copyright 2025 Owen Z. Siebers.
+      © Copyright 2026 Owen Z. Siebers.
       <br/>
     
   </p>
