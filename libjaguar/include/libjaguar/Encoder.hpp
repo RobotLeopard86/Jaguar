@@ -10,6 +10,7 @@ namespace libjaguar {
 	 * <b>This class is move-only!</b>
 	 */
 	class LJAPI Encoder {
+	  public:
 		/**
 		 * @brief Create a encoder that will own and maintain a Writer
 		 *

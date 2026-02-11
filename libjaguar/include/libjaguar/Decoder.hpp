@@ -14,6 +14,7 @@ namespace libjaguar {
 	 * <b>This class is move-only!</b>
 	 */
 	class LJAPI Decoder {
+	  public:
 		/**
 		 * @brief Create a decoder that will own and maintain a Reader
 		 *
