@@ -454,6 +454,34 @@
 <span id="_CPPv3N9libjaguar7EncoderE"></span><span id="_CPPv2N9libjaguar7EncoderE"></span><span id="libjaguar::Encoder"></span><span class="target" id="classlibjaguar_1_1Encoder"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Encoder</span></span></span><a class="headerlink" href="#_CPPv4N9libjaguar7EncoderE" title="Link to this definition"><span/></a><br /></dt>
 <dd><p>Stateful and contextual Jaguar data writer. </p>
 <p><strong>This class is move-only!</strong></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar7Encoder7EncoderERR6Writer">
+<span id="_CPPv3N9libjaguar7Encoder7EncoderERR6Writer"></span><span id="_CPPv2N9libjaguar7Encoder7EncoderERR6Writer"></span><span id="libjaguar::Encoder::Encoder__WriterRR"></span><span class="target" id="classlibjaguar_1_1Encoder_1a3af5ce06c2bf31ec593df3d0548c2a69"></span><span class="sig-name descname"><span class="n"><span class="pre">Encoder</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="classlibjaguar_1_1Writer.html#_CPPv4N9libjaguar6WriterE" title="libjaguar::Writer"><span class="n"><span class="pre">Writer</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">writer</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar7Encoder7EncoderERR6Writer" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Create a encoder that will own and maintain a <a class="reference internal" href="classlibjaguar_1_1Writer.html#classlibjaguar_1_1Writer"><span class="std std-ref">Writer</span></a>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>writer</strong> – The writer to use </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar7Encoder9GetWriterEv">
+<span id="_CPPv3N9libjaguar7Encoder9GetWriterEv"></span><span id="_CPPv2N9libjaguar7Encoder9GetWriterEv"></span><span id="libjaguar::Encoder::GetWriter"></span><span class="target" id="classlibjaguar_1_1Encoder_1a59048dc0287bc3e64534676d95b4f401"></span><a class="reference internal" href="classlibjaguar_1_1Writer.html#_CPPv4N9libjaguar6WriterE" title="libjaguar::Writer"><span class="n"><span class="pre">Writer</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetWriter</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar7Encoder9GetWriterEv" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Get a reference to the <a class="reference internal" href="classlibjaguar_1_1Writer.html#classlibjaguar_1_1Writer"><span class="std std-ref">Writer</span></a> being used. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Throws<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the writer object is invalid due to moving </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The writer</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
 </dd></dl>
 
 </section>
@@ -507,7 +535,11 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-documentation">Class Documentation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7EncoderE"><code class="docutils literal notranslate"><span class="pre">libjaguar::Encoder</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7EncoderE"><code class="docutils literal notranslate"><span class="pre">libjaguar::Encoder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7Encoder7EncoderERR6Writer"><code class="docutils literal notranslate"><span class="pre">Encoder()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7Encoder9GetWriterEv"><code class="docutils literal notranslate"><span class="pre">GetWriter()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

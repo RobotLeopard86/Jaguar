@@ -458,6 +458,77 @@
 <p class="admonition-title">Note</p>
 <p>This class does not return any values; it only builds a structure. Your stream must be seekable to allow rewinding if you want to later read those values using the produced <a class="reference internal" href="structlibjaguar_1_1Index.html#structlibjaguar_1_1Index"><span class="std std-ref">Index</span></a>.</p>
 </div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar7Decoder7DecoderERR6Reader">
+<span id="_CPPv3N9libjaguar7Decoder7DecoderERR6Reader"></span><span id="_CPPv2N9libjaguar7Decoder7DecoderERR6Reader"></span><span id="libjaguar::Decoder::Decoder__ReaderRR"></span><span class="target" id="classlibjaguar_1_1Decoder_1aa3f740f579aa79767319bd39cc44f8ec"></span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Decoder</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="classlibjaguar_1_1Reader.html#_CPPv4N9libjaguar6ReaderE" title="libjaguar::Reader"><span class="n"><span class="pre">Reader</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">reader</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar7Decoder7DecoderERR6Reader" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Create a decoder that will own and maintain a <a class="reference internal" href="classlibjaguar_1_1Reader.html#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a>. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reader</strong> – The reader to use </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NO9libjaguar7Decoder13ReleaseReaderEv">
+<span id="_CPPv3NO9libjaguar7Decoder13ReleaseReaderEv"></span><span id="_CPPv2NO9libjaguar7Decoder13ReleaseReaderEv"></span><span id="libjaguar::Decoder::ReleaseReaderO"></span><span class="target" id="classlibjaguar_1_1Decoder_1a69926a82eb514fa5bbeeebf01c8d89e1"></span><a class="reference internal" href="classlibjaguar_1_1Reader.html#_CPPv4N9libjaguar6ReaderE" title="libjaguar::Reader"><span class="n"><span class="pre">Reader</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">ReleaseReader</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">&amp;&amp;</span></span><a class="headerlink" href="#_CPPv4NO9libjaguar7Decoder13ReleaseReaderEv" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Release the reader for use outside the decoder and invalidate it. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function requires you to move from the decoder, like this: <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Reader</span><span class="w"> </span><span class="n">myReader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">myDecoder</span><span class="p">).</span><span class="n">GetReader</span><span class="p">();</span>
+</pre></div>
+</div>
+</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Throws<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the reader object is invalid due to moving </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The reader</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK9libjaguar7Decoder8GetIndexEv">
+<span id="_CPPv3NK9libjaguar7Decoder8GetIndexEv"></span><span id="_CPPv2NK9libjaguar7Decoder8GetIndexEv"></span><span id="libjaguar::Decoder::GetIndexC"></span><span class="target" id="classlibjaguar_1_1Decoder_1a7525799afa5f4ceeb93b00881e36c398"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="structlibjaguar_1_1Index.html#_CPPv4N9libjaguar5IndexE" title="libjaguar::Index"><span class="n"><span class="pre">Index</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetIndex</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK9libjaguar7Decoder8GetIndexEv" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Access the stream structure index. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Throws<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If parsing errors occurred </p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The index</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar7Decoder5ParseEv">
+<span id="_CPPv3N9libjaguar7Decoder5ParseEv"></span><span id="_CPPv2N9libjaguar7Decoder5ParseEv"></span><span id="libjaguar::Decoder::Parse"></span><span class="target" id="classlibjaguar_1_1Decoder_1a8a05038e0a48757f794a2d23dc01b3bf"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Parse</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar7Decoder5ParseEv" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Parse the Jaguar stream structure until EOF is reached or the decoder encounters invalid data. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Throws<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If parsing errors occurred &amp;#8212; this will invalidate the decoder </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar7Decoder6FailedEv">
+<span id="_CPPv3N9libjaguar7Decoder6FailedEv"></span><span id="_CPPv2N9libjaguar7Decoder6FailedEv"></span><span id="libjaguar::Decoder::Failed"></span><span class="target" id="classlibjaguar_1_1Decoder_1a7d727bd99b4ee2b37453747adb668cee"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Failed</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar7Decoder6FailedEv" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Check if the decoder has encountered parsing errors. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The failure flag </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
 </dd></dl>
 
 </section>
@@ -511,7 +582,14 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#class-documentation">Class Documentation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7DecoderE"><code class="docutils literal notranslate"><span class="pre">libjaguar::Decoder</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7DecoderE"><code class="docutils literal notranslate"><span class="pre">libjaguar::Decoder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7Decoder7DecoderERR6Reader"><code class="docutils literal notranslate"><span class="pre">Decoder()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NO9libjaguar7Decoder13ReleaseReaderEv"><code class="docutils literal notranslate"><span class="pre">ReleaseReader()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4NK9libjaguar7Decoder8GetIndexEv"><code class="docutils literal notranslate"><span class="pre">GetIndex()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7Decoder5ParseEv"><code class="docutils literal notranslate"><span class="pre">Parse()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7Decoder6FailedEv"><code class="docutils literal notranslate"><span class="pre">Failed()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
