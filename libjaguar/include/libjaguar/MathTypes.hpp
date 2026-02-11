@@ -2,6 +2,7 @@
 
 #include "DllHelper.hpp"
 #include "Traits.hpp"
+
 #include <stdexcept>
 
 namespace libjaguar {

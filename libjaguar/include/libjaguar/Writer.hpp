@@ -28,7 +28,7 @@ namespace libjaguar {
 		 *
 		 * @param ostream The stream into which to write Jaguar data
 		 */
-		Writer(std::unique_ptr<std::ostream>&& ostream);
+		explicit Writer(std::unique_ptr<std::ostream>&& ostream);
 
 		///@cond
 		Writer(const Writer&) = delete;

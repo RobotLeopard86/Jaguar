@@ -3,7 +3,7 @@ from textwrap import dedent
 
 version = os.environ.get("BUILDVER", default="latest")
 project = 'Jaguar'
-copyright = '2025 Owen Z. Siebers'
+copyright = '2026 Owen Z. Siebers'
 author = 'Owen Z. Siebers (RobotLeopard86)'
 release = version
 

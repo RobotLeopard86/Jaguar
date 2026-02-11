@@ -27,7 +27,7 @@ namespace libjaguar {
 		 *
 		 * @param istream The stream containing Jaguar data
 		 */
-		Reader(std::unique_ptr<std::istream>&& istream);
+		explicit Reader(std::unique_ptr<std::istream>&& istream);
 
 		///@cond
 		Reader(const Reader&) = delete;
