@@ -3,6 +3,9 @@
 #include "DllHelper.hpp"
 #include "Index.hpp"
 #include "Reader.hpp"
+#include "libjaguar/Index.hpp"
+#include <optional>
+#include <stdexcept>
 
 namespace libjaguar {
 	/**
@@ -48,14 +51,19 @@ namespace libjaguar {
 		 *
 		 * @return The index
 		 *
-		 * @throws std::runtime_error If parsing errors occurred
+		 * @throws std::runtime_error If parsing errors occurred or the stream has not yet been parsed
 		 */
-		const Index& GetIndex() const;
+		const Index& GetIndex() const {
+			if(!index.has_value()) throw std::runtime_error("Stream has not yet been parsed; no index is available!");
+			if(!failFlag) return index.value();
+			throw std::runtime_error("Cannot obtain the index; parsing errors occurred!");
+		}
 
 		/**
 		 * @brief Parse the Jaguar stream structure until EOF is reached or the decoder encounters invalid data
 		 *
 		 * @throws std::runtime_error If parsing errors occurred --- this will invalidate the decoder
+		 * @throws std::runtime_error If the stream has already been parsed
 		 */
 		void Parse();
 
@@ -64,11 +72,13 @@ namespace libjaguar {
 		 *
 		 * @return The failure flag
 		 */
-		bool Failed();
+		bool Failed() {
+			return failFlag;
+		}
 
 	  private:
 		Reader reader;
-		Index index;
+		std::optional<Index> index;
 		bool readerValid = true;
 		bool failFlag = false;
 	};

@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <array>
 #include <stdexcept>
+#include <vector>
 
 constexpr inline uint32_t scopedViewChunkSize = 64 * 1024;//64 KiB (one KiB is 1024 bytes)
 
@@ -118,5 +119,33 @@ namespace libjaguar {
 
 		//All characters passed, string is valid as long as we don't have outstanding continuation bytes
 		return expectedContinuations == 0;
+	}
+
+	inline uint64_t GenIndexID(std::string path) {
+		//Initial seed
+		uint64_t hash = 0xEE674237;
+
+		//Split path components
+		std::vector<std::string> components;
+		unsigned int idx = 0;
+		for(char c : path) {
+			if(c == '.') {
+				++idx;
+				components.push_back("");
+				continue;
+			}
+			if(c == '[') {
+				++idx;
+				components.push_back("$$arr");
+				continue;
+			}
+			if(c == ']') {
+				continue;
+			}
+			components[idx] += c;
+		}
+
+		//Return end product
+		return hash;
 	}
 }
