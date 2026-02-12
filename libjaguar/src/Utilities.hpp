@@ -123,11 +123,12 @@ namespace libjaguar {
 
 	inline uint64_t GenIndexID(std::string path) {
 		//Initial seed
-		uint64_t hash = 0xEE674237;
+		uint64_t hash = 0xEE674237ull;
 
 		//Split path components
 		std::vector<std::string> components;
-		unsigned int idx = 0;
+		components.push_back("");
+		std::size_t idx = 0;
 		for(char c : path) {
 			if(c == '.') {
 				++idx;
@@ -143,6 +144,38 @@ namespace libjaguar {
 				continue;
 			}
 			components[idx] += c;
+		}
+
+		//Run hashing
+		for(const std::string& component : components) {
+			//Convert string to bytes
+			uint64_t hc = 0;
+			for(char c : component) hc = (hc * 257 + static_cast<unsigned char>(c));
+
+			//Multiply hash component by 37 because why not
+			hc *= 37;
+
+			//Fold new component into hash
+			hash *= (hc + 2);
+
+			//Swap the upper and lower nibbles of all bytes
+			{
+				uint64_t nibbleSwapped = 0;
+				for(uint8_t i = 0; i < 8; ++i) {
+					//Get the byte out
+					uint8_t byte = (hash >> (i * 8)) & 0xFF;
+
+					//Swap it
+					uint8_t swappedByte = ((byte & 0x0F) << 4) | ((byte & 0xF0) >> 4);
+
+					//Put the swapped byte back in
+					nibbleSwapped |= (static_cast<uint64_t>(swappedByte) << (i * 8));
+				}
+				hash = nibbleSwapped;
+			}
+
+			//Rotate hash left by one byte
+			hash = (hash << 8) | (hash >> 56);
 		}
 
 		//Return end product
