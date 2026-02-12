@@ -5,6 +5,7 @@
 #include "TypeTags.hpp"
 
 #include <cstdint>
+#include <unordered_map>
 #include <vector>
 #include <string>
 
@@ -43,7 +44,7 @@ namespace libjaguar {
 	 * @brief An index describing the structure of the Jaguar stream
 	 */
 	struct LJAPI Index {
-		std::vector<StructuredTypeLayout> types;///<List of recognized structured object types
-		ScopeEntry root;						///<Root scope entry
+		std::unordered_map<std::string, StructuredTypeLayout> types;///<List of recognized structured object types
+		ScopeEntry root;											///<Root scope entry
 	};
 }

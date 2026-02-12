@@ -81,5 +81,7 @@ namespace libjaguar {
 		std::optional<Index> index;
 		bool readerValid = true;
 		bool failFlag = false;
+
+		void _ParseScopeInternal(ScopeEntry&, unsigned int expectedFieldCount);
 	};
 }
