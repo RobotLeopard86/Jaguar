@@ -1,5 +1,6 @@
 #include "libjaguar/Decoder.hpp"
 #include "Utilities.hpp"
+#include "libjaguar/Index.hpp"
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/ValueHeader.hpp"
 
@@ -28,7 +29,7 @@ namespace libjaguar {
 		return std::move(reader);
 	}
 
-	void Decoder::_ParseScopeInternal(ScopeEntry& scope, unsigned int expectedFieldCount) {
+	void Decoder::_ParseScopeInternal(ScopeEntry& scope, unsigned int expectedFieldCount, std::string scopePath) {
 		//Continuously read the next header
 		while(true) {
 			//Get next header
@@ -55,6 +56,36 @@ namespace libjaguar {
 
 			//Check expected field count to make sure we're not over
 			if(encounteredFields > expectedFieldCount) throw std::runtime_error("Excess number of fields detected in scope!");
+
+			//If this is a value, this makes things easy
+			//If it's a scope, this gets more complicated
+			if(IsValue(header.type)) {
+				//Basics
+				ValueEntry entry = {};
+				entry.type = header.type;
+				entry.name = header.name;
+				entry.streamBeginPosition = reader->tellg();
+
+				//Vector/matrix handling
+				if(header.type == TypeTag::Vector || header.type == TypeTag::Matrix) {
+					entry.elementType = header.elementType;
+					entry.width = header.width;
+					if(header.type == TypeTag::Matrix) {
+						entry.height = header.height;
+					}
+				}
+
+				//Buffer objects and size checks
+				if(static_cast<uint8_t>(header.type) <= 0xC) header.size = entry.size;
+				if(header.type == TypeTag::String && header.size >= std::pow(2, 24)) throw std::runtime_error("Encountered a string that is too long (> 24-bit integer limit!)");
+
+				//ID generation
+				std::string entryPath = scopePath + (scopePath.empty() ? "" : ".") + entry.name;
+				entry.id = GenIndexID(entryPath);
+
+				//Add entry
+				scope.subvalues.push_back(std::move(entry));
+			}
 		}
 	}
 
@@ -63,6 +94,7 @@ namespace libjaguar {
 		if(index.has_value()) throw std::runtime_error("Stream has already been parsed!");
 
 		//Configure root node
+		index.emplace();
 		index->root.name = "";
 		index->root.id = GenIndexID("");
 		index->root.streamBeginPosition = 0;
@@ -70,7 +102,7 @@ namespace libjaguar {
 
 		//Start decoding the root scope
 		try {
-			_ParseScopeInternal(index->root, UINT16_MAX + 1);
+			_ParseScopeInternal(index->root, UINT16_MAX + 1, "");
 		} catch(...) {
 			//Intercept exception to set fail flag and then rethrow
 			failFlag = true;

@@ -29,4 +29,16 @@ namespace libjaguar {
 		Vector = 0x4A,				 ///<2, 3, or 4-component vector of numbers
 		Matrix = 0x4B				 ///<Matrix of numbers, size from 2x2 to 4x4
 	};
+
+	/**
+	 * @brief Check if a given TypeTag represents a value or a scope
+	 *
+	 * @param tag The tag to checl
+	 *
+	 * @return @c true if the TypeTag is a value, @c false if it's a scope
+	 */
+	inline bool IsValue(TypeTag tag) {
+		uint8_t asUint = static_cast<uint8_t>(tag);
+		return ((asUint >> 4) == 0x3) && ((asUint & 0xF) != 0xE);
+	}
 }

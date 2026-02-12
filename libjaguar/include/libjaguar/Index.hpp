@@ -25,17 +25,17 @@ namespace libjaguar {
 	struct LJAPI ValueEntry : public Entry {
 		TypeTag type;		///<Type of value
 		TypeTag elementType;///<Type of contained elements (for vectors, matrices, and lists)
-		uint32_t size;		///<Number of elements in a list, or size of a buffer object (string, byte buffer, substream); string size must be less than 24-bit integer limit
+		uint32_t size;		///<Size of a buffer object (string, byte buffer, substream); string size must be less than 24-bit integer limit
 		uint8_t width;		///<Number of components in a vector or columns in a matrix
 		uint8_t height;		///<Number of rows in a matrix
-		std::string typeID; ///<Structured object type ID (for a list with a structured object element type)
 	};
 
 	/**
 	 * @brief An index entry representing a new scope
 	 */
 	struct LJAPI ScopeEntry : public Entry {
-		std::string typeID;				  ///<Type ID for a structured object (leave empty to denote unstructured)
+		bool list;						  ///<Determines if this scope represents a list or an object
+		std::string typeID;				  ///<Type ID for a structured object or list of structured objects (leave empty to denote unstructured)
 		std::vector<ScopeEntry> subscopes;///<Child scope list
 		std::vector<ValueEntry> subvalues;///<Child value list
 	};

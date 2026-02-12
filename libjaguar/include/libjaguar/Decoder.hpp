@@ -14,6 +14,9 @@ namespace libjaguar {
 	 * @note This class does not return any values; it only builds a structure.
 	 * Your stream must be seekable to allow rewinding if you want to later read those values using the produced Index.
 	 *
+	 * @warning Because this class owns the Reader (and thus the stream), <b>do not let RAII destroy it</b> if you want to continue using the stream.
+	 * Be sure to call @c ReleaseReader first to get the Reader back.
+	 *
 	 * <b>This class is move-only!</b>
 	 */
 	class LJAPI Decoder {
@@ -82,6 +85,6 @@ namespace libjaguar {
 		bool readerValid = true;
 		bool failFlag = false;
 
-		void _ParseScopeInternal(ScopeEntry&, unsigned int expectedFieldCount);
+		void _ParseScopeInternal(ScopeEntry&, unsigned int expectedFieldCount, std::string scopePath);
 	};
 }
