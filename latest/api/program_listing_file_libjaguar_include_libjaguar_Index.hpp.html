@@ -386,6 +386,7 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;TypeTags.hpp&quot;</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unordered_map&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span>
 
@@ -412,7 +413,7 @@
 <span class="w">    </span><span class="p">};</span>
 
 <span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">Index</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">StructuredTypeLayout</span><span class="o">&gt;</span><span class="w"> </span><span class="n">types</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">StructuredTypeLayout</span><span class="o">&gt;</span><span class="w"> </span><span class="n">types</span><span class="p">;</span>
 <span class="w">        </span><span class="n">ScopeEntry</span><span class="w"> </span><span class="n">root</span><span class="p">;</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="p">}</span>
