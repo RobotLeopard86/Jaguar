@@ -403,10 +403,10 @@
 <span class="w">        </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
 <span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">width</span><span class="p">;</span>
 <span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">height</span><span class="p">;</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">typeID</span><span class="p">;</span>
 <span class="w">    </span><span class="p">};</span>
 
 <span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">ScopeEntry</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Entry</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">list</span><span class="p">;</span>
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">typeID</span><span class="p">;</span>
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">ScopeEntry</span><span class="o">&gt;</span><span class="w"> </span><span class="n">subscopes</span><span class="p">;</span>
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">ValueEntry</span><span class="o">&gt;</span><span class="w"> </span><span class="n">subvalues</span><span class="p">;</span>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Program Listing for File Decoder.hpp &#8212; Jaguar Documentation</title>
+    <title>Function libjaguar::IsValue &#8212; Jaguar Documentation</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/collapsible-lists/js/CollapsibleLists.compressed.js?v=73120307"></script>
     <script src="../_static/collapsible-lists/js/apply-collapsible-lists.js?v=660e4f45"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/program_listing_file_libjaguar_include_libjaguar_Decoder.hpp';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/function_TypeTags_8hpp_1a20b38dad98678d537c2eaea998fc9d5e';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://raw.githubusercontent.com/RobotLeopard86/Jaguar/refs/heads/main/docs/switcher.json';
@@ -55,6 +55,8 @@
         </script>
     <link rel="icon" href="../_static/jaguar_logo.png"/>
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Function libjaguar::ValidateTypeLayout" href="function_StructuredTypeLayout_8hpp_1ae7a9e63f065755e5f2c2d1dfdc109b7d.html" />
+    <link rel="prev" title="Enum TypeTag" href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="latest" />
@@ -146,7 +148,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="index.html">
     libjaguar API Reference
   </a>
@@ -223,6 +225,10 @@
   
 
   
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
 </div>
 
     </header>
@@ -256,7 +262,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="index.html">
     libjaguar API Reference
   </a>
@@ -317,8 +323,68 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Program Listing for File Decoder.hpp</a></li>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="namespace_libjaguar.html">Namespace libjaguar</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1Entry.html">Struct Entry</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1Index.html">Struct Index</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1ScopeEntry.html">Struct ScopeEntry</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout.html">Struct StructuredTypeLayout</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1StructuredTypeLayout_1_1Field.html">Struct StructuredTypeLayout::Field</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1ValueEntry.html">Struct ValueEntry</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structlibjaguar_1_1ValueHeader.html">Struct ValueHeader</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Decoder.html">Class Decoder</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Encoder.html">Class Encoder</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Matrix.html">Template Class Matrix</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Reader.html">Class Reader</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1ScopedView.html">Class ScopedView</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1SVHandle.html">Class SVHandle</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Vector_3_01T_00_012_01_4.html">Template Class Vector&lt; T, 2 &gt;</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Vector_3_01T_00_013_01_4.html">Template Class Vector&lt; T, 3 &gt;</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Vector_3_01T_00_014_01_4.html">Template Class Vector&lt; T, 4 &gt;</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="classlibjaguar_1_1Writer.html">Class Writer</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html">Enum TypeTag</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Function libjaguar::IsValue</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="function_StructuredTypeLayout_8hpp_1ae7a9e63f065755e5f2c2d1dfdc109b7d.html">Function libjaguar::ValidateTypeLayout</a></li>
 </ul>
 </div>
 </nav></div>
@@ -359,7 +425,10 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Program Listing for File Decoder.hpp</span></li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">libjaguar API Reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Function libjaguar::IsValue</span></li>
   </ul>
 </nav>
 </div>
@@ -376,53 +445,28 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="program-listing-for-file-decoder-hpp">
-<span id="program-listing-file-libjaguar-include-libjaguar-decoder-hpp"></span><h1>Program Listing for File Decoder.hpp<a class="headerlink" href="#program-listing-for-file-decoder-hpp" title="Link to this heading"><span/></a></h1>
-<p>↰ <a class="reference internal" href="file_libjaguar_include_libjaguar_Decoder.hpp.html#file-libjaguar-include-libjaguar-decoder-hpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">libjaguar/include/libjaguar/Decoder.hpp</span></code>)</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
+  <section id="function-libjaguar-isvalue">
+<span id="exhale-function-typetags-8hpp-1a20b38dad98678d537c2eaea998fc9d5e"></span><h1>Function libjaguar::IsValue<a class="headerlink" href="#function-libjaguar-isvalue" title="Link to this heading"><span/></a></h1>
+<ul class="simple">
+<li><p>Defined in <a class="reference internal" href="file_libjaguar_include_libjaguar_TypeTags.hpp.html#file-libjaguar-include-libjaguar-typetags-hpp"><span class="std std-ref">File TypeTags.hpp</span></a></p></li>
+</ul>
+<section id="function-documentation">
+<h2>Function Documentation<a class="headerlink" href="#function-documentation" title="Link to this heading"><span/></a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar7IsValueE7TypeTag">
+<span id="_CPPv3N9libjaguar7IsValueE7TypeTag"></span><span id="_CPPv2N9libjaguar7IsValueE7TypeTag"></span><span id="libjaguar::IsValue__TypeTag"></span><span class="target" id="TypeTags_8hpp_1a20b38dad98678d537c2eaea998fc9d5e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">libjaguar</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">IsValue</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html#_CPPv4N9libjaguar7TypeTagE" title="libjaguar::TypeTag"><span class="n"><span class="pre">TypeTag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">tag</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar7IsValueE7TypeTag" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Check if a given TypeTag represents a value or a scope. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tag</strong> – The tag to checl</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">true</span></code> if the TypeTag is a value, <code class="docutils literal notranslate"><span class="pre">false</span></code> if it’s a scope </p>
+</dd>
+</dl>
+</dd></dl>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DllHelper.hpp&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Index.hpp&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Reader.hpp&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;libjaguar/Index.hpp&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;optional&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdexcept&gt;</span>
-
-<span class="k">namespace</span><span class="w"> </span><span class="nn">libjaguar</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">Decoder</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">public</span><span class="o">:</span>
-<span class="w">        </span><span class="k">explicit</span><span class="w"> </span><span class="n">Decoder</span><span class="p">(</span><span class="n">Reader</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">reader</span><span class="p">);</span>
-
-<span class="w">        </span><span class="n">Decoder</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Decoder</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
-<span class="w">        </span><span class="n">Decoder</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Decoder</span><span class="o">&amp;</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">delete</span><span class="p">;</span>
-<span class="w">        </span><span class="n">Decoder</span><span class="p">(</span><span class="n">Decoder</span><span class="o">&amp;&amp;</span><span class="p">);</span>
-<span class="w">        </span><span class="n">Decoder</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">Decoder</span><span class="o">&amp;&amp;</span><span class="p">);</span>
-
-<span class="w">        </span><span class="n">Reader</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nf">ReleaseReader</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="p">;</span>
-
-<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">Index</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">GetIndex</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">index</span><span class="p">.</span><span class="n">has_value</span><span class="p">())</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Stream has not yet been parsed; no index is available!&quot;</span><span class="p">);</span>
-<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">failFlag</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">index</span><span class="p">.</span><span class="n">value</span><span class="p">();</span>
-<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Cannot obtain the index; parsing errors occurred!&quot;</span><span class="p">);</span>
-<span class="w">        </span><span class="p">}</span>
-
-<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">Parse</span><span class="p">();</span>
-
-<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Failed</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">failFlag</span><span class="p">;</span>
-<span class="w">        </span><span class="p">}</span>
-
-<span class="w">      </span><span class="k">private</span><span class="o">:</span>
-<span class="w">        </span><span class="n">Reader</span><span class="w"> </span><span class="n">reader</span><span class="p">;</span>
-<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">Index</span><span class="o">&gt;</span><span class="w"> </span><span class="n">index</span><span class="p">;</span>
-<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">readerValid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
-<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">failFlag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
-
-<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">_ParseScopeInternal</span><span class="p">(</span><span class="n">ScopeEntry</span><span class="o">&amp;</span><span class="p">,</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">expectedFieldCount</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">scopePath</span><span class="p">);</span>
-<span class="w">    </span><span class="p">};</span>
-<span class="p">}</span>
-</pre></div>
-</div>
+</section>
 </section>
 
 
@@ -435,12 +479,51 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Enum TypeTag</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="function_StructuredTypeLayout_8hpp_1ae7a9e63f065755e5f2c2d1dfdc109b7d.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Function libjaguar::ValidateTypeLayout</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#function-documentation">Function Documentation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar7IsValueE7TypeTag"><code class="docutils literal notranslate"><span class="pre">IsValue()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

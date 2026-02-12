@@ -381,6 +381,9 @@
 <li class="toctree-l1"><a class="reference internal" href="enum_TypeTags_8hpp_1aeb1054c5aab114f844a08b5158020814.html">Enum TypeTag</a></li>
 </ul>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="function_TypeTags_8hpp_1a20b38dad98678d537c2eaea998fc9d5e.html">Function libjaguar::IsValue</a></li>
+</ul>
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="function_StructuredTypeLayout_8hpp_1ae7a9e63f065755e5f2c2d1dfdc109b7d.html">Function libjaguar::ValidateTypeLayout</a></li>
 </ul>
 </div>
@@ -457,6 +460,10 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This class does not return any values; it only builds a structure. Your stream must be seekable to allow rewinding if you want to later read those values using the produced <a class="reference internal" href="structlibjaguar_1_1Index.html#structlibjaguar_1_1Index"><span class="std std-ref">Index</span></a>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Because this class owns the <a class="reference internal" href="classlibjaguar_1_1Reader.html#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a> (and thus the stream), <strong>do not let RAII destroy it</strong> if you want to continue using the stream. Be sure to call <code class="docutils literal notranslate"><span class="pre">ReleaseReader</span></code> first to get the <a class="reference internal" href="classlibjaguar_1_1Reader.html#classlibjaguar_1_1Reader"><span class="std std-ref">Reader</span></a> back.</p>
 </div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
