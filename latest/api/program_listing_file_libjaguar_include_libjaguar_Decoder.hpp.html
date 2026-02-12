@@ -384,6 +384,9 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DllHelper.hpp&quot;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Index.hpp&quot;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Reader.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;libjaguar/Index.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;optional&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdexcept&gt;</span>
 
 <span class="k">namespace</span><span class="w"> </span><span class="nn">libjaguar</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">Decoder</span><span class="w"> </span><span class="p">{</span>
@@ -397,15 +400,21 @@
 
 <span class="w">        </span><span class="n">Reader</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nf">ReleaseReader</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="p">;</span>
 
-<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">Index</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">GetIndex</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">Index</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">GetIndex</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">index</span><span class="p">.</span><span class="n">has_value</span><span class="p">())</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Stream has not yet been parsed; no index is available!&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">failFlag</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">index</span><span class="p">.</span><span class="n">value</span><span class="p">();</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Cannot obtain the index; parsing errors occurred!&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
 
 <span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">Parse</span><span class="p">();</span>
 
-<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Failed</span><span class="p">();</span>
+<span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="nf">Failed</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">failFlag</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
 
 <span class="w">      </span><span class="k">private</span><span class="o">:</span>
 <span class="w">        </span><span class="n">Reader</span><span class="w"> </span><span class="n">reader</span><span class="p">;</span>
-<span class="w">        </span><span class="n">Index</span><span class="w"> </span><span class="n">index</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">Index</span><span class="o">&gt;</span><span class="w"> </span><span class="n">index</span><span class="p">;</span>
 <span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">readerValid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
 <span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">failFlag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
 <span class="w">    </span><span class="p">};</span>
