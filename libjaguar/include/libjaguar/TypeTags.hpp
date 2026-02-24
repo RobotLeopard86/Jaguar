@@ -33,12 +33,12 @@ namespace libjaguar {
 	/**
 	 * @brief Check if a given TypeTag represents a value or a scope
 	 *
-	 * @param tag The tag to checl
+	 * @param tag The tag to check
 	 *
 	 * @return @c true if the TypeTag is a value, @c false if it's a scope
 	 */
 	inline bool IsValue(TypeTag tag) {
 		uint8_t asUint = static_cast<uint8_t>(tag);
-		return ((asUint >> 4) == 0x3) && ((asUint & 0xF) != 0xE);
+		return (tag != TypeTag::ScopeBoundary) && ((asUint >> 4) != 0x3);
 	}
 }

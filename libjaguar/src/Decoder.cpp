@@ -85,6 +85,21 @@ namespace libjaguar {
 
 				//Add entry
 				scope.subvalues.push_back(std::move(entry));
+			} else {
+				//Prepare entry object
+				ScopeEntry entry = {};
+				entry.list = (header.type == TypeTag::List);
+				entry.name = header.name;
+				entry.streamBeginPosition = reader->tellg();
+				entry.typeID = header.typeID;
+
+				//ID generation
+				std::string entryPath = scopePath + (scopePath.empty() ? "" : ".") + entry.name;
+				entry.id = GenIndexID(entryPath);
+
+				//Handle different scope types
+				if(entry.list) {
+				}
 			}
 		}
 	}
