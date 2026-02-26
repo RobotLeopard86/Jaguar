@@ -3,6 +3,7 @@
 #include "DllHelper.hpp"
 #include "Index.hpp"
 #include "Reader.hpp"
+#include "ValueHeader.hpp"
 #include "libjaguar/Index.hpp"
 #include <optional>
 #include <stdexcept>
@@ -85,6 +86,7 @@ namespace libjaguar {
 		bool readerValid = true;
 		bool failFlag = false;
 
-		void _ParseScopeInternal(ScopeEntry&, unsigned int expectedFieldCount, std::string scopePath);
+		void _ParseScopeInternal(ScopeEntry& scope, unsigned int expectedFieldCount, const std::string& scopePath);
+		ValueEntry _ParseValueInternal(const ValueHeader& header, const std::string& scopePath);
 	};
 }

@@ -97,13 +97,10 @@ The container header takes the following form:
 | Magic data | 6 |
 | File intent byte | 1 |
 | Null separator for alignment | 1 |
-| Integrity hash | 16 |
 
 The magic data string is `JAGUAR` in ASCII bytes (or `4A 41 47 55 41 52` in hex bytes).  
 
 The file intent byte is application-defined and is used to identify what the stream is supposed to be to the application. Decoders **must not** rely on this byte to determine how to parse the stream, as this value has no formal definition. The only exception is that a null byte here (`00`) is reserved to mean a freeform stream (i.e., have no expectations for what you get). This is primarily for higher-level consumers of parsed Jaguar data as opposed to the decoder itself.  
-
-The integrity hash is a system meant to ensure that the data stream has not been corrupted. It is an MD5 hash computed from the contents of the stream. Decoders are advised to incrementally read the stream and generate the hash before rewinding and parsing, but they may implement this however they wish. As Jaguar streams may be large, an incremental approach to hash generation is recommended.  
 
 ## 4. Numerical Types
 Numerical types are very simple in Jaguar. They are the signed and unsigned integers, floating-point numbers, and booleans (while not technically numbers, they are stored as `0` for false and `1` for true; any other value is **invalid**). All necessary information to read the data is contained in the `TypeTag`.  
@@ -133,7 +130,7 @@ If a structured object type declaration is encountered with a typename that has 
 
 The body of a declaration is very similar to an unstructured object, with the exception that only value `TypeTag`s and names are kept. The one exception to this rule is that generic data types (lists, structured objects, vectors, and matrices) maintain their headers to ensure conformity. Lists do not have a defined size in a declaration; that is decided by the actual structured object.  
 
-Structured object type declarations **may not** contain other type declarations and **may not** exist within other objects (e.g. lists or other objects)
+Structured object type declarations **may not** contain other type declarations and **may only** exist within the root scope.
 
 ### Object Body Data
 
@@ -149,30 +146,9 @@ Objects **may** be nested up to a maximum depth of 64. If the maximum nesting de
 
 * Otherwise, decoders **must** continue unwinding scopes, ignoring all data, until either at the root stream level or within an unstructured object. Any `Value`s passed through during the unwinding are invalid and **must** be ignored.
 
-If an object does not contain the amount of fields specified (which may be detected using scope boundary `Values` if they are found earlier than expected or not present where they are expected), decoders **may** either declare the stream invalid and terminate decoding **or**, if the boundary object was found early attempt recovery, **may** attempt to recover following the same procedure as the maximum nesting depth reached.
+If an object does not contain the amount of fields specified (which may be detected using scope boundary `Value`s if they are found earlier than expected or not present where they are expected), decoders **may** either declare the stream invalid and terminate decoding **or**, if the boundary object was found early attempt recovery, **may** attempt to recover following the same procedure as the maximum nesting depth reached.
 
-## 6. Lists
-Lists are a fairly simple construct in Jaguar. The header for a list `Value` is as follows:
-| Field | Size (bytes) |
-| ----- | ------------ |
-| Element `TypeTag` | 1 |
-| Element Count (unsigned int) | 4 |
-
-The body is then the list elements in sequential order, with zero-based indexing.  
-
-All elements in the list **must** be of the type specified by the element `TypeTag` field, and there **must** be exactly the number of elements specified by the element count field.  
-
-Elements within a list do not have the typical `TypeTag` followed by the name string prefix before their headers, as this is not needed to identify them.  
-
-If a structured object is specified as the type of the list, then a 8-bit unsigned integer typename length followed by a typename string of that size must be included before the element count field. The header thus looks like this:  
-| Field | Size (bytes) |
-| ----- | ------------ |
-| Element `TypeTag` (`0x3C`) | 1 |
-| Typename string size (unsigned int) | 1 |
-| Typename string | (size above) |
-| Element Count (unsigned int) | 4 |
-
-## 7. Math Types
+## 6. Math Types
 Vector and matrix types are built into Jaguar. There are limitations on what data these math types may contain:  
 
 * **ONLY** floating-point numbers and (un)signed integers are permitted. 
@@ -207,7 +183,7 @@ Matrix headers follow the below format:
 | # of Columns (unsigned int) | 1 |
 | # of Rows (unsigned int) | 1 |  
 
-## 8. Buffer Values
+## 7. Buffer Types
 Buffer-type `Value`s are fairly straightforward. Their header consists of an 32-bit integer size (capped at the 24-bit integer limit for strings, which is roughly 16 MiB), and the body is simply the data.  
 
 Per the rules from section 0, all strings must be encoded in UTF-8. This does not apply to data within byte buffers, of course.  
@@ -229,4 +205,34 @@ It is advised that decoders do not automatically parse substreams during the par
 
 Substreams **may not** contain other substreams.  
 
-If, during the parsing of a substream, a decoder makes the determination that the substream is invalid and decoding should be terminated, this **must not** affect the containing stream, and that stream must continue to remain valid for parsing **unless it is also invalid for a separate reason**.
+If, during the parsing of a substream, a decoder makes the determination that the substream is invalid and decoding should be terminated, this **must not** affect the containing stream, and that parent stream must continue to remain valid for parsing **unless it is also invalid for a separate reason**.  
+
+## 8. Lists
+Lists are a fairly simple construct in Jaguar. The header for a list `Value` is as follows:
+| Field | Size (bytes) |
+| ----- | ------------ |
+| Element `TypeTag` | 1 |
+| Element Count (unsigned int) | 4 |
+
+All elements in the list **must** be of the type specified by the element `TypeTag` field, and there **must** be exactly the number of elements specified by the element count field.  
+
+The body is then the list elements in sequential order, with zero-based indexing. Elements within a list do not have the typical `TypeTag` followed by the name string prefix before their headers, as this is not needed to identify them.  
+
+If a list's type is that of a `Value` that requires header properties (e.g., vectors, structured objects), those properties should be specified as part of the list header, between the element `TypeTag` and the element count. As an example, a list of structured objects has a header that looks like this:
+| Field | Size (bytes) |
+| ----- | ------------ |
+| Element `TypeTag` (`0x3C`) | 1 |
+| Typename string size (unsigned int) | 1 |
+| Typename string | (size above) |
+| Element Count (unsigned int) | 4 |  
+
+Due to this header property nesting, lists **may not** directly contain other lists. If a list of lists is truly needed, use a structured object wrapper around it.
+
+The only properties exempt from this rule are buffer and object sizes. Vectors and matrices are not considered containers, so their size information must be encoded in the list header, like so:
+| Field | Size (bytes) |
+| ----- | ------------ |
+| Element `TypeTag` (`0x4A`/`0x4B`) | 1 |
+| Nested Element `TypeTag` | 1 |
+| # of Columns (unsigned int) | 1 |
+| # of Rows (unsigned int) (matrices only) | 1 |
+| Element Count (unsigned int) | 4 |  

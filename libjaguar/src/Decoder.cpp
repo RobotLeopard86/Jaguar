@@ -29,7 +29,31 @@ namespace libjaguar {
 		return std::move(reader);
 	}
 
-	void Decoder::_ParseScopeInternal(ScopeEntry& scope, unsigned int expectedFieldCount, std::string scopePath) {
+	ValueEntry Decoder::_ParseValueInternal(const ValueHeader& header, const std::string& scopePath) {
+		//Entry setup
+		ValueEntry entry = {};
+		entry.type = header.type;
+		entry.name = header.name;
+		entry.streamBeginPosition = reader->tellg();
+		entry.id = GenIndexID(scopePath + (scopePath.empty() ? "" : ".") + entry.name);
+
+		//Vector/matrix handling
+		if(header.type == TypeTag::Vector || header.type == TypeTag::Matrix) {
+			entry.elementType = header.elementType;
+			entry.width = header.width;
+			if(header.type == TypeTag::Matrix) {
+				entry.height = header.height;
+			}
+		}
+
+		//Buffer objects and size checks
+		if(static_cast<uint8_t>(header.type) <= 0xC) entry.size = header.size;
+		if(header.type == TypeTag::String && header.size >= std::pow(2, 24)) throw std::runtime_error("Encountered a string that is too long (> 24-bit integer limit!)");
+
+		return entry;
+	}
+
+	void Decoder::_ParseScopeInternal(ScopeEntry& scope, unsigned int expectedFieldCount, const std::string& scopePath) {
 		//Continuously read the next header
 		while(true) {
 			//Get next header
@@ -57,31 +81,9 @@ namespace libjaguar {
 			//Check expected field count to make sure we're not over
 			if(encounteredFields > expectedFieldCount) throw std::runtime_error("Excess number of fields detected in scope!");
 
-			//If this is a value, this makes things easy
-			//If it's a scope, this gets more complicated
 			if(IsValue(header.type)) {
-				//Basics
-				ValueEntry entry = {};
-				entry.type = header.type;
-				entry.name = header.name;
-				entry.streamBeginPosition = reader->tellg();
-
-				//Vector/matrix handling
-				if(header.type == TypeTag::Vector || header.type == TypeTag::Matrix) {
-					entry.elementType = header.elementType;
-					entry.width = header.width;
-					if(header.type == TypeTag::Matrix) {
-						entry.height = header.height;
-					}
-				}
-
-				//Buffer objects and size checks
-				if(static_cast<uint8_t>(header.type) <= 0xC) header.size = entry.size;
-				if(header.type == TypeTag::String && header.size >= std::pow(2, 24)) throw std::runtime_error("Encountered a string that is too long (> 24-bit integer limit!)");
-
-				//ID generation
-				std::string entryPath = scopePath + (scopePath.empty() ? "" : ".") + entry.name;
-				entry.id = GenIndexID(entryPath);
+				//Parse the value
+				ValueEntry entry = _ParseValueInternal(header, scopePath);
 
 				//Add entry
 				scope.subvalues.push_back(std::move(entry));
@@ -92,13 +94,13 @@ namespace libjaguar {
 				entry.name = header.name;
 				entry.streamBeginPosition = reader->tellg();
 				entry.typeID = header.typeID;
-
-				//ID generation
-				std::string entryPath = scopePath + (scopePath.empty() ? "" : ".") + entry.name;
-				entry.id = GenIndexID(entryPath);
+				entry.id = GenIndexID(scopePath + (scopePath.empty() ? "" : ".") + entry.name);
 
 				//Handle different scope types
 				if(entry.list) {
+					//Element type
+					entry.listElementType = header.elementType;
+					if(entry.listElementType == TypeTag::List) throw std::runtime_error("Lists may not directly contain other lists!");
 				}
 			}
 		}

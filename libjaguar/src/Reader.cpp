@@ -166,14 +166,27 @@ namespace libjaguar {
 				if(!ValidateTypeTag(elemTagByte)) throw std::runtime_error("Encountered invalid element TypeTag!");
 				header.elementType = (TypeTag)elemTagByte;
 
-				//Structured object typename handling
+				//Special type handling
 				if(header.elementType == TypeTag::StructuredObj) {
+					//Structured object
 					uint8_t typeIDLen = _ReadIntegerInternal(8);
 					if(typeIDLen == 0) throw std::runtime_error("Encountered empty type ID string for list of structured objects!");
 					header.typeID.resize(typeIDLen);
 					stream->read(header.typeID.data(), typeIDLen);
 					STREAMCHECK;
 					if(!CheckUTF8(header.typeID)) throw std::runtime_error("Encountered a type ID string that is not valid UTF-8!");
+				} else if(static_cast<uint8_t>(header.elementType) > 0x40) {
+					//Vector/matrix
+
+					//Get nested TypeTag
+					uint8_t nestedTagByte = stream->get();
+					STREAMCHECK;
+					if(!ValidateTypeTag(nestedTagByte)) throw std::runtime_error("Encountered invalid vector/matrix element TypeTag!");
+					header.nestedElementType = (TypeTag)nestedTagByte;
+
+					//Get size(s)
+					header.width = (uint8_t)_ReadIntegerInternal(8);
+					if(header.elementType == TypeTag::Matrix) header.height = (uint8_t)_ReadIntegerInternal(8);
 				}
 
 				//Get element count
