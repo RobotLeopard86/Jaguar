@@ -1,6 +1,7 @@
 #include "libjaguar/Decoder.hpp"
 #include "Utilities.hpp"
 #include "libjaguar/Index.hpp"
+#include "libjaguar/StructuredTypeLayout.hpp"
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/ValueHeader.hpp"
 
@@ -39,9 +40,13 @@ namespace libjaguar {
 
 		//Vector/matrix handling
 		if(header.type == TypeTag::Vector || header.type == TypeTag::Matrix) {
+			if(uint8_t asByte = static_cast<uint8_t>(header.elementType); asByte < 0x0E || asByte > 0x2D) throw std::runtime_error("Encountered vector/matrix with invalid element type!");
 			entry.elementType = header.elementType;
+
+			if(header.width < 2 || header.width > 4) throw std::runtime_error("Encountered vector/matrix with invalid width!");
 			entry.width = header.width;
 			if(header.type == TypeTag::Matrix) {
+				if(header.height < 2 || header.height > 4) throw std::runtime_error("Encountered matrix with invalid height!");
 				entry.height = header.height;
 			}
 		}
@@ -53,7 +58,7 @@ namespace libjaguar {
 		return entry;
 	}
 
-	void Decoder::_ParseScopeInternal(ScopeEntry& scope, unsigned int expectedFieldCount, const std::string& scopePath) {
+	void Decoder::_ParseScopeInternal(ScopeEntry& scope, ScopeExpectations expectations, const std::string& scopePath) {
 		//Continuously read the next header
 		while(true) {
 			//Get next header
@@ -62,16 +67,16 @@ namespace libjaguar {
 
 			//If we see a scope boundary, check position
 			if(header.type == TypeTag::ScopeBoundary) {
-				//Is this root (expected field count is UINT16_MAX + 1, since that's above the allowed number of object fields)
-				if(expectedFieldCount > UINT16_MAX) throw std::runtime_error("Unexpected scope boundary in root scope!");
+				//Is this root
+				if(expectations.rootFlag) throw std::runtime_error("Unexpected scope boundary in root scope!");
 
 				//Have we seen the expected number of values yet?
 				//Return if so because the scope is done
-				if(encounteredFields == expectedFieldCount) return;
+				if(encounteredFields == expectations.fieldCount) return;
 
 				//If we're less, this is simply a case of early scope termination
 				//We still do an if-check to throw the appropriate exception in case we passed the expected field count without a boundary
-				else if(encounteredFields < expectedFieldCount)
+				else if(encounteredFields < expectations.fieldCount)
 					throw std::runtime_error("Early scope boundary detected!");
 				else
 					//This really shouldn't happen because we try to anticipate excess fields early
@@ -79,7 +84,7 @@ namespace libjaguar {
 			}
 
 			//Check expected field count to make sure we're not over
-			if(encounteredFields > expectedFieldCount) throw std::runtime_error("Excess number of fields detected in scope!");
+			if(encounteredFields > expectations.fieldCount) throw std::runtime_error("Excess number of fields detected in scope!");
 
 			if(IsValue(header.type)) {
 				//Parse the value
@@ -88,20 +93,52 @@ namespace libjaguar {
 				//Add entry
 				scope.subvalues.push_back(std::move(entry));
 			} else {
+				//Check that we're not nesting too deep
+				if(++nest > 64) throw std::runtime_error("Nesting too deep!");
+
 				//Prepare entry object
 				ScopeEntry entry = {};
 				entry.list = (header.type == TypeTag::List);
 				entry.name = header.name;
 				entry.streamBeginPosition = reader->tellg();
 				entry.typeID = header.typeID;
-				entry.id = GenIndexID(scopePath + (scopePath.empty() ? "" : ".") + entry.name);
+				std::string newScopePath = scopePath + (scopePath.empty() ? "" : ".") + entry.name;
+				entry.id = GenIndexID(newScopePath);
+				if(nest > 1 && header.type == TypeTag::StructuredObjTypeDecl) throw std::runtime_error("Type declarations may only appear in the root scope!");
 
 				//Handle different scope types
 				if(entry.list) {
 					//Element type
 					entry.listElementType = header.elementType;
 					if(entry.listElementType == TypeTag::List) throw std::runtime_error("Lists may not directly contain other lists!");
+					if(entry.listElementType == TypeTag::StructuredObjTypeDecl) throw std::runtime_error("Lists may not contain type declarations!");
+
+					//Validate element type parameters
+					if(entry.listElementType == TypeTag::StructuredObj && !index->types.contains(entry.typeID))
+						throw std::runtime_error("List of structured objects uses a type that has not yet been defined!");
+					else if(entry.listElementType == TypeTag::Vector || entry.listElementType == TypeTag::Matrix) {
+						entry.listMathData = {.type = header.nestedElementType, .width = header.width, .height = header.height};
+						if(uint8_t asByte = static_cast<uint8_t>(entry.listMathData.type); asByte < 0x0E || asByte > 0x2D) throw std::runtime_error("Encountered list of vectors/matrices with invalid element type!");
+						if(entry.listMathData.width < 2 || entry.listMathData.width > 4) throw std::runtime_error("Encountered list of vectors/matrices with invalid width!");
+						if(entry.listElementType == TypeTag::Matrix && (entry.listMathData.height < 2 || entry.listMathData.height > 4)) throw std::runtime_error("Encountered list of matrices with invalid height!");
+					}
+				} else if(header.type == TypeTag::StructuredObjTypeDecl) {
+				} else {
+					//If this is structured then the type must be declared
+					if(header.type == TypeTag::StructuredObj && !index->types.contains(entry.typeID)) throw std::runtime_error("Structured object uses a type that has not yet been defined!");
+
+					//Prepare expectations
+					ScopeExpectations se = {.type = header.type,
+						.fieldCount = (header.type == TypeTag::StructuredObj ? index->types[entry.typeID].fields.size() : header.fieldCount),
+						.rootFlag = false};
+
+					//Parse scope
+					_ParseScopeInternal(entry, se, newScopePath);
 				}
+
+				//Roll back nest counter and add scope to list
+				--nest;
+				scope.subscopes.push_back(std::move(entry));
 			}
 		}
 	}
@@ -116,10 +153,11 @@ namespace libjaguar {
 		index->root.id = GenIndexID("");
 		index->root.streamBeginPosition = 0;
 		index->root.typeID = "";
+		nest = 0;
 
 		//Start decoding the root scope
 		try {
-			_ParseScopeInternal(index->root, UINT16_MAX + 1, "");
+			_ParseScopeInternal(index->root, ScopeExpectations {.type = TypeTag::UnstructuredObj, .fieldCount = SIZE_MAX, .typeID = "", .rootFlag = true}, "");
 		} catch(...) {
 			//Intercept exception to set fail flag and then rethrow
 			failFlag = true;

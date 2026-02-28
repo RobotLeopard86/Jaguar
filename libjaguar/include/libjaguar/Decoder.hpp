@@ -5,6 +5,8 @@
 #include "Reader.hpp"
 #include "ValueHeader.hpp"
 #include "libjaguar/Index.hpp"
+#include "libjaguar/StructuredTypeLayout.hpp"
+#include "libjaguar/TypeTags.hpp"
 #include <optional>
 #include <stdexcept>
 
@@ -85,8 +87,16 @@ namespace libjaguar {
 		std::optional<Index> index;
 		bool readerValid = true;
 		bool failFlag = false;
+		uint8_t nest = 0;
 
-		void _ParseScopeInternal(ScopeEntry& scope, unsigned int expectedFieldCount, const std::string& scopePath);
+		struct ScopeExpectations {
+			TypeTag type;
+			std::size_t fieldCount;
+			std::string typeID;
+			bool rootFlag;
+		};
+
+		void _ParseScopeInternal(ScopeEntry& scope, ScopeExpectations expectations, const std::string& scopePath);
 		ValueEntry _ParseValueInternal(const ValueHeader& header, const std::string& scopePath);
 	};
 }
