@@ -31,11 +31,29 @@ namespace libjaguar {
 	};
 
 	/**
+	 * @brief Validate that a given byte contains a TypeTag value
+	 *
+	 * @param tagByte The byte to check
+	 *
+	 * @return @c true if the byte is really a TypeTag (and thus can be cast to one), @c false otherwise
+	 */
+	inline bool ValidateTypeTag(uint8_t tagByte) {
+		if(tagByte < 0x0A || tagByte > 0x4B) return false;
+		uint8_t lowerNibble = (tagByte & 0b0000'1111);
+		uint8_t upperNibble = (tagByte & 0b1111'0000) >> 4;
+		if(lowerNibble < 0xA) return false;
+		if((upperNibble == 1 || upperNibble == 2) && lowerNibble > 0xD) return false;
+		if(upperNibble == 4 && lowerNibble > 0xB) return false;
+		if(tagByte == 0x3F) return false;
+		return true;
+	}
+
+	/**
 	 * @brief Check if a given TypeTag represents a value or a scope
 	 *
 	 * @param tag The tag to check
 	 *
-	 * @return @c true if the TypeTag is a value, @c false if it's a scope
+	 * @return @c true if the TypeTag is a value, @c false if it's a scope (including lists)
 	 */
 	inline bool IsValue(TypeTag tag) {
 		uint8_t asUint = static_cast<uint8_t>(tag);

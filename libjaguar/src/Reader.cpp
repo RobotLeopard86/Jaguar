@@ -105,17 +105,6 @@ namespace libjaguar {
 		return data;
 	}
 
-	bool ValidateTypeTag(uint8_t tagByte) {
-		if(tagByte < 0x0A || tagByte > 0x4B) return false;
-		uint8_t lowerNibble = (tagByte & 0b0000'1111);
-		uint8_t upperNibble = (tagByte & 0b1111'0000) >> 4;
-		if(lowerNibble < 0xA) return false;
-		if((upperNibble == 1 || upperNibble == 2) && lowerNibble > 0xD) return false;
-		if(upperNibble == 4 && lowerNibble > 0xB) return false;
-		if(tagByte == 0x3F) return false;
-		return true;
-	}
-
 	SVHandle Reader::ReadBuffer(uint32_t length) {
 		VerifyOk();
 
@@ -135,13 +124,14 @@ namespace libjaguar {
 		VerifyOk();
 
 		//Create result object
-		ValueHeader header;
+		ValueHeader header = {};
 
 		//Read and validate type tag
 		uint8_t tagByte = stream->get();
 		STREAMCHECK;
 		if(!ValidateTypeTag(tagByte)) throw std::runtime_error("Read TypeTag is invalid!");
 		uint8_t upperNibble = (tagByte & 0b1111'0000) >> 4;
+		uint8_t lowerNibble = (tagByte & 0b0000'1111);
 		header.type = (TypeTag)tagByte;
 		if(header.type == TypeTag::ScopeBoundary) return header;
 
@@ -155,7 +145,7 @@ namespace libjaguar {
 
 		//For simple types, we're done
 		//We can check this easily using the tag byte
-		if((upperNibble == 1 || upperNibble == 2) || header.type == TypeTag::Float32 || header.type == TypeTag::Float64 || header.type == TypeTag::Boolean) return header;
+		if(upperNibble == 1 || upperNibble == 2 || (upperNibble == 0 && lowerNibble > 0xC)) return header;
 
 		//More complex data
 		switch(header.type) {

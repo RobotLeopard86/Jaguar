@@ -36,7 +36,14 @@ namespace libjaguar {
 		entry.type = header.type;
 		entry.name = header.name;
 		entry.streamBeginPosition = reader->tellg();
-		entry.id = GenIndexID(scopePath + (scopePath.empty() ? "" : ".") + entry.name);
+		if(!scopePath.empty()) {
+			if(scopePath.ends_with("["))
+				entry.id = GenIndexID(scopePath + header.name + "]");
+			else
+				entry.id = GenIndexID(scopePath + "." + header.name);
+		} else {
+			entry.id = GenIndexID(entry.name);
+		}
 
 		//Vector/matrix handling
 		if(header.type == TypeTag::Vector || header.type == TypeTag::Matrix) {
@@ -86,6 +93,7 @@ namespace libjaguar {
 			//Check expected field count to make sure we're not over
 			if(encounteredFields > expectations.fieldCount) throw std::runtime_error("Excess number of fields detected in scope!");
 
+			//Handle what we found
 			if(IsValue(header.type)) {
 				//Parse the value
 				ValueEntry entry = _ParseValueInternal(header, scopePath);
@@ -108,10 +116,11 @@ namespace libjaguar {
 
 				//Handle different scope types
 				if(entry.list) {
-					//Element type
+					//Element type & validation
 					entry.listElementType = header.elementType;
 					if(entry.listElementType == TypeTag::List) throw std::runtime_error("Lists may not directly contain other lists!");
 					if(entry.listElementType == TypeTag::StructuredObjTypeDecl) throw std::runtime_error("Lists may not contain type declarations!");
+					if(entry.listElementType == TypeTag::ScopeBoundary) throw std::runtime_error("Lists of scope boundaries cannot exist!");
 
 					//Validate element type parameters
 					if(entry.listElementType == TypeTag::StructuredObj && !index->types.contains(entry.typeID))
@@ -122,6 +131,33 @@ namespace libjaguar {
 						if(entry.listMathData.width < 2 || entry.listMathData.width > 4) throw std::runtime_error("Encountered list of vectors/matrices with invalid width!");
 						if(entry.listElementType == TypeTag::Matrix && (entry.listMathData.height < 2 || entry.listMathData.height > 4)) throw std::runtime_error("Encountered list of matrices with invalid height!");
 					}
+
+					//Start parsing values
+					for(unsigned int i = 0; i < header.size; ++i) {
+						//Construct a fake value header for reading
+						ValueHeader fakeHeader = {};
+						fakeHeader.name = std::to_string(i);
+						fakeHeader.type = entry.listElementType;
+						if(static_cast<uint8_t>(entry.listElementType) <= 0xC) {
+							//Buffer object (string, byte buffer, substream)
+							fakeHeader.size = reader.ReadInteger<uint32_t>();
+							if(entry.listElementType == TypeTag::String && fakeHeader.size > std::pow(2, 24)) throw std::runtime_error("Encountered a string that is too long (> 24-bit integer limit!)");
+						} else if(entry.listElementType == TypeTag::Vector || entry.listElementType == TypeTag::Matrix) {
+							fakeHeader.width = entry.listMathData.width;
+							fakeHeader.nestedElementType = entry.listMathData.type;
+							if(entry.listElementType == TypeTag::Matrix) fakeHeader.height = entry.listMathData.height;
+						} else if(entry.listElementType == TypeTag::StructuredObj) {
+							fakeHeader.typeID = entry.typeID;
+						} else if(entry.listElementType == TypeTag::UnstructuredObj) {
+							fakeHeader.fieldCount = reader.ReadInteger<uint16_t>();
+						}
+
+						//Parse the value
+					}
+
+					//Ensure we hit the scope boundary
+					uint8_t tagByte = reader.ReadInteger<uint8_t>();
+					if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte != TypeTag::ScopeBoundary)) throw std::runtime_error("Expected a scope boundary at the end of list!");
 				} else if(header.type == TypeTag::StructuredObjTypeDecl) {
 				} else {
 					//If this is structured then the type must be declared

@@ -98,7 +98,7 @@ The container header takes the following form:
 | File intent byte | 1 |
 | Null separator for alignment | 1 |
 
-The magic data string is `JAGUAR` in ASCII bytes (or `4A 41 47 55 41 52` in hex bytes).  
+The magic data string is `JAGUAR` in ASCII (or `4A 41 47 55 41 52` in hex bytes).  
 
 The file intent byte is application-defined and is used to identify what the stream is supposed to be to the application. Decoders **must not** rely on this byte to determine how to parse the stream, as this value has no formal definition. The only exception is that a null byte here (`00`) is reserved to mean a freeform stream (i.e., have no expectations for what you get). This is primarily for higher-level consumers of parsed Jaguar data as opposed to the decoder itself.  
 
