@@ -55,12 +55,55 @@ namespace libjaguar {
 			if(header.type == TypeTag::Matrix) {
 				if(header.height < 2 || header.height > 4) throw std::runtime_error("Encountered matrix with invalid height!");
 				entry.height = header.height;
+			} else {
+				entry.height = 1;
 			}
 		}
 
 		//Buffer objects and size checks
 		if(static_cast<uint8_t>(header.type) <= 0xC) entry.size = header.size;
 		if(header.type == TypeTag::String && header.size >= std::pow(2, 24)) throw std::runtime_error("Encountered a string that is too long (> 24-bit integer limit!)");
+
+		//Calculate size of value body to skip
+		std::size_t skipAmountBytes = 0;
+		switch(header.type) {
+			case TypeTag::String:
+			case TypeTag::ByteBuffer:
+			case TypeTag::Substream:
+				skipAmountBytes = header.size;
+				break;
+			case TypeTag::SInt8:
+			case TypeTag::UInt8:
+			case TypeTag::Boolean:
+				skipAmountBytes = 1;
+				break;
+			case TypeTag::SInt32:
+			case TypeTag::UInt32:
+			case TypeTag::Float32:
+				skipAmountBytes = 4;
+				break;
+			case TypeTag::SInt64:
+			case TypeTag::UInt64:
+			case TypeTag::Float64:
+				skipAmountBytes = 8;
+				break;
+			case TypeTag::SInt16:
+			case TypeTag::UInt16:
+				skipAmountBytes = 2;
+				break;
+			case TypeTag::ScopeBoundary:
+				skipAmountBytes = 0;
+				break;
+			case TypeTag::Vector:
+			case TypeTag::Matrix: {
+				uint8_t asByte = static_cast<uint8_t>(header.elementType);
+				if(asByte >= 0xE) asByte -= 2;
+				skipAmountBytes = ((asByte & 0xF) - 0x9) * entry.width * entry.height;
+				break;
+			}
+			default: break;
+		}
+		reader->ignore(skipAmountBytes);
 
 		return entry;
 	}
@@ -69,7 +112,13 @@ namespace libjaguar {
 		//Continuously read the next header
 		while(true) {
 			//Get next header
-			ValueHeader header = reader.ReadHeader();
+			ValueHeader header = {};
+			try {
+				header = reader.ReadHeader();
+			} catch(...) {
+				if(reader->eof()) break;
+				std::rethrow_exception(std::current_exception());
+			}
 			std::size_t encounteredFields = scope.subscopes.size() + scope.subvalues.size();
 
 			//If we see a scope boundary, check position
@@ -110,7 +159,15 @@ namespace libjaguar {
 				entry.name = header.name;
 				entry.streamBeginPosition = reader->tellg();
 				entry.typeID = header.typeID;
-				std::string newScopePath = scopePath + (scopePath.empty() ? "" : ".") + entry.name;
+				std::string newScopePath;
+				if(!scopePath.empty()) {
+					if(scopePath.ends_with("["))
+						newScopePath = scopePath + header.name + "]";
+					else
+						newScopePath = scopePath + "." + header.name;
+				} else {
+					newScopePath = entry.name;
+				}
 				entry.id = GenIndexID(newScopePath);
 				if(nest > 1 && header.type == TypeTag::StructuredObjTypeDecl) throw std::runtime_error("Type declarations may only appear in the root scope!");
 
@@ -126,7 +183,7 @@ namespace libjaguar {
 					if(entry.listElementType == TypeTag::StructuredObj && !index->types.contains(entry.typeID))
 						throw std::runtime_error("List of structured objects uses a type that has not yet been defined!");
 					else if(entry.listElementType == TypeTag::Vector || entry.listElementType == TypeTag::Matrix) {
-						entry.listMathData = {.type = header.nestedElementType, .width = header.width, .height = header.height};
+						entry.listMathData = {.width = header.width, .height = header.height, .type = header.nestedElementType};
 						if(uint8_t asByte = static_cast<uint8_t>(entry.listMathData.type); asByte < 0x0E || asByte > 0x2D) throw std::runtime_error("Encountered list of vectors/matrices with invalid element type!");
 						if(entry.listMathData.width < 2 || entry.listMathData.width > 4) throw std::runtime_error("Encountered list of vectors/matrices with invalid width!");
 						if(entry.listElementType == TypeTag::Matrix && (entry.listMathData.height < 2 || entry.listMathData.height > 4)) throw std::runtime_error("Encountered list of matrices with invalid height!");
@@ -153,6 +210,36 @@ namespace libjaguar {
 						}
 
 						//Parse the value
+						if(IsValue(entry.listElementType)) {
+							ValueEntry parsed = _ParseValueInternal(fakeHeader, newScopePath);
+							entry.subvalues.push_back(std::move(parsed));
+						} else {
+							//Setup scope entry
+							ScopeEntry listScope = {};
+							listScope.list = false;
+							listScope.name = std::to_string(i);
+							listScope.streamBeginPosition = reader->tellg();
+							listScope.typeID = entry.typeID;
+							std::string subscopePath;
+							if(newScopePath.ends_with("["))
+								subscopePath = newScopePath + listScope.name + "]";
+							else
+								subscopePath = newScopePath + "." + listScope.name;
+							listScope.id = GenIndexID(subscopePath);
+
+							//Setup expectations
+							ScopeExpectations se = {};
+							se.type = entry.listElementType;
+							se.typeID = entry.typeID;
+							se.fieldCount = (entry.listElementType == TypeTag::StructuredObj ? index->types[entry.typeID].fields.size() : fakeHeader.fieldCount);
+							se.rootFlag = false;
+
+							//Parse scope
+							_ParseScopeInternal(listScope, se, newScopePath);
+
+							//Add to list
+							entry.subscopes.push_back(std::move(listScope));
+						}
 					}
 
 					//Ensure we hit the scope boundary
@@ -184,7 +271,7 @@ namespace libjaguar {
 		if(index.has_value()) throw std::runtime_error("Stream has already been parsed!");
 
 		//Configure root node
-		index.emplace();
+		index = std::make_optional<Index>();
 		index->root.name = "";
 		index->root.id = GenIndexID("");
 		index->root.streamBeginPosition = 0;
