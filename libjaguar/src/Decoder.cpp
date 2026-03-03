@@ -8,6 +8,7 @@
 #include <exception>
 #include <stdexcept>
 #include <cmath>
+#include <unordered_map>
 
 namespace libjaguar {
 	Decoder::Decoder(Reader&& reader) : reader(std::move(reader)), readerValid(true), failFlag(false) {}
@@ -110,6 +111,18 @@ namespace libjaguar {
 	}
 
 	void Decoder::_ParseScopeInternal(ScopeEntry& scope, ScopeExpectations expectations, const std::string& scopePath) {
+		//We use this to track what field names are used to avoid duplicates
+		std::unordered_map<std::string, bool> fieldTracker;
+
+		//Structured object preparation
+		StructuredTypeLayout layout = {};
+		if(expectations.type == TypeTag::StructuredObj) {
+			layout = index->types[expectations.typeID];
+			for(const StructuredTypeLayout::Field& field : layout.fields) {
+				fieldTracker.insert_or_assign(field.name, false);
+			}
+		}
+
 		//Continuously read the next header
 		while(true) {
 			//Get next header
@@ -129,7 +142,15 @@ namespace libjaguar {
 
 				//Have we seen the expected number of values yet?
 				//Return if so because the scope is done
-				if(encounteredFields == expectations.fieldCount) return;
+				if(encounteredFields == expectations.fieldCount) {
+					//For structured objects, check that all fields were found first (other measures should mean this never needs to be checked, but just to be safe)
+					if(expectations.type == TypeTag::StructuredObj) {
+						for(const auto& [_, seen] : fieldTracker) {
+							if(!seen) throw std::runtime_error("Exited structured object scope without all required fields present!");
+						}
+					}
+					return;
+				}
 
 				//If we're less, this is simply a case of early scope termination
 				//We still do an if-check to throw the appropriate exception in case we passed the expected field count without a boundary
@@ -142,6 +163,41 @@ namespace libjaguar {
 
 			//Check expected field count to make sure we're not over
 			if(encounteredFields > expectations.fieldCount) throw std::runtime_error("Excess number of fields detected in scope!");
+
+			//Check names to avoid duplication
+			if(fieldTracker.contains(header.name) && fieldTracker[header.name]) throw std::runtime_error("Detected duplicate field in scope!");
+			fieldTracker[header.name] = true;
+
+			//For structured objects: check that the type actually contains this value
+			if(expectations.type == TypeTag::StructuredObj) {
+				//Try to find a field matching this header
+				bool ok = false;
+				for(const StructuredTypeLayout::Field& field : layout.fields) {
+					//If any check fails, go to next iteration
+					if(field.name.compare(header.name) != 0) continue;
+					if(field.type != header.type) continue;
+					if(field.type == TypeTag::Vector || field.type == TypeTag::Matrix) {
+						if(field.elementType != header.elementType) continue;
+						if(field.width != header.width) continue;
+						if(field.type == TypeTag::Matrix && field.height != header.height) continue;
+					} else if(field.type == TypeTag::StructuredObj) {
+						if(field.typeID != header.typeID) continue;
+					} else if(field.type == TypeTag::List) {
+						if(field.elementType == TypeTag::Vector || field.elementType == TypeTag::Matrix) {
+							if(field.nestedElementType != header.nestedElementType) continue;
+							if(field.width != header.width) continue;
+							if(field.type == TypeTag::Matrix && field.height != header.height) continue;
+						} else if(field.elementType == TypeTag::StructuredObj) {
+							if(field.typeID != header.typeID) continue;
+						}
+					}
+
+					//All checks passed, ok!
+					ok = true;
+					break;
+				}
+				if(!ok) throw std::runtime_error("While parsing structured object, encountered a field not present in the type declaration!");
+			}
 
 			//Handle what we found
 			if(IsValue(header.type)) {

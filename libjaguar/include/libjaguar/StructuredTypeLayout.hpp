@@ -26,7 +26,7 @@ namespace libjaguar {
 			///@{
 			TypeTag elementType;	  ///<Type of contained element (for vectors, matrices, and lists)
 			TypeTag nestedElementType;///<Type of contained element in the vector/matrix for a list of vectors or matrices
-			std::string elementTypeID;///<Type ID for a structured object or a list containing structured objects
+			std::string typeID;		  ///<Type ID for a structured object or a list containing structured objects
 			uint8_t width;			  ///<Number of components in a vector or columns in a matrix
 			uint8_t height;			  ///<Number of rows in a matrix
 

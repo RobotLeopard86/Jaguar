@@ -75,7 +75,7 @@ Below is the list of types in Jaguar and their `TypeTag`s:
 | Unsigned Integer (32-bit) | `0x2C` |
 | Unsigned Integer (64-bit) | `0x2D` |
 | List | `0x3A` |
-| Unstructured Object (Dictionary) | `0x3B` |
+| Unstructured Object | `0x3B` |
 | Structured Object | `0x3C` |
 | Structured Object Type Declaration | `0x3D` |
 | Scope Boundary | `0x3E` |
@@ -84,7 +84,7 @@ Below is the list of types in Jaguar and their `TypeTag`s:
 
 More details about complex object types will be provided in later sections.  
 
-The scope boundary `TypeTag` does not function as a traditional `Value`; it serves to delimit object and list boundaries, has no header or body, and may only appear in certain locations. More information will be provided in section 7.
+The scope boundary `TypeTag` does not function as a traditional `Value`; it serves to delimit object and list boundaries, has no header or body, and may only appear in certain locations. More information will be provided in section 5.
 
 ## 3. Containers
 In order to support storing a Jaguar stream on disk in an identifiable format, the stream can be wrapped in a Jaguar container.  
