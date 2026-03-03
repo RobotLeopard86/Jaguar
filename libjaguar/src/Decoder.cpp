@@ -98,7 +98,7 @@ namespace libjaguar {
 			case TypeTag::Vector:
 			case TypeTag::Matrix: {
 				uint8_t asByte = static_cast<uint8_t>(header.elementType);
-				if(asByte >= 0xE) asByte -= 2;
+				if((asByte & 0xF) >= 0xE) asByte -= 2;
 				skipAmountBytes = ((asByte & 0xF) - 0x9) * entry.width * entry.height;
 				break;
 			}
