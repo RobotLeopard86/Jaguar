@@ -122,6 +122,7 @@ Structured object headers consist of an 8-bit unsigned integer typename string l
 Before a structured object typename may be used, it must appear as part of a structured object type declaration. A structured object type declaration follows this header format:  
 | Field | Size (bytes) |
 | ----- | ------------ |
+| | `TypeTag` (`0x3D`) | 1 |
 | Typename string size (unsigned int) | 1 |
 | Typename string | (size above) |
 | Field count | 2 |  

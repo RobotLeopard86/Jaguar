@@ -206,8 +206,7 @@ namespace libjaguar {
 				header.height = (uint8_t)_ReadIntegerInternal(8);
 				break;
 			}
-			case TypeTag::StructuredObj:
-			case TypeTag::StructuredObjTypeDecl: {
+			case TypeTag::StructuredObj: {
 				//Read and check type ID string
 				uint8_t typeIDLen = _ReadIntegerInternal(8);
 				if(typeIDLen == 0) throw std::runtime_error("Encountered empty type ID string!");
@@ -215,10 +214,9 @@ namespace libjaguar {
 				stream->read(header.typeID.data(), typeIDLen);
 				STREAMCHECK;
 				if(!CheckUTF8(header.typeID)) throw std::runtime_error("Encountered a type ID string that is not valid UTF-8!");
-
-				//Break for StructuredObj (StructuredObjTypeDecl has same next field as UnstructuredObj so we intentionally fallthrough there)
-				if(header.type == TypeTag::StructuredObj) break;
+				break;
 			}
+			case TypeTag::StructuredObjTypeDecl:
 			case TypeTag::UnstructuredObj:
 				//Get field count
 				header.fieldCount = (uint16_t)_ReadIntegerInternal(16);

@@ -10,6 +10,8 @@
 #include <cmath>
 #include <unordered_map>
 
+#define TYPE_OR_LIST_OF(cmp, tp) cmp.type == TypeTag::tp || (cmp.type == TypeTag::List && cmp.elementType == TypeTag::tp)
+
 namespace libjaguar {
 	Decoder::Decoder(Reader&& reader) : reader(std::move(reader)), readerValid(true), failFlag(false) {}
 
@@ -168,8 +170,10 @@ namespace libjaguar {
 			if(encounteredFields > expectations.fieldCount) throw std::runtime_error("Excess number of fields detected in scope!");
 
 			//Check names to avoid duplication
-			if(fieldTracker.contains(header.name) && fieldTracker[header.name]) throw std::runtime_error("Detected duplicate field in scope!");
-			fieldTracker[header.name] = true;
+			if(header.type != TypeTag::StructuredObjTypeDecl && fieldTracker.contains(header.name) && fieldTracker[header.name])
+				throw std::runtime_error("Detected duplicate field in scope!");
+			else
+				fieldTracker[header.name] = true;
 
 			//For structured objects: check that the type actually contains this value
 			if(expectations.type == TypeTag::StructuredObj) {
@@ -306,6 +310,30 @@ namespace libjaguar {
 					uint8_t tagByte = reader.ReadInteger<uint8_t>();
 					if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte != TypeTag::ScopeBoundary)) throw std::runtime_error("Expected a scope boundary at the end of list!");
 				} else if(header.type == TypeTag::StructuredObjTypeDecl) {
+					//Check that there's not already a type with this name
+					if(index->types.contains(header.name)) throw std::runtime_error("Encountered a type declaration with a name that already exists!");
+
+					//Set up layout object
+					StructuredTypeLayout type = {};
+					type.typeID = header.name;
+					type.fields.resize(header.fieldCount);
+
+					//Start parsing fields
+					for(StructuredTypeLayout::Field& field : type.fields) {
+						//Get type tag
+						uint8_t tagByte = reader.ReadInteger<uint8_t>();
+						if(!ValidateTypeTag(tagByte)) throw std::runtime_error("Invalid TypeTag in structured object type declaration!");
+						field.type = (TypeTag)tagByte;
+
+						//Field name
+						uint8_t nameLen = reader.ReadInteger<uint8_t>();
+						if(nameLen == 0) throw std::runtime_error("Cannot declare a field with no name!");
+						field.name = reader.ReadString(nameLen);
+
+						//Type-specific functionality
+						if(TYPE_OR_LIST_OF(field, StructuredObj)) {
+						}
+					}
 				} else {
 					//If this is structured then the type must be declared
 					if(header.type == TypeTag::StructuredObj && !index->types.contains(entry.typeID)) throw std::runtime_error("Structured object uses a type that has not yet been defined!");
@@ -313,6 +341,7 @@ namespace libjaguar {
 					//Prepare expectations
 					ScopeExpectations se = {.type = header.type,
 						.fieldCount = (header.type == TypeTag::StructuredObj ? index->types[entry.typeID].fields.size() : header.fieldCount),
+						.typeID = entry.typeID,
 						.rootFlag = false};
 
 					//Parse scope
