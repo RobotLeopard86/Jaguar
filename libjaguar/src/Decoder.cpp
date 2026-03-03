@@ -7,6 +7,7 @@
 
 #include <exception>
 #include <stdexcept>
+#include <cmath>
 
 namespace libjaguar {
 	Decoder::Decoder(Reader&& reader) : reader(std::move(reader)), readerValid(true), failFlag(false) {}
