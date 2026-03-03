@@ -11,7 +11,9 @@ endif
 if host_machine.system() == 'windows'
 	add_project_arguments(['-D_DLL', '-D_MT', '-DLJBUILD'], language: 'cpp')
 	if bt == 'debug'
-		add_project_arguments('-D_ITERATOR_DEBUG_LEVEL=2', language: 'cpp')
+		add_project_arguments(['-D_ITERATOR_DEBUG_LEVEL=2', '-fms-runtime-lib=dll_dbg'], language: 'cpp')
+	else
+		add_project_arguments('-fms-runtime-lib=dll', language: 'cpp')
 	endif
 endif
 

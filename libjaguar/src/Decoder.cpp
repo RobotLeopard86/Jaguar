@@ -130,7 +130,10 @@ namespace libjaguar {
 			try {
 				header = reader.ReadHeader();
 			} catch(...) {
-				if(reader->eof()) break;
+				if(reader->eof()) {
+					if(!expectations.rootFlag) throw std::runtime_error("Unexpected EOF in nested scope!");
+					return;
+				}
 				std::rethrow_exception(std::current_exception());
 			}
 			std::size_t encounteredFields = scope.subscopes.size() + scope.subvalues.size();
