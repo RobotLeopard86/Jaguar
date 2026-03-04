@@ -6,6 +6,7 @@
 #include "libjaguar/ValueHeader.hpp"
 
 #include <exception>
+#include <set>
 #include <stdexcept>
 #include <cmath>
 #include <unordered_map>
@@ -213,6 +214,71 @@ namespace libjaguar {
 
 				//Add entry
 				scope.subvalues.push_back(std::move(entry));
+			} else if(header.type == TypeTag::StructuredObjTypeDecl) {
+				//Check that there's not already a type with this name
+				if(index->types.contains(header.name)) throw std::runtime_error("Encountered a type declaration with a name that already exists!");
+
+				//Set up layout object
+				StructuredTypeLayout type = {};
+				type.typeID = header.name;
+				type.fields.resize(header.fieldCount);
+				std::set<std::string> fieldNames;
+
+				//Start parsing fields
+				for(StructuredTypeLayout::Field& field : type.fields) {
+					//Get type tag
+					uint8_t tagByte = reader.ReadInteger<uint8_t>();
+					if(!ValidateTypeTag(tagByte)) throw std::runtime_error("Invalid TypeTag in structured object type declaration!");
+					field.type = (TypeTag)tagByte;
+					if(field.type == TypeTag::StructuredObjTypeDecl || field.type == TypeTag::ScopeBoundary) throw std::runtime_error("Type declarations may not contain scope boundaries or other declarations!");
+
+					//Field name
+					uint8_t nameLen = reader.ReadInteger<uint8_t>();
+					if(nameLen == 0) throw std::runtime_error("Cannot declare a field with no name!");
+					field.name = reader.ReadString(nameLen);
+					if(fieldNames.contains(field.name)) throw std::runtime_error("Encountered duplicate field name in type declaration!");
+					fieldNames.insert(field.name);
+
+					//Type-specific functionality
+					if(field.type == TypeTag::List) {
+						//Get element type tag
+						uint8_t elementTagByte = reader.ReadInteger<uint8_t>();
+						if(!ValidateTypeTag(elementTagByte)) throw std::runtime_error("Invalid list element TypeTag in structured object type declaration!");
+						field.elementType = (TypeTag)elementTagByte;
+						if(field.elementType == TypeTag::List || field.elementType == TypeTag::StructuredObjTypeDecl || field.elementType == TypeTag::ScopeBoundary) throw std::runtime_error("Lists of scope boundaries, type declarations, or other lists are not allowed in type declarations!");
+					}
+					if(TYPE_OR_LIST_OF(field, StructuredObj)) {
+						//Type ID
+						uint8_t typeLen = reader.ReadInteger<uint8_t>();
+						field.typeID = reader.ReadString(typeLen);
+						if(!index->types.contains(field.typeID)) throw std::runtime_error("Structured object in type declaration uses a type that does not exist!");
+					} else if(TYPE_OR_LIST_OF(field, Vector) || TYPE_OR_LIST_OF(field, Matrix)) {
+						//Validation of element type
+						uint8_t elementTagByte = reader.ReadInteger<uint8_t>();
+						if(!ValidateTypeTag(elementTagByte)) throw std::runtime_error("Invalid math element TypeTag in structured object type declaration!");
+						if(elementTagByte < 0x0E || elementTagByte > 0x2D) throw std::runtime_error("In type declaration: encountered vector/matrix with invalid element type!");
+						if(field.type == TypeTag::List) {
+							field.nestedElementType = (TypeTag)elementTagByte;
+						} else {
+							field.elementType = (TypeTag)elementTagByte;
+						}
+
+						//Check dimensions
+						field.width = reader.ReadInteger<uint8_t>();
+						if(field.width < 2 || field.width > 4) throw std::runtime_error("In type declaration: encountered vector/matrix with invalid width!");
+						if(field.elementType == TypeTag::Matrix) {
+							field.height = reader.ReadInteger<uint8_t>();
+							if(field.height < 2 || field.height > 4) throw std::runtime_error("In type declaration: encountered matrix with invalid height!");
+						}
+					}
+				}
+
+				//Ensure we hit the scope boundary
+				uint8_t tagByte = reader.ReadInteger<uint8_t>();
+				if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte == TypeTag::ScopeBoundary)) throw std::runtime_error("Expected a scope boundary at the end of type declaration!");
+
+				//Add type to registry
+				index->types.insert_or_assign(type.typeID, std::move(type));
 			} else {
 				//Check that we're not nesting too deep
 				if(++nest > 64) throw std::runtime_error("Nesting too deep!");
@@ -308,66 +374,7 @@ namespace libjaguar {
 
 					//Ensure we hit the scope boundary
 					uint8_t tagByte = reader.ReadInteger<uint8_t>();
-					if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte != TypeTag::ScopeBoundary)) throw std::runtime_error("Expected a scope boundary at the end of list!");
-				} else if(header.type == TypeTag::StructuredObjTypeDecl) {
-					//Check that there's not already a type with this name
-					if(index->types.contains(header.name)) throw std::runtime_error("Encountered a type declaration with a name that already exists!");
-
-					//Set up layout object
-					StructuredTypeLayout type = {};
-					type.typeID = header.name;
-					type.fields.resize(header.fieldCount);
-
-					//Start parsing fields
-					for(StructuredTypeLayout::Field& field : type.fields) {
-						//Get type tag
-						uint8_t tagByte = reader.ReadInteger<uint8_t>();
-						if(!ValidateTypeTag(tagByte)) throw std::runtime_error("Invalid TypeTag in structured object type declaration!");
-						field.type = (TypeTag)tagByte;
-						if(field.type == TypeTag::StructuredObjTypeDecl || field.type == TypeTag::ScopeBoundary) throw std::runtime_error("Type declarations may not contain scope boundaries or other declarations!");
-
-						//Field name
-						uint8_t nameLen = reader.ReadInteger<uint8_t>();
-						if(nameLen == 0) throw std::runtime_error("Cannot declare a field with no name!");
-						field.name = reader.ReadString(nameLen);
-
-						//Type-specific functionality
-						if(field.type == TypeTag::List) {
-							//Get element type tag
-							uint8_t elementTagByte = reader.ReadInteger<uint8_t>();
-							if(!ValidateTypeTag(elementTagByte)) throw std::runtime_error("Invalid list element TypeTag in structured object type declaration!");
-							field.elementType = (TypeTag)elementTagByte;
-							if(field.elementType == TypeTag::List || field.elementType == TypeTag::StructuredObjTypeDecl || field.elementType == TypeTag::ScopeBoundary) throw std::runtime_error("Lists of scope boundaries, type declarations, or other lists are not allowed in type declarations!");
-						}
-						if(TYPE_OR_LIST_OF(field, StructuredObj)) {
-							//Type ID
-							uint8_t typeLen = reader.ReadInteger<uint8_t>();
-							field.typeID = reader.ReadString(typeLen);
-							if(!index->types.contains(field.typeID)) throw std::runtime_error("Structured object in type declaration uses a type that does not exist!");
-						} else if(TYPE_OR_LIST_OF(field, Vector) || TYPE_OR_LIST_OF(field, Matrix)) {
-							//Validation of element type
-							uint8_t elementTagByte = reader.ReadInteger<uint8_t>();
-							if(!ValidateTypeTag(elementTagByte)) throw std::runtime_error("Invalid math element TypeTag in structured object type declaration!");
-							if(elementTagByte < 0x0E || elementTagByte > 0x2D) throw std::runtime_error("In type declaration: encountered vector/matrix with invalid element type!");
-							if(field.type == TypeTag::List) {
-								field.nestedElementType = (TypeTag)elementTagByte;
-							} else {
-								field.elementType = (TypeTag)elementTagByte;
-							}
-
-							//Check dimensions
-							field.width = reader.ReadInteger<uint8_t>();
-							if(field.width < 2 || field.width > 4) throw std::runtime_error("In type declaration: encountered vector/matrix with invalid width!");
-							if(field.elementType == TypeTag::Matrix) {
-								field.height = reader.ReadInteger<uint8_t>();
-								if(field.height < 2 || field.height > 4) throw std::runtime_error("In type declaration: encountered matrix with invalid height!");
-							}
-						}
-					}
-
-					//Ensure we hit the scope boundary
-					uint8_t tagByte = reader.ReadInteger<uint8_t>();
-					if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte != TypeTag::ScopeBoundary)) throw std::runtime_error("Expected a scope boundary at the end of list!");
+					if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte == TypeTag::ScopeBoundary)) throw std::runtime_error("Expected a scope boundary at the end of list!");
 				} else {
 					//If this is structured then the type must be declared
 					if(header.type == TypeTag::StructuredObj && !index->types.contains(entry.typeID)) throw std::runtime_error("Structured object uses a type that has not yet been defined!");
