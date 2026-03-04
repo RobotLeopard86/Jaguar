@@ -1,5 +1,4 @@
 #include "libjaguar/Decoder.hpp"
-#include "Utilities.hpp"
 #include "libjaguar/Index.hpp"
 #include "libjaguar/StructuredTypeLayout.hpp"
 #include "libjaguar/TypeTags.hpp"

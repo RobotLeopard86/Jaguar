@@ -16,8 +16,8 @@ namespace libjaguar {
 		return *this;
 	}
 
-	Writer& Encoder::GetWriter() {
+	Writer&& Encoder::ReleaseWriter() && {
 		if(!writerValid) throw std::runtime_error("Encoder has no valid writer!");
-		return writer;
+		return std::move(writer);
 	}
 }

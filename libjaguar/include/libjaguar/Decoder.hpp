@@ -5,7 +5,6 @@
 #include "Reader.hpp"
 #include "ValueHeader.hpp"
 #include "libjaguar/Index.hpp"
-#include "libjaguar/StructuredTypeLayout.hpp"
 #include "libjaguar/TypeTags.hpp"
 #include <optional>
 #include <stdexcept>

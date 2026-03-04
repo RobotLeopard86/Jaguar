@@ -6,6 +6,7 @@ libjaguar = both_libraries('jaguar', sources: [
 	'src' / 'Decoder.cpp',
 	'src' / 'Encoder.cpp',
 	'src' / 'Reader.cpp',
+	'src' / 'Utilities.cpp',
 	'src' / 'Writer.cpp'
 ], include_directories: ['include', 'src'], pic: true, install: true)
 
