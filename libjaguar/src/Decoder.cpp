@@ -9,8 +9,15 @@
 #include <stdexcept>
 #include <cmath>
 #include <unordered_map>
+#include <sstream>
 
 #define TYPE_OR_LIST_OF(cmp, tp) cmp.type == TypeTag::tp || (cmp.type == TypeTag::List && cmp.elementType == TypeTag::tp)
+#define DECODE_ERROR(msg)                                                                              \
+	{                                                                                                  \
+		std::stringstream ss;                                                                          \
+		ss << "[Decode Error] At offset 0x" << std::hex << reader->tellg() << std::dec << ": " << msg; \
+		throw std::runtime_error(ss.str());                                                            \
+	}
 
 namespace libjaguar {
 	Decoder::Decoder(Reader&& reader) : reader(std::move(reader)), readerValid(true), failFlag(false) {}
@@ -51,13 +58,13 @@ namespace libjaguar {
 
 		//Vector/matrix handling
 		if(header.type == TypeTag::Vector || header.type == TypeTag::Matrix) {
-			if(uint8_t asByte = static_cast<uint8_t>(header.elementType); asByte < 0x0E || asByte > 0x2D) throw std::runtime_error("Encountered vector/matrix with invalid element type!");
+			if(uint8_t asByte = static_cast<uint8_t>(header.elementType); asByte < 0x0E || asByte > 0x2D) DECODE_ERROR("Encountered vector/matrix with invalid element type!");
 			entry.elementType = header.elementType;
 
-			if(header.width < 2 || header.width > 4) throw std::runtime_error("Encountered vector/matrix with invalid width!");
+			if(header.width < 2 || header.width > 4) DECODE_ERROR("Encountered vector/matrix with invalid width!");
 			entry.width = header.width;
 			if(header.type == TypeTag::Matrix) {
-				if(header.height < 2 || header.height > 4) throw std::runtime_error("Encountered matrix with invalid height!");
+				if(header.height < 2 || header.height > 4) DECODE_ERROR("Encountered matrix with invalid height!");
 				entry.height = header.height;
 			} else {
 				entry.height = 1;
@@ -66,7 +73,7 @@ namespace libjaguar {
 
 		//Buffer objects and size checks
 		if(static_cast<uint8_t>(header.type) <= 0xC) entry.size = header.size;
-		if(header.type == TypeTag::String && header.size >= std::pow(2, 24)) throw std::runtime_error("Encountered a string that is too long (> 24-bit integer limit!)");
+		if(header.type == TypeTag::String && header.size >= std::pow(2, 24)) DECODE_ERROR("Encountered a string that is too long (> 24-bit integer limit!)");
 
 		//Calculate size of value body to skip
 		std::size_t skipAmountBytes = 0;
@@ -102,7 +109,7 @@ namespace libjaguar {
 			case TypeTag::Matrix: {
 				uint8_t asByte = static_cast<uint8_t>(header.elementType);
 				if((asByte & 0xF) >= 0xE) asByte -= 2;
-				skipAmountBytes = ((asByte & 0xF) - 0x9) * entry.width * entry.height;
+				skipAmountBytes = std::pow(2, (asByte & 0xF) - 0xA) * entry.width * entry.height;
 				break;
 			}
 			default: break;
@@ -133,7 +140,7 @@ namespace libjaguar {
 				header = reader.ReadHeader();
 			} catch(...) {
 				if(reader->eof()) {
-					if(!expectations.rootFlag) throw std::runtime_error("Unexpected EOF in nested scope!");
+					if(!expectations.rootFlag) DECODE_ERROR("Unexpected EOF in nested scope!");
 					return;
 				}
 				std::rethrow_exception(std::current_exception());
@@ -143,7 +150,7 @@ namespace libjaguar {
 			//If we see a scope boundary, check position
 			if(header.type == TypeTag::ScopeBoundary) {
 				//Is this root
-				if(expectations.rootFlag) throw std::runtime_error("Unexpected scope boundary in root scope!");
+				if(expectations.rootFlag) DECODE_ERROR("Unexpected scope boundary in root scope!");
 
 				//Have we seen the expected number of values yet?
 				//Return if so because the scope is done
@@ -151,7 +158,7 @@ namespace libjaguar {
 					//For structured objects, check that all fields were found first (other measures should mean this never needs to be checked, but just to be safe)
 					if(expectations.type == TypeTag::StructuredObj) {
 						for(const auto& [_, seen] : fieldTracker) {
-							if(!seen) throw std::runtime_error("Exited structured object scope without all required fields present!");
+							if(!seen) DECODE_ERROR("Exited structured object scope without all required fields present!");
 						}
 					}
 					return;
@@ -160,18 +167,18 @@ namespace libjaguar {
 				//If we're less, this is simply a case of early scope termination
 				//We still do an if-check to throw the appropriate exception in case we passed the expected field count without a boundary
 				else if(encounteredFields < expectations.fieldCount)
-					throw std::runtime_error("Early scope boundary detected!");
+					DECODE_ERROR("Early scope boundary detected!")
 				else
 					//This really shouldn't happen because we try to anticipate excess fields early
-					throw std::runtime_error("Late scope boundary detected!");
+					DECODE_ERROR("Late scope boundary detected!")
 			}
 
 			//Check expected field count to make sure we're not over
-			if(encounteredFields > expectations.fieldCount) throw std::runtime_error("Excess number of fields detected in scope!");
+			if(encounteredFields > expectations.fieldCount) DECODE_ERROR("Excess number of fields detected in scope!");
 
 			//Check names to avoid duplication
 			if(header.type != TypeTag::StructuredObjTypeDecl && fieldTracker.contains(header.name) && fieldTracker[header.name])
-				throw std::runtime_error("Detected duplicate field in scope!");
+				DECODE_ERROR("Detected duplicate field in scope!")
 			else
 				fieldTracker[header.name] = true;
 
@@ -203,7 +210,7 @@ namespace libjaguar {
 					ok = true;
 					break;
 				}
-				if(!ok) throw std::runtime_error("While parsing structured object, encountered a field not present in the type declaration!");
+				if(!ok) DECODE_ERROR("While parsing structured object, encountered a field not present in the type declaration!");
 			}
 
 			//Handle what we found
@@ -215,7 +222,7 @@ namespace libjaguar {
 				scope.subvalues.push_back(std::move(entry));
 			} else if(header.type == TypeTag::StructuredObjTypeDecl) {
 				//Check that there's not already a type with this name
-				if(index->types.contains(header.name)) throw std::runtime_error("Encountered a type declaration with a name that already exists!");
+				if(index->types.contains(header.name)) DECODE_ERROR("Encountered a type declaration with a name that already exists!");
 
 				//Set up layout object
 				StructuredTypeLayout type = {};
@@ -227,35 +234,35 @@ namespace libjaguar {
 				for(StructuredTypeLayout::Field& field : type.fields) {
 					//Get type tag
 					uint8_t tagByte = reader.ReadInteger<uint8_t>();
-					if(!ValidateTypeTag(tagByte)) throw std::runtime_error("Invalid TypeTag in structured object type declaration!");
+					if(!ValidateTypeTag(tagByte)) DECODE_ERROR("Invalid TypeTag in structured object type declaration!");
 					field.type = (TypeTag)tagByte;
-					if(field.type == TypeTag::StructuredObjTypeDecl || field.type == TypeTag::ScopeBoundary) throw std::runtime_error("Type declarations may not contain scope boundaries or other declarations!");
+					if(field.type == TypeTag::StructuredObjTypeDecl || field.type == TypeTag::ScopeBoundary) DECODE_ERROR("Type declarations may not contain scope boundaries or other declarations!");
 
 					//Field name
 					uint8_t nameLen = reader.ReadInteger<uint8_t>();
-					if(nameLen == 0) throw std::runtime_error("Cannot declare a field with no name!");
+					if(nameLen == 0) DECODE_ERROR("Cannot declare a field with no name!");
 					field.name = reader.ReadString(nameLen);
-					if(fieldNames.contains(field.name)) throw std::runtime_error("Encountered duplicate field name in type declaration!");
+					if(fieldNames.contains(field.name)) DECODE_ERROR("Encountered duplicate field name in type declaration!");
 					fieldNames.insert(field.name);
 
 					//Type-specific functionality
 					if(field.type == TypeTag::List) {
 						//Get element type tag
 						uint8_t elementTagByte = reader.ReadInteger<uint8_t>();
-						if(!ValidateTypeTag(elementTagByte)) throw std::runtime_error("Invalid list element TypeTag in structured object type declaration!");
+						if(!ValidateTypeTag(elementTagByte)) DECODE_ERROR("Invalid list element TypeTag in structured object type declaration!");
 						field.elementType = (TypeTag)elementTagByte;
-						if(field.elementType == TypeTag::List || field.elementType == TypeTag::StructuredObjTypeDecl || field.elementType == TypeTag::ScopeBoundary) throw std::runtime_error("Lists of scope boundaries, type declarations, or other lists are not allowed in type declarations!");
+						if(field.elementType == TypeTag::List || field.elementType == TypeTag::StructuredObjTypeDecl || field.elementType == TypeTag::ScopeBoundary) DECODE_ERROR("Lists of scope boundaries, type declarations, or other lists are not allowed in type declarations!");
 					}
 					if(TYPE_OR_LIST_OF(field, StructuredObj)) {
 						//Type ID
 						uint8_t typeLen = reader.ReadInteger<uint8_t>();
 						field.typeID = reader.ReadString(typeLen);
-						if(!index->types.contains(field.typeID)) throw std::runtime_error("Structured object in type declaration uses a type that does not exist!");
+						if(!index->types.contains(field.typeID)) DECODE_ERROR("Structured object in type declaration uses a type that does not exist!");
 					} else if(TYPE_OR_LIST_OF(field, Vector) || TYPE_OR_LIST_OF(field, Matrix)) {
 						//Validation of element type
 						uint8_t elementTagByte = reader.ReadInteger<uint8_t>();
-						if(!ValidateTypeTag(elementTagByte)) throw std::runtime_error("Invalid math element TypeTag in structured object type declaration!");
-						if(elementTagByte < 0x0E || elementTagByte > 0x2D) throw std::runtime_error("In type declaration: encountered vector/matrix with invalid element type!");
+						if(!ValidateTypeTag(elementTagByte)) DECODE_ERROR("Invalid math element TypeTag in structured object type declaration!");
+						if(elementTagByte < 0x0E || elementTagByte > 0x2D) DECODE_ERROR("In type declaration: encountered vector/matrix with invalid element type!");
 						if(field.type == TypeTag::List) {
 							field.nestedElementType = (TypeTag)elementTagByte;
 						} else {
@@ -264,23 +271,23 @@ namespace libjaguar {
 
 						//Check dimensions
 						field.width = reader.ReadInteger<uint8_t>();
-						if(field.width < 2 || field.width > 4) throw std::runtime_error("In type declaration: encountered vector/matrix with invalid width!");
+						if(field.width < 2 || field.width > 4) DECODE_ERROR("In type declaration: encountered vector/matrix with invalid width!");
 						if(field.elementType == TypeTag::Matrix) {
 							field.height = reader.ReadInteger<uint8_t>();
-							if(field.height < 2 || field.height > 4) throw std::runtime_error("In type declaration: encountered matrix with invalid height!");
+							if(field.height < 2 || field.height > 4) DECODE_ERROR("In type declaration: encountered matrix with invalid height!");
 						}
 					}
 				}
 
 				//Ensure we hit the scope boundary
 				uint8_t tagByte = reader.ReadInteger<uint8_t>();
-				if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte == TypeTag::ScopeBoundary)) throw std::runtime_error("Expected a scope boundary at the end of type declaration!");
+				if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte == TypeTag::ScopeBoundary)) DECODE_ERROR("Expected a scope boundary at the end of type declaration!");
 
 				//Add type to registry
 				index->types.insert_or_assign(type.typeID, std::move(type));
 			} else {
 				//Check that we're not nesting too deep
-				if(++nest > 64) throw std::runtime_error("Nesting too deep!");
+				if(++nest > 64) DECODE_ERROR("Nesting too deep!");
 
 				//Prepare entry object
 				ScopeEntry entry = {};
@@ -298,24 +305,24 @@ namespace libjaguar {
 					newScopePath = entry.name;
 				}
 				entry.id = GenIndexID(newScopePath);
-				if(nest > 1 && header.type == TypeTag::StructuredObjTypeDecl) throw std::runtime_error("Type declarations may only appear in the root scope!");
+				if(nest > 1 && header.type == TypeTag::StructuredObjTypeDecl) DECODE_ERROR("Type declarations may only appear in the root scope!");
 
 				//Handle different scope types
 				if(entry.list) {
 					//Element type & validation
 					entry.listElementType = header.elementType;
-					if(entry.listElementType == TypeTag::List) throw std::runtime_error("Lists may not directly contain other lists!");
-					if(entry.listElementType == TypeTag::StructuredObjTypeDecl) throw std::runtime_error("Lists may not contain type declarations!");
-					if(entry.listElementType == TypeTag::ScopeBoundary) throw std::runtime_error("Lists of scope boundaries cannot exist!");
+					if(entry.listElementType == TypeTag::List) DECODE_ERROR("Lists may not directly contain other lists!");
+					if(entry.listElementType == TypeTag::StructuredObjTypeDecl) DECODE_ERROR("Lists may not contain type declarations!");
+					if(entry.listElementType == TypeTag::ScopeBoundary) DECODE_ERROR("Lists of scope boundaries cannot exist!");
 
 					//Validate element type parameters
 					if(entry.listElementType == TypeTag::StructuredObj && !index->types.contains(entry.typeID))
-						throw std::runtime_error("List of structured objects uses a type that has not yet been defined!");
+						DECODE_ERROR("List of structured objects uses a type that has not yet been defined!")
 					else if(entry.listElementType == TypeTag::Vector || entry.listElementType == TypeTag::Matrix) {
 						entry.listMathData = {.width = header.width, .height = header.height, .type = header.nestedElementType};
-						if(uint8_t asByte = static_cast<uint8_t>(entry.listMathData.type); asByte < 0x0E || asByte > 0x2D) throw std::runtime_error("Encountered list of vectors/matrices with invalid element type!");
-						if(entry.listMathData.width < 2 || entry.listMathData.width > 4) throw std::runtime_error("Encountered list of vectors/matrices with invalid width!");
-						if(entry.listElementType == TypeTag::Matrix && (entry.listMathData.height < 2 || entry.listMathData.height > 4)) throw std::runtime_error("Encountered list of matrices with invalid height!");
+						if(uint8_t asByte = static_cast<uint8_t>(entry.listMathData.type); asByte < 0x0E || asByte > 0x2D) DECODE_ERROR("Encountered list of vectors/matrices with invalid element type!");
+						if(entry.listMathData.width < 2 || entry.listMathData.width > 4) DECODE_ERROR("Encountered list of vectors/matrices with invalid width!");
+						if(entry.listElementType == TypeTag::Matrix && (entry.listMathData.height < 2 || entry.listMathData.height > 4)) DECODE_ERROR("Encountered list of matrices with invalid height!");
 					}
 
 					//Start parsing values
@@ -327,7 +334,7 @@ namespace libjaguar {
 						if(static_cast<uint8_t>(entry.listElementType) <= 0xC) {
 							//Buffer object (string, byte buffer, substream)
 							fakeHeader.size = reader.ReadInteger<uint32_t>();
-							if(entry.listElementType == TypeTag::String && fakeHeader.size > std::pow(2, 24)) throw std::runtime_error("Encountered a string that is too long (> 24-bit integer limit!)");
+							if(entry.listElementType == TypeTag::String && fakeHeader.size > std::pow(2, 24)) DECODE_ERROR("Encountered a string that is too long (> 24-bit integer limit!)");
 						} else if(entry.listElementType == TypeTag::Vector || entry.listElementType == TypeTag::Matrix) {
 							fakeHeader.width = entry.listMathData.width;
 							fakeHeader.nestedElementType = entry.listMathData.type;
@@ -373,10 +380,10 @@ namespace libjaguar {
 
 					//Ensure we hit the scope boundary
 					uint8_t tagByte = reader.ReadInteger<uint8_t>();
-					if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte == TypeTag::ScopeBoundary)) throw std::runtime_error("Expected a scope boundary at the end of list!");
+					if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte == TypeTag::ScopeBoundary)) DECODE_ERROR("Expected a scope boundary at the end of list!");
 				} else {
 					//If this is structured then the type must be declared
-					if(header.type == TypeTag::StructuredObj && !index->types.contains(entry.typeID)) throw std::runtime_error("Structured object uses a type that has not yet been defined!");
+					if(header.type == TypeTag::StructuredObj && !index->types.contains(entry.typeID)) DECODE_ERROR("Structured object uses a type that has not yet been defined!");
 
 					//Prepare expectations
 					ScopeExpectations se = {.type = header.type,

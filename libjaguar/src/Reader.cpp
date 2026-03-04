@@ -4,21 +4,29 @@
 #include "Utilities.hpp"
 
 #include <cstdint>
+#include <sstream>
 #include <stdexcept>
 #include <cmath>
 
-#define STREAMCHECK                                                          \
-	if(stream->eof()) throw std::runtime_error("Unexpected EOF in stream!"); \
-	if(!stream->good()) throw std::runtime_error("Unexpected stream IO error!")
+#define READ_ERROR(msg)                                                                              \
+	{                                                                                                \
+		std::stringstream ss;                                                                        \
+		ss << "[Read Error] At offset 0x" << std::hex << stream->tellg() << std::dec << ": " << msg; \
+		throw std::runtime_error(ss.str());                                                          \
+	}
 
-#define VIEW_STREAMCHECK                                                                                   \
-	if(stream->eof()) {                                                                                    \
-		valid = false;                                                                                     \
-		throw std::runtime_error("Unexpected EOF in stream! View is now invalid; do not continue use.");   \
-	}                                                                                                      \
-	if(!stream->good()) {                                                                                  \
-		valid = false;                                                                                     \
-		throw std::runtime_error("Unexpected stream IO error! View is now invalid; do not continue use."); \
+#define STREAMCHECK                                            \
+	if(stream->eof()) READ_ERROR("Unexpected EOF in stream!"); \
+	if(!stream->good()) READ_ERROR("Unexpected stream IO error!")
+
+#define VIEW_STREAMCHECK                                                                     \
+	if(stream->eof()) {                                                                      \
+		valid = false;                                                                       \
+		READ_ERROR("Unexpected EOF in stream! View is now invalid; do not continue use.");   \
+	}                                                                                        \
+	if(!stream->good()) {                                                                    \
+		valid = false;                                                                       \
+		READ_ERROR("Unexpected stream IO error! View is now invalid; do not continue use."); \
 	}
 
 namespace libjaguar {
@@ -84,13 +92,13 @@ namespace libjaguar {
 
 		uint8_t byte = stream->get();
 		STREAMCHECK;
-		if(byte > 1) throw std::runtime_error("Read byte is not a possible boolean value!");
+		if(byte > 1) READ_ERROR("Read byte is not a possible boolean value!");
 		return byte == 1;
 	}
 
 	std::string Reader::ReadString(uint32_t length) {
 		VerifyOk();
-		if(length >= std::pow(2, 24)) throw std::runtime_error("String is longer than maximum legal size!");
+		if(length >= std::pow(2, 24)) READ_ERROR("String is longer than maximum legal size!");
 
 		//Setup string
 		std::string data;
@@ -101,7 +109,7 @@ namespace libjaguar {
 		STREAMCHECK;
 
 		//Check UTF-8 and return
-		if(!CheckUTF8(data)) throw std::runtime_error("Read string is not valid UTF-8!");
+		if(!CheckUTF8(data)) READ_ERROR("Read string is not valid UTF-8!");
 		return data;
 	}
 
@@ -129,7 +137,7 @@ namespace libjaguar {
 		//Read and validate type tag
 		uint8_t tagByte = stream->get();
 		STREAMCHECK;
-		if(!ValidateTypeTag(tagByte)) throw std::runtime_error("Read TypeTag is invalid!");
+		if(!ValidateTypeTag(tagByte)) READ_ERROR("Read TypeTag is invalid!");
 		uint8_t upperNibble = (tagByte & 0b1111'0000) >> 4;
 		uint8_t lowerNibble = (tagByte & 0b0000'1111);
 		header.type = (TypeTag)tagByte;
@@ -137,11 +145,11 @@ namespace libjaguar {
 
 		//Read and check name string
 		uint8_t nameLen = _ReadIntegerInternal(8);
-		if(nameLen == 0) throw std::runtime_error("Read name string is empty!");
+		if(nameLen == 0) READ_ERROR("Read name string is empty!");
 		header.name.resize(nameLen);
 		stream->read(header.name.data(), nameLen);
 		STREAMCHECK;
-		if(!CheckUTF8(header.name)) throw std::runtime_error("Read name string is not valid UTF-8!");
+		if(!CheckUTF8(header.name)) READ_ERROR("Read name string is not valid UTF-8!");
 
 		//For simple types, we're done
 		//We can check this easily using the tag byte
@@ -153,25 +161,25 @@ namespace libjaguar {
 				//Get element TypeTag
 				uint8_t elemTagByte = stream->get();
 				STREAMCHECK;
-				if(!ValidateTypeTag(elemTagByte)) throw std::runtime_error("Encountered invalid element TypeTag!");
+				if(!ValidateTypeTag(elemTagByte)) READ_ERROR("Encountered invalid element TypeTag!");
 				header.elementType = (TypeTag)elemTagByte;
 
 				//Special type handling
 				if(header.elementType == TypeTag::StructuredObj) {
 					//Structured object
 					uint8_t typeIDLen = _ReadIntegerInternal(8);
-					if(typeIDLen == 0) throw std::runtime_error("Encountered empty type ID string for list of structured objects!");
+					if(typeIDLen == 0) READ_ERROR("Encountered empty type ID string for list of structured objects!");
 					header.typeID.resize(typeIDLen);
 					stream->read(header.typeID.data(), typeIDLen);
 					STREAMCHECK;
-					if(!CheckUTF8(header.typeID)) throw std::runtime_error("Encountered a type ID string that is not valid UTF-8!");
+					if(!CheckUTF8(header.typeID)) READ_ERROR("Encountered a type ID string that is not valid UTF-8!");
 				} else if(static_cast<uint8_t>(header.elementType) > 0x40) {
 					//Vector/matrix
 
 					//Get nested TypeTag
 					uint8_t nestedTagByte = stream->get();
 					STREAMCHECK;
-					if(!ValidateTypeTag(nestedTagByte)) throw std::runtime_error("Encountered invalid vector/matrix element TypeTag!");
+					if(!ValidateTypeTag(nestedTagByte)) READ_ERROR("Encountered invalid vector/matrix element TypeTag!");
 					header.nestedElementType = (TypeTag)nestedTagByte;
 
 					//Get size(s)
@@ -187,7 +195,7 @@ namespace libjaguar {
 				//Get element TypeTag
 				uint8_t elemTagByte = stream->get();
 				STREAMCHECK;
-				if(!ValidateTypeTag(elemTagByte)) throw std::runtime_error("Encountered invalid element TypeTag!");
+				if(!ValidateTypeTag(elemTagByte)) READ_ERROR("Encountered invalid element TypeTag!");
 				header.elementType = (TypeTag)elemTagByte;
 
 				//Get vector width
@@ -198,7 +206,7 @@ namespace libjaguar {
 				//Get element TypeTag
 				uint8_t elemTagByte = stream->get();
 				STREAMCHECK;
-				if(!ValidateTypeTag(elemTagByte)) throw std::runtime_error("Encountered invalid element TypeTag!");
+				if(!ValidateTypeTag(elemTagByte)) READ_ERROR("Encountered invalid element TypeTag!");
 				header.elementType = (TypeTag)elemTagByte;
 
 				//Get matrix width and height
@@ -209,11 +217,11 @@ namespace libjaguar {
 			case TypeTag::StructuredObj: {
 				//Read and check type ID string
 				uint8_t typeIDLen = _ReadIntegerInternal(8);
-				if(typeIDLen == 0) throw std::runtime_error("Encountered empty type ID string!");
+				if(typeIDLen == 0) READ_ERROR("Encountered empty type ID string!");
 				header.typeID.resize(typeIDLen);
 				stream->read(header.typeID.data(), typeIDLen);
 				STREAMCHECK;
-				if(!CheckUTF8(header.typeID)) throw std::runtime_error("Encountered a type ID string that is not valid UTF-8!");
+				if(!CheckUTF8(header.typeID)) READ_ERROR("Encountered a type ID string that is not valid UTF-8!");
 				break;
 			}
 			case TypeTag::StructuredObjTypeDecl:
@@ -236,9 +244,9 @@ namespace libjaguar {
 	  : stream(streamPtr), end(stream->tellg() + size), valid(true), eof(false) {}
 
 	void ScopedView::_ReadInternal(std::span<unsigned char>& out, uint32_t byteCount) {
-		if(!valid || eof) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
-		if(byteCount > out.size_bytes()) throw std::runtime_error("Byte read count exceeds the size of the output buffer!");
-		if(byteCount > GetBytesRemaining()) throw std::runtime_error("Byte read count exceeds number of remaining bytes!");
+		if(!valid || eof) READ_ERROR("Cannot perform operations on an invalid scoped read view!");
+		if(byteCount > out.size_bytes()) READ_ERROR("Byte read count exceeds the size of the output buffer!");
+		if(byteCount > GetBytesRemaining()) READ_ERROR("Byte read count exceeds number of remaining bytes!");
 
 		stream->read(reinterpret_cast<char*>(out.data()), byteCount);
 		VIEW_STREAMCHECK;
@@ -248,13 +256,13 @@ namespace libjaguar {
 
 	uint32_t ScopedView::GetBytesRemaining() const {
 		if(eof) return 0;
-		if(!valid) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
+		if(!valid) READ_ERROR("Cannot perform operations on an invalid scoped read view!");
 		return end - stream->tellg();
 	}
 
 	void ScopedView::Discard(uint32_t byteCount) {
-		if(!valid || eof) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
-		if(byteCount > GetBytesRemaining()) throw std::runtime_error("Byte discard count exceeds number of remaining bytes!");
+		if(!valid || eof) READ_ERROR("Cannot perform operations on an invalid scoped read view!");
+		if(byteCount > GetBytesRemaining()) READ_ERROR("Byte discard count exceeds number of remaining bytes!");
 
 		stream->ignore(byteCount);
 		VIEW_STREAMCHECK;
@@ -263,7 +271,7 @@ namespace libjaguar {
 	}
 
 	void ScopedView::DiscardAll() {
-		if(!valid || eof) throw std::runtime_error("Cannot perform operations on an invalid scoped read view!");
+		if(!valid || eof) READ_ERROR("Cannot perform operations on an invalid scoped read view!");
 		Discard(GetBytesRemaining());
 	}
 }
