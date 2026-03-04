@@ -39,11 +39,11 @@ namespace libjaguar {
 		///@endcond
 
 		/**
-		 * @brief Release the reader for use outside the decoder and invalidate it
+		 * @brief Release the reader for use outside the decoder
 		 *
-		 * @note This function requires you to move from the decoder, like this:
+		 * @note This function requires you to move from the decoder to prevent further use of this object without a reader, like so:
 		 * @code {.cpp}
-		 * Reader myReader = std::move(myDecoder).GetReader();
+		 * Reader myReader = std::move(myDecoder).ReleaseReader();
 		 * @endcode
 		 *
 		 * @return The reader
