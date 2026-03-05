@@ -13,6 +13,16 @@ namespace libjaguar {
 	///@endcond
 
 	/**
+	 * @brief Enum referring to a vector component (uses XYZ notation for simplicity)
+	 */
+	enum class VecComponent {
+		X,
+		Y,
+		Z,
+		W
+	};
+
+	/**
 	 * @brief 2-component vector
 	 *
 	 * @tparam T The contained type
