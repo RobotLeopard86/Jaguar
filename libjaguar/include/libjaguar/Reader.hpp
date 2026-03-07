@@ -26,6 +26,8 @@ namespace libjaguar {
 		 * @brief Create a reader, providing it exclusive ownership of the stream to read from
 		 *
 		 * @param istream The stream containing Jaguar data
+		 *
+		 * @warning Be sure that the stream being used was opened in binary mode (@c std::ios::binary), or encoding issues may occur
 		 */
 		explicit Reader(std::unique_ptr<std::istream>&& istream);
 

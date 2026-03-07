@@ -15,11 +15,11 @@ namespace libjaguar {
 	/**
 	 * @brief Enum referring to a vector component (uses XYZ notation for simplicity)
 	 */
-	enum class VecComponent {
-		X,
-		Y,
-		Z,
-		W
+	enum class VecComponent : uint8_t {
+		X = 0,
+		Y = 1,
+		Z = 2,
+		W = 3
 	};
 
 	/**

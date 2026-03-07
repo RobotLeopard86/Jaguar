@@ -109,6 +109,8 @@ namespace libjaguar {
 			case TypeTag::Matrix: {
 				uint8_t asByte = static_cast<uint8_t>(header.elementType);
 				if((asByte & 0xF) >= 0xE) asByte -= 2;
+
+				//This looks weird but it's just converting the type tag to the approriate number of bytes for the type
 				skipAmountBytes = std::pow(2, (asByte & 0xF) - 0xA) * entry.width * entry.height;
 				break;
 			}

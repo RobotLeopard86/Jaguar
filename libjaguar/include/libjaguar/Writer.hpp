@@ -7,7 +7,6 @@
 #include <bit>
 #include <ostream>
 #include <cstdint>
-#include <ranges>
 #include <type_traits>
 #include <span>
 #include <memory>
@@ -27,6 +26,8 @@ namespace libjaguar {
 		 * @brief Create a writer, providing it exclusive ownership of the stream to write to
 		 *
 		 * @param ostream The stream into which to write Jaguar data
+		 *
+		 * @warning Be sure that the stream being used was opened in binary mode (@c std::ios::binary), or encoding issues may occur
 		 */
 		explicit Writer(std::unique_ptr<std::ostream>&& ostream);
 

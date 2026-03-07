@@ -4,6 +4,7 @@
 #include "Writer.hpp"
 #include "Index.hpp"
 #include "libjaguar/MathTypes.hpp"
+#include "libjaguar/TypeTags.hpp"
 
 #include <cstdint>
 
@@ -213,7 +214,7 @@ namespace libjaguar {
 		 *
 		 * @note This function requires you to move from the encoder to prevent further use of this object without a writer, like so:
 		 * @code {.cpp}
-		 * Writer myReader = std::move(myEncoder).ReleaseWriter();
+		 * Writer myWriter = std::move(myEncoder).ReleaseWriter();
 		 * @endcode
 		 *
 		 * @return The writer
@@ -232,10 +233,18 @@ namespace libjaguar {
 		 * @throw std::runtime_error If the index is invalidly structured (e.g., a ValueEntry with an object type)
 		 * @throw std::runtime_error If the provider fails to provide data
 		 */
-		void Write(const Index& index, PayloadProvider* provider);
+		template<typename T>
+			requires std::is_base_of_v<PayloadProvider, T>
+		void Write(const Index& index, const T& provider) {
+			_WriteScope(index, index.root, const_cast<PayloadProvider*>(static_cast<const PayloadProvider*>(&provider)));
+		}
 
 	  private:
 		Writer writer;
 		bool writerValid = true;
+
+		void _WriteNum(TypeTag type, uint64_t asBits);
+		void _WriteValue(const ValueEntry& entry, PayloadProvider* provider);
+		void _WriteScope(const Index& index, const ScopeEntry& entry, PayloadProvider* provider);
 	};
 }
