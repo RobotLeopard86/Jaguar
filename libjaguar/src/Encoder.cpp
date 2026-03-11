@@ -4,7 +4,7 @@
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/ValueHeader.hpp"
 
-#include <climits>
+#include <sstream>
 #include <cmath>
 #include <cstdint>
 #include <stdexcept>
@@ -118,11 +118,44 @@ namespace libjaguar {
 		//Start writing the data
 		constexpr std::size_t chunkSize = 64 * 1024;//64 KiB (one KiB is 1024 bytes)
 		switch(header.type) {
-			//Buffers are TODO
 			case TypeTag::String: {
+				std::size_t current = 0;
+				std::ostringstream intermediate;
+				while(current < header.size) {
+					//Clear intermediate buffer
+					intermediate.str("");
+
+					//Read into intermediate
+					std::size_t len = std::min(header.size - current, chunkSize);
+					provider->String(entry.id, intermediate, len, current);
+
+					//Write data slice
+					writer.WriteString(intermediate.str());
+
+					//Increment progress counter
+					current += len;
+				}
+				break;
 			}
 			case TypeTag::ByteBuffer:
 			case TypeTag::Substream: {
+				std::size_t current = 0;
+				std::stringstream intermediate;
+				while(current < header.size) {
+					//Clear intermediate buffer
+					intermediate.str("");
+
+					//Read into intermediate
+					std::size_t len = std::min(header.size - current, chunkSize);
+					provider->Buffer(entry.id, intermediate, len, current);
+
+					//Write data slice
+					writer.WriteBufferFromStream(&intermediate, len);
+
+					//Increment progress counter
+					current += len;
+				}
+				break;
 			}
 			case TypeTag::Boolean:
 				writer.WriteBool(provider->Boolean(entry.id));

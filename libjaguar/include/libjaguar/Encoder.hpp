@@ -25,6 +25,7 @@ namespace libjaguar {
 		 * @param offset Where in the string to start reading from
 		 *
 		 * @warning If the requested amount of data is not written (too much or too little), encoding will <b>halt</b>.
+		 * @warning If the returned data is not proper UTF-8, encoding will <b>halt</b>.
 		 */
 		virtual void String(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) = 0;
 
