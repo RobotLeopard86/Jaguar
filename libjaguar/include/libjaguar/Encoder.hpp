@@ -237,7 +237,7 @@ namespace libjaguar {
 		template<typename T>
 			requires std::is_base_of_v<PayloadProvider, T>
 		void Write(const Index& index, const T& provider) {
-			_WriteScope(index, index.root, const_cast<PayloadProvider*>(static_cast<const PayloadProvider*>(&provider)));
+			_Write(index, const_cast<PayloadProvider*>(static_cast<const PayloadProvider*>(&provider)));
 		}
 
 	  private:
@@ -247,5 +247,6 @@ namespace libjaguar {
 		void _WriteNum(TypeTag type, uint64_t asBits);
 		void _WriteValue(const ValueEntry& entry, PayloadProvider* provider);
 		void _WriteScope(const Index& index, const ScopeEntry& entry, PayloadProvider* provider);
+		void _Write(const Index& index, PayloadProvider* provider);
 	};
 }

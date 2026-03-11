@@ -1,6 +1,7 @@
 #include "libjaguar/Encoder.hpp"
 #include "libjaguar/Index.hpp"
 #include "libjaguar/MathTypes.hpp"
+#include "libjaguar/StructuredTypeLayout.hpp"
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/ValueHeader.hpp"
 
@@ -241,11 +242,40 @@ namespace libjaguar {
 		//Write all scopes
 		for(const ScopeEntry& scope : entry.subscopes) {
 			//Header
+			if(scope.list) {
+				//Create header object
+				ValueHeader header = {};
+				header.name = scope.name;
+				header.type = TypeTag::List;
+				header.elementType = scope.listElementType;
+				header.size = scope.subvalues.size() + scope.subscopes.size();
+				if(header.elementType == TypeTag::StructuredObj && !index.types.contains(scope.typeID)) throw std::runtime_error("Cannot encode list of structured objects using undeclared type!");
+
+				//Write it
+				writer.WriteHeader(header);
+			} else {
+				if(scope.typeID.empty()) {
+
+				} else {
+					if(!index.types.contains(scope.typeID)) throw std::runtime_error("Cannot encode structured object subscope using undeclared type!");
+				}
+			}
 
 			//Body
 		}
 
 		//If not root, write boundary
 		if(entry.id != index.root.id) writer->put(static_cast<uint8_t>(TypeTag::ScopeBoundary));
+	}
+
+	void Encoder::_Write(const Index& index, PayloadProvider* provider) {
+		//Handle types
+		for(const auto& [id, layout] : index.types) {
+			//Validate it
+			ValidateTypeLayout(layout);
+		}
+
+		//Root scope
+		_WriteScope(index, index.root, provider);
 	}
 }
