@@ -122,6 +122,10 @@ namespace libjaguar {
 				if(header.elementType == TypeTag::StructuredObj) {
 					_WriteIntegerInternal(header.typeID.size(), 8);
 					WriteString(header.typeID);
+				} else if(header.elementType == TypeTag::Vector || header.elementType == TypeTag::Matrix) {
+					stream->put(static_cast<uint8_t>(header.nestedElementType));
+					_WriteIntegerInternal(header.width, 8);
+					if(header.elementType == TypeTag::Matrix) _WriteIntegerInternal(header.height, 8);
 				}
 				_WriteIntegerInternal(header.size, bits_v<decltype(header.size)>);
 				break;
@@ -135,11 +139,10 @@ namespace libjaguar {
 				_WriteIntegerInternal(header.height, bits_v<decltype(header.height)>);
 				break;
 			case TypeTag::StructuredObj:
-			case TypeTag::StructuredObjTypeDecl:
 				_WriteIntegerInternal(header.typeID.size(), 8);
 				WriteString(header.typeID);
-				//Intentional fall-through since the below part is common to StructruedObjTypeDecl and UnstructuredObj, but not StructuredObj
-				if(header.type != TypeTag::StructuredObjTypeDecl) break;
+				break;
+			case TypeTag::StructuredObjTypeDecl:
 			case TypeTag::UnstructuredObj:
 				_WriteIntegerInternal(header.fieldCount, bits_v<decltype(header.fieldCount)>);
 				break;

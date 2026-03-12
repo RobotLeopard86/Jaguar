@@ -243,6 +243,7 @@ namespace libjaguar {
 	  private:
 		Writer writer;
 		bool writerValid = true;
+		uint8_t nest = 0;
 
 		void _WriteNum(TypeTag type, uint64_t asBits);
 		void _WriteValue(const ValueEntry& entry, PayloadProvider* provider);

@@ -234,34 +234,102 @@ namespace libjaguar {
 	}
 
 	void Encoder::_WriteScope(const Index& index, const ScopeEntry& entry, PayloadProvider* provider) {
+		//We use this to track what field names are used to avoid duplicates
+		std::unordered_map<std::string, bool> fieldTracker;
+
+		//Structured object preparation
+		StructuredTypeLayout layout = {};
+		if(!entry.typeID.empty()) {
+			layout = index.types.at(entry.typeID);
+			for(const StructuredTypeLayout::Field& field : layout.fields) {
+				fieldTracker.insert_or_assign(field.name, false);
+			}
+		}
+
 		//Write all values
 		for(const ValueEntry& val : entry.subvalues) {
+			//Check for duplication
+			if(fieldTracker.contains(val.name) && fieldTracker[val.name])
+				throw std::runtime_error("Detected duplicate field in scope!");
+			else
+				fieldTracker[val.name] = true;
+
+			//Write value
 			_WriteValue(val, provider);
 		}
 
 		//Write all scopes
 		for(const ScopeEntry& scope : entry.subscopes) {
-			//Header
+			//Check for duplication
+			if(fieldTracker.contains(scope.name) && fieldTracker[scope.name])
+				throw std::runtime_error("Detected duplicate field in scope!");
+			else
+				fieldTracker[scope.name] = true;
+
+			//Check that we're not nesting too deep
+			if(++nest > 64) throw std::runtime_error("Nesting too deep!");
+
+			//Behavior varies if list or not
 			if(scope.list) {
 				//Create header object
 				ValueHeader header = {};
 				header.name = scope.name;
 				header.type = TypeTag::List;
 				header.elementType = scope.listElementType;
+				if(header.elementType == TypeTag::List) throw std::runtime_error("Lists may not directly contain other lists!");
+				if(header.elementType == TypeTag::StructuredObjTypeDecl) throw std::runtime_error("Lists may not contain type declarations!");
+				if(header.elementType == TypeTag::ScopeBoundary) throw std::runtime_error("Lists of scope boundaries cannot exist!");
 				header.size = scope.subvalues.size() + scope.subscopes.size();
-				if(header.elementType == TypeTag::StructuredObj && !index.types.contains(scope.typeID)) throw std::runtime_error("Cannot encode list of structured objects using undeclared type!");
+				if(header.elementType == TypeTag::StructuredObj) {
+					if(!index.types.contains(scope.typeID)) throw std::runtime_error("Cannot encode list of structured objects using undeclared type!");
+					header.typeID = scope.typeID;
+				} else if(header.elementType == TypeTag::Vector || header.elementType == TypeTag::Matrix) {
+					if(uint8_t asByte = static_cast<uint8_t>(entry.listMathData.type); asByte < 0x0E || asByte > 0x2D) throw std::runtime_error("Cannot encode vectors/matrices with invalid element type!");
+					header.nestedElementType = entry.listMathData.type;
+					if(entry.listMathData.width < 2 || entry.listMathData.width > 4) throw std::runtime_error("Cannot encode vectors/matrices with invalid width!");
+					header.width = entry.listMathData.width;
+					if(entry.listElementType == TypeTag::Matrix) {
+						if(entry.listMathData.height < 2 || entry.listMathData.height > 4) throw std::runtime_error("Cannot encode matrices with invalid height!");
+						header.height = entry.listMathData.height;
+					}
+				}
 
 				//Write it
 				writer.WriteHeader(header);
-			} else {
-				if(scope.typeID.empty()) {
 
+				//TODO: Body
+			} else {
+				//Write appropriate header for structured or unstructured types
+				if(scope.typeID.empty()) {
+					//Create and write header
+					ValueHeader header = {};
+					header.name = scope.name;
+					header.type = TypeTag::UnstructuredObj;
+					header.fieldCount = scope.subvalues.size() + scope.subscopes.size();
+					writer.WriteHeader(header);
 				} else {
+					//Check type
 					if(!index.types.contains(scope.typeID)) throw std::runtime_error("Cannot encode structured object subscope using undeclared type!");
+
+					//Create and write header
+					ValueHeader header = {};
+					header.name = scope.name;
+					header.type = TypeTag::StructuredObj;
+					header.typeID = scope.typeID;
+					writer.WriteHeader(header);
 				}
+
+				//Write the subscope
+				_WriteScope(index, scope, provider);
 			}
 
-			//Body
+			//All's well; roll back nesting counter
+			--nest;
+		}
+
+		//Ensure that all fields were written
+		for(const auto& [_, written] : fieldTracker) {
+			if(!written) throw std::runtime_error("While encoding, left scope without writing all required fields!");
 		}
 
 		//If not root, write boundary
@@ -273,9 +341,12 @@ namespace libjaguar {
 		for(const auto& [id, layout] : index.types) {
 			//Validate it
 			ValidateTypeLayout(layout);
+
+			//TODO: Write it
 		}
 
 		//Root scope
+		nest = 0;
 		_WriteScope(index, index.root, provider);
 	}
 }

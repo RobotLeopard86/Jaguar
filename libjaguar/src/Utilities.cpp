@@ -116,4 +116,9 @@ namespace libjaguar {
 		//Return end product
 		return hash;
 	}
+
+	//TODO
+	bool ValidateTypeLayout(const StructuredTypeLayout& layout) {
+		return true;
+	}
 }
