@@ -59,7 +59,7 @@ namespace libjaguar {
 	/**
 	 * @brief Generate a unique index ID based on a path
 	 *
-	 * @param path The path to convert into an ID, formatted with periods/full stops between object scopes and square brackets for array access. Example: @c someobject.somelist[2].somefield
+	 * @param path The path to convert into an ID, formatted with periods/full stops between object scopes and square brackets for array access. Example: `someobject.somelist[2].somefield`
 	 *
 	 * @return The generated ID
 	 */
