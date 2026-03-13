@@ -342,7 +342,59 @@ namespace libjaguar {
 			//Validate it
 			ValidateTypeLayout(layout);
 
-			//TODO: Write it
+			//Create and write type decl header
+			ValueHeader header = {};
+			header.name = id;
+			header.type = TypeTag::StructuredObjTypeDecl;
+			header.fieldCount = layout.fields.size();
+			writer.WriteHeader(header);
+
+			//Start writing fields
+			for(const StructuredTypeLayout::Field& field : layout.fields) {
+				//We can just use default header behavior most of the time except for a few edge-cases
+				if(static_cast<uint8_t>(field.type) <= 0xC || field.type == TypeTag::List || field.type == TypeTag::UnstructuredObj) {
+					//Write element TypeTag
+					writer->put(static_cast<uint8_t>(field.type));
+
+					//Write element name
+					writer.WriteInteger(static_cast<uint8_t>(field.name.size()));
+					writer.WriteString(field.name);
+
+					//Keep going with lists specifically
+					if(field.type == TypeTag::List) {
+						//Element type
+						writer->put(static_cast<uint8_t>(header.elementType));
+
+						//Type-specific data
+						if(field.elementType == TypeTag::StructuredObj) {
+							writer.WriteInteger(static_cast<uint8_t>(field.typeID.size()));
+							writer.WriteString(field.typeID);
+						} else if(field.elementType == TypeTag::Vector || field.elementType == TypeTag::Matrix) {
+							writer->put(static_cast<uint8_t>(field.nestedElementType));
+							writer.WriteInteger(static_cast<uint8_t>(field.width));
+							if(field.elementType == TypeTag::Matrix) writer.WriteInteger(static_cast<uint8_t>(field.height));
+						}
+					}
+				} else {
+					//Make and write header
+					ValueHeader fieldHead = {};
+					fieldHead.name = field.name;
+					fieldHead.type = field.type;
+					if(field.type == TypeTag::StructuredObj) {
+						fieldHead.typeID = field.typeID;
+					} else {
+						//Vectors & matrices
+						fieldHead.elementType = field.elementType;
+						fieldHead.width = field.width;
+						fieldHead.height = field.height;
+					}
+					writer.WriteHeader(fieldHead);
+				}
+			}
+
+
+			//Write scope boundary
+			writer->put(static_cast<uint8_t>(TypeTag::ScopeBoundary));
 		}
 
 		//Root scope

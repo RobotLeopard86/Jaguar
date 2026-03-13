@@ -228,7 +228,6 @@ namespace libjaguar {
 
 				//Set up layout object
 				StructuredTypeLayout type = {};
-				type.typeID = header.name;
 				type.fields.resize(header.fieldCount);
 				std::set<std::string> fieldNames;
 
@@ -286,7 +285,7 @@ namespace libjaguar {
 				if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte == TypeTag::ScopeBoundary)) DECODE_ERROR("Expected a scope boundary at the end of type declaration!");
 
 				//Add type to registry
-				index->types.insert_or_assign(type.typeID, std::move(type));
+				index->types.insert_or_assign(header.name, std::move(type));
 			} else {
 				//Check that we're not nesting too deep
 				if(++nest > 64) DECODE_ERROR("Nesting too deep!");

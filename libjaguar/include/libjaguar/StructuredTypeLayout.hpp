@@ -32,8 +32,6 @@ namespace libjaguar {
 
 			///@}
 		};
-
-		std::string typeID;		  ///<Type name (UTF-8 encoded)
 		std::vector<Field> fields;///<List of fields
 	};
 

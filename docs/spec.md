@@ -129,7 +129,7 @@ Before a structured object typename may be used, it must appear as part of a str
 
 If a structured object type declaration is encountered with a typename that has already been declared, decoders **may** either declare the stream invalid and terminate decoding **or** continue until the end of the declaration and ignore it.
 
-The body of a declaration is very similar to an unstructured object, with the exception that only value `TypeTag`s and names are kept. The one exception to this rule is that generic data types (lists, structured objects, vectors, and matrices) maintain their headers to ensure conformity. Lists do not have a defined size in a declaration; that is decided by the actual structured object.  
+The body of a declaration is very similar to an unstructured object, with the exception that only value `TypeTag`s and names are kept. The one exception to this rule is that generic data types (lists, structured objects, vectors, and matrices) maintain their headers to ensure conformity. Lists, unstructured objects, and buffer objects do not have a defined size in a declaration; that is decided by the actual structured object.  
 
 Structured object type declarations **may not** contain other type declarations and **may only** exist within the root scope.
 

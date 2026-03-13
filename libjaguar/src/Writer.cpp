@@ -100,7 +100,7 @@ namespace libjaguar {
 		//Basic checks for other types
 		if(header.name.size() < 1 || header.name.size() > UINT8_MAX) throw std::runtime_error("Header name string is invalid length!");
 		if(!CheckUTF8(header.name)) throw std::runtime_error("Header name string is not valid UTF-8!");
-		if(header.type == TypeTag::StructuredObj || header.type == TypeTag::StructuredObjTypeDecl) {
+		if(header.type == TypeTag::StructuredObj) {
 			if(header.typeID.size() < 1 || header.typeID.size() > UINT8_MAX) throw std::runtime_error("Header type ID string is invalid length!");
 			if(!CheckUTF8(header.typeID)) throw std::runtime_error("Header type ID string is not valid UTF-8!");
 		}
