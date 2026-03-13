@@ -16,7 +16,7 @@ namespace libjaguar {
 	struct LJAPI Entry {
 		std::string name;				   ///<Item name
 		uint64_t id;					   ///<Internal reference ID derived from path data (via @c GenIndexID)
-		std::streampos streamBeginPosition;///<Location in the stream where the node begins (this is a decoder property and is not required to be set when writing)
+		std::streampos streamBeginPosition;///<Location in the stream where the node begins (this is a decoder property and is @b ignored when writing)
 	};
 
 	/**
