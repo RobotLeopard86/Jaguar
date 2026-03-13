@@ -229,7 +229,7 @@ If a list's type is that of a `Value` that requires header properties (e.g., vec
 
 Due to this header property nesting, lists **may not** directly contain other lists. If a list of lists is truly needed, use a structured object wrapper around it.
 
-The only properties exempt from this rule are buffer and object sizes. Vectors and matrices are not considered containers, so their size information must be encoded in the list header, like so:
+The only properties exempt from this rule are buffer and object sizes (which are encoded in the list body immediately before the data). Vectors and matrices are not considered containers, so their size information must be encoded in the list header, like so:
 | Field | Size (bytes) |
 | ----- | ------------ |
 | Element `TypeTag` (`0x4A`/`0x4B`) | 1 |

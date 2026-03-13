@@ -90,7 +90,7 @@ namespace libjaguar {
 		}
 	}
 
-	void Encoder::_WriteValue(const ValueEntry& entry, PayloadProvider* provider) {
+	void Encoder::_WriteValue(const ValueEntry& entry, PayloadProvider* provider, bool forList) {
 		//Check type
 		if((static_cast<uint8_t>(entry.type) & 0xF0) >> 4 == 0x3) throw std::runtime_error("Cannot write a scope type as a value!");
 
@@ -114,7 +114,10 @@ namespace libjaguar {
 		}
 
 		//Write the header
-		writer.WriteHeader(header);
+		if(!forList)
+			writer.WriteHeader(header);
+		else if(static_cast<uint8_t>(entry.type) <= 0xC || entry.type == TypeTag::UnstructuredObj)
+			writer.WriteHeader(header, true);
 
 		//Start writing the data
 		constexpr std::size_t chunkSize = 64 * 1024;//64 KiB (one KiB is 1024 bytes)
@@ -233,6 +236,31 @@ namespace libjaguar {
 		}
 	}
 
+	void Encoder::_WriteObj(const Index& index, const ScopeEntry& entry, PayloadProvider* provider) {
+		//Write appropriate header for structured or unstructured types
+		if(entry.typeID.empty()) {
+			//Create and write header
+			ValueHeader header = {};
+			header.name = entry.name;
+			header.type = TypeTag::UnstructuredObj;
+			header.fieldCount = entry.subvalues.size() + entry.subscopes.size();
+			writer.WriteHeader(header);
+		} else {
+			//Check type
+			if(!index.types.contains(entry.typeID)) throw std::runtime_error("Cannot encode structured object subscope using undeclared type!");
+
+			//Create and write header
+			ValueHeader header = {};
+			header.name = entry.name;
+			header.type = TypeTag::StructuredObj;
+			header.typeID = entry.typeID;
+			writer.WriteHeader(header);
+		}
+
+		//Write the subscope
+		_WriteScope(index, entry, provider);
+	}
+
 	void Encoder::_WriteScope(const Index& index, const ScopeEntry& entry, PayloadProvider* provider) {
 		//We use this to track what field names are used to avoid duplicates
 		std::unordered_map<std::string, bool> fieldTracker;
@@ -279,7 +307,7 @@ namespace libjaguar {
 				if(header.elementType == TypeTag::List) throw std::runtime_error("Lists may not directly contain other lists!");
 				if(header.elementType == TypeTag::StructuredObjTypeDecl) throw std::runtime_error("Lists may not contain type declarations!");
 				if(header.elementType == TypeTag::ScopeBoundary) throw std::runtime_error("Lists of scope boundaries cannot exist!");
-				header.size = scope.subvalues.size() + scope.subscopes.size();
+				header.size = (IsValue(header.elementType) ? scope.subvalues.size() : 0) + (!IsValue(header.elementType) ? scope.subscopes.size() : 0);
 				if(header.elementType == TypeTag::StructuredObj) {
 					if(!index.types.contains(scope.typeID)) throw std::runtime_error("Cannot encode list of structured objects using undeclared type!");
 					header.typeID = scope.typeID;
@@ -297,30 +325,21 @@ namespace libjaguar {
 				//Write it
 				writer.WriteHeader(header);
 
-				//TODO: Body
-			} else {
-				//Write appropriate header for structured or unstructured types
-				if(scope.typeID.empty()) {
-					//Create and write header
-					ValueHeader header = {};
-					header.name = scope.name;
-					header.type = TypeTag::UnstructuredObj;
-					header.fieldCount = scope.subvalues.size() + scope.subscopes.size();
-					writer.WriteHeader(header);
+				//Write each element
+				if(IsValue(header.elementType)) {
+					for(const ValueEntry& val : scope.subvalues) {
+						_WriteValue(val, provider, true);
+					}
 				} else {
-					//Check type
-					if(!index.types.contains(scope.typeID)) throw std::runtime_error("Cannot encode structured object subscope using undeclared type!");
-
-					//Create and write header
-					ValueHeader header = {};
-					header.name = scope.name;
-					header.type = TypeTag::StructuredObj;
-					header.typeID = scope.typeID;
-					writer.WriteHeader(header);
+					for(const ScopeEntry& subscope : scope.subscopes) {
+						_WriteObj(index, subscope, provider);
+					}
 				}
 
-				//Write the subscope
-				_WriteScope(index, scope, provider);
+				//Write scope boundary
+				writer->put(static_cast<uint8_t>(TypeTag::ScopeBoundary));
+			} else {
+				_WriteObj(index, scope, provider);
 			}
 
 			//All's well; roll back nesting counter
