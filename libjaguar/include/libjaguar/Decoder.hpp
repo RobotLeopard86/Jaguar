@@ -88,12 +88,14 @@ namespace libjaguar {
 		bool failFlag = false;
 		uint8_t nest = 0;
 
+		///@cond
 		struct ScopeExpectations {
 			TypeTag type;
 			std::size_t fieldCount;
 			std::string typeID;
 			bool rootFlag;
 		};
+		///@endcond
 
 		void _ParseScopeInternal(ScopeEntry& scope, ScopeExpectations expectations, const std::string& scopePath);
 		ValueEntry _ParseValueInternal(const ValueHeader& header, const std::string& scopePath);
