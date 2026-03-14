@@ -9,7 +9,6 @@ namespace libjaguar {
 	enum class TypeTag : uint8_t {
 		String = 0x0A,				 ///<UTF-8 string
 		ByteBuffer = 0x0B,			 ///<Raw bytes blob
-		Substream = 0x0C,			 ///<Embedded independent Jaguar stream
 		Boolean = 0x0D,				 ///<True/false (bool)
 		Float32 = 0x0E,				 ///<Single-precision (32-bit) IEEE 754 LE floating-point number (float)
 		Float64 = 0x0F,				 ///<Double-precision (64-bit) IEEE 754 LE floating-point number (double)

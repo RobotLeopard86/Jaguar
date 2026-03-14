@@ -141,8 +141,7 @@ namespace libjaguar {
 				}
 				break;
 			}
-			case TypeTag::ByteBuffer:
-			case TypeTag::Substream: {
+			case TypeTag::ByteBuffer: {
 				std::size_t current = 0;
 				std::stringstream intermediate;
 				while(current < header.size) {

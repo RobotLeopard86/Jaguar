@@ -30,7 +30,7 @@ namespace libjaguar {
 		virtual void String(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) = 0;
 
 		/**
-		 * @brief Called to request a byte buffer value (for byte buffers or substreams); may be called multiple times for large buffers
+		 * @brief Called to request a byte buffer value; may be called multiple times for large buffers
 		 *
 		 * @param id The ID of the value to fetch
 		 * @param out The stream to write output to (use @c write, not @c operator<< to avoid interpretation of bytes as a string)

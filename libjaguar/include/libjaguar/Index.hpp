@@ -25,7 +25,7 @@ namespace libjaguar {
 	struct LJAPI ValueEntry : public Entry {
 		TypeTag type;		///<Type of value
 		TypeTag elementType;///<Type of contained elements (for vectors and matrices)
-		uint32_t size;		///<Size of a buffer object (string, byte buffer, substream); string size must be less than 24-bit integer limit
+		uint32_t size;		///<Size of a buffer object (strings and byte buffers); string size must be less than 24-bit integer limit
 		uint8_t width;		///<Number of components in a vector or columns in a matrix
 		uint8_t height;		///<Number of rows in a matrix
 	};

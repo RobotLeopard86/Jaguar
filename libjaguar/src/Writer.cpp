@@ -148,7 +148,6 @@ namespace libjaguar {
 				break;
 			case TypeTag::String:
 			case TypeTag::ByteBuffer:
-			case TypeTag::Substream:
 				_WriteIntegerInternal(header.size, bits_v<decltype(header.size)>);
 				break;
 			default: break;

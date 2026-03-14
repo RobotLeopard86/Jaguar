@@ -80,7 +80,6 @@ namespace libjaguar {
 		switch(header.type) {
 			case TypeTag::String:
 			case TypeTag::ByteBuffer:
-			case TypeTag::Substream:
 				skipAmountBytes = header.size;
 				break;
 			case TypeTag::SInt8:
@@ -333,7 +332,7 @@ namespace libjaguar {
 						fakeHeader.name = std::to_string(i);
 						fakeHeader.type = entry.listElementType;
 						if(static_cast<uint8_t>(entry.listElementType) <= 0xC) {
-							//Buffer object (string, byte buffer, substream)
+							//Buffer object (string/byte buffer)
 							fakeHeader.size = reader.ReadInteger<uint32_t>();
 							if(entry.listElementType == TypeTag::String && fakeHeader.size > std::pow(2, 24)) DECODE_ERROR("Encountered a string that is too long (> 24-bit integer limit!)");
 						} else if(entry.listElementType == TypeTag::Vector || entry.listElementType == TypeTag::Matrix) {

@@ -4,7 +4,7 @@
 <img src="jaguar_logo.png" width="500px" />
 
 ## About
-Jaguar is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Here, you can find the Jaguar spec, `libjaguar` reference encoding/decoding library, and `jaguartool` CLI tool for creating Jaguar streams via a text format.  
+Jaguar is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Here, you can find the Jaguar specification, `libjaguar` reference encoding/decoding library, and `jaguartool` CLI tool for creating Jaguar streams via a text format.  
 
 For more information about `libjaguar` and `jaguartool`, visit [the documentation](https://robotleopard86.github.io/Jaguar)
 
@@ -18,7 +18,6 @@ For more information about `libjaguar` and `jaguartool`, visit [the documentatio
 * Built-in support for vectors and matrices (up to 4x4)
 * Use of skipping and rewinding to support gleaning information quickly and obtaining further details later
 * Arbitrary data buffer embedding
-* Substreams - allows for embedding other streams to allow late parsing of data
 
 ## Building `libjaguar` and `jaguartool`
 You will need:  

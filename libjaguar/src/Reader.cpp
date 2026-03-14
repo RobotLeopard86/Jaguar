@@ -231,7 +231,6 @@ namespace libjaguar {
 				break;
 			case TypeTag::String:
 			case TypeTag::ByteBuffer:
-			case TypeTag::Substream:
 				//Get buffer size
 				header.size = _ReadIntegerInternal(32);
 				break;

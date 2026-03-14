@@ -4,7 +4,7 @@
 The Jaguar specification and supporting documents are provided and licensed under Creative Commons Attribution-ShareAlike 4.0 International. To view a copy of this license, visit [https://creativecommons.org/licenses/by-sa/4.0/](https://creativecommons.org/licenses/by-sa/4.0/).
 ```
 
-The Jaguar stream format is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Jaguar streams are self-descriptive and statically typed, feature built-in vector and matrix math types, and allow for the embedding of substreams and byte buffers.
+The Jaguar stream format is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Jaguar streams are self-descriptive and statically typed, feature built-in vector and matrix math types, and allow for the embedding of arbitrary byte buffers.
 
 This is the definitive specification for the Jaguar stream format. This is mainly for people looking to more deeply understand the format itself, or those wishing to write their own encoder/decoder (we recommend taking a look at `libjaguar`, the reference library, to understand how this might be accomplished).  
 
@@ -62,7 +62,6 @@ Below is the list of types in Jaguar and their `TypeTag`s:
 | ---- | --------------- |
 | String | `0x0A` |
 | Byte Buffer | `0x0B` |
-| Substream | `0x0C` |
 | Boolean | `0x0D` |
 | Floating-Point (single-precision, 32 bits) | `0x0E` |
 | Floating-Point (double-precision, 64 bits) | `0x0F` |
@@ -190,23 +189,6 @@ Buffer-type `Value`s are fairly straightforward. Their header consists of an 32-
 Per the rules from section 0, all strings must be encoded in UTF-8. This does not apply to data within byte buffers, of course.  
 
 Byte buffers are a blob of raw bytes embedded in the Jaguar stream. They can contain whatever binary data you like. Decoders **must not** attempt to parse the contents of byte buffers themselves; this is reserved for the consuming application.
-
-### Substreams
-Substreams are a unique feature of Jaguar that allows one stream to exist within another in an independent manner. Though they may initially appear similar to objects, they differ in a number of ways:  
-
-1. Objects require metadata about how many fields they contain, whereas substreams do not.
-
-2. There is no equivalent of structured objects for substreams.
-
-3. The contents of substreams are not considered a part of the value tree of the containing stream; that is, they must be accessed separately.
-
-4. Skipping an object during parsing requires traversing the tree and skipping each field individually, as there is no set size. By contrast, substreams are embedded identically to byte buffers, allowing them to be skipped in O(1) time.
-
-It is advised that decoders do not automatically parse substreams during the parsing of the main stream; they should wait until the substream is requested. However, this is not a hard requirement.  
-
-Substreams **may not** contain other substreams.  
-
-If, during the parsing of a substream, a decoder makes the determination that the substream is invalid and decoding should be terminated, this **must not** affect the containing stream, and that parent stream must continue to remain valid for parsing **unless it is also invalid for a separate reason**.  
 
 ## 8. Lists
 Lists are a fairly simple construct in Jaguar. The header for a list `Value` is as follows:
