@@ -9,7 +9,7 @@ namespace libjaguar {
 	///@cond
 	template<number T, uint8_t C>
 		requires(C < 1 || C > 4)
-	class Vector {};
+	class LJAPI Vector {};
 	///@endcond
 
 	/**
@@ -28,7 +28,7 @@ namespace libjaguar {
 	 * @tparam T The contained type
 	 */
 	template<number T>
-	class LJAPI Vector<T, 2> {
+	class Vector<T, 2> {
 	  public:
 		//This union stuff allows the two names to refer to the same storage for XY/RG access
 
@@ -49,7 +49,7 @@ namespace libjaguar {
 	 * @tparam T The contained type
 	 */
 	template<number T>
-	class LJAPI Vector<T, 3> {
+	class Vector<T, 3> {
 	  public:
 		//This union stuff allows the two names to refer to the same storage for XYZ/RGB access
 
@@ -75,7 +75,7 @@ namespace libjaguar {
 	 * @tparam T The contained type
 	 */
 	template<number T>
-	class LJAPI Vector<T, 4> {
+	class Vector<T, 4> {
 	  public:
 		//This union stuff allows the two names to refer to the same storage for XYZW/RGBA access
 
