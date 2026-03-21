@@ -59,7 +59,7 @@ namespace libjaguar {
 		return expectedContinuations == 0;
 	}
 
-	uint64_t GenIndexID(std::string path) {
+	uint64_t GenIndexID(const std::string& path) {
 		//Initial seed
 		uint64_t hash = 0xEE674237ull;
 
@@ -120,7 +120,6 @@ namespace libjaguar {
 		return hash;
 	}
 
-	//TODO
 	bool ValidateTypeLayout(const StructuredTypeLayout& layout) {
 		//Tracking info
 		std::set<std::string> seenFields;

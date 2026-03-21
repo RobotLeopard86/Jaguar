@@ -3,6 +3,7 @@
 #include "DllHelper.hpp"
 #include "Reader.hpp"
 #include "libjaguar/Index.hpp"
+#include "libjaguar/TypeTags.hpp"
 
 #include <any>
 #include <functional>
@@ -14,7 +15,7 @@
 
 namespace libjaguar {
 	/**
-	 * @brief A user-friendly interface for reading, modifying, and writing Jaguar data
+	 * @brief A lazy interface for reading, modifying, and writing Jaguar data
 	 */
 	class LJAPI Document {
 	  public:
@@ -22,24 +23,15 @@ namespace libjaguar {
 		 * @brief Create an empty initial document
 		 */
 		Document()
-		  : reader(), readerUsed(false) {}
+		  : reader(), streamState(StreamState::NoStream) {}
 
 		/**
 		 * @brief Create a document sourcing initial data from an input stream
 		 *
-		 * @tparam T The stream type
-		 *
 		 * @param stream The stream to read from
 		 */
-		template<typename T>
-			requires std::is_base_of_v<std::istream, T> && std::is_move_constructible_v<T>
-		static Document InitFromStream(T&& stream) {
-			std::unique_ptr<T> streamPtr = std::make_unique<T>(std::move(stream));
-			Document doc {};
-			doc.reader = Reader(std::move(streamPtr));
-			doc.readerUsed = true;
-			return doc;
-		}
+		Document(std::unique_ptr<std::istream>&& stream)
+		  : reader(std::make_optional<Reader>(std::move(stream))), streamState(StreamState::Available) {}
 
 		/**
 		 * @brief Load all values from the Jaguar stream into memory
@@ -60,17 +52,69 @@ namespace libjaguar {
 		void ExportTo(std::ostream& out);
 
 		/**
+		 * @brief A utility class for structured object converters to read values
+		 */
+		struct ObjReader {
+		  public:
+			/**
+			 * @brief Get a value from the document
+			 *
+			 * @tparam T The object type to return the Jaguar data as; must match the type declared in the index
+			 *
+			 * @param id The ID of the field to get
+			 *
+			 * @return The current value stored in that field
+			 *
+			 * @throws std::runtime_error If no field exists in the document with the given ID and type or it is out-of-bounds for the scope
+			 */
+			template<typename T>
+			T Get(uint64_t id) const;
+
+		  private:
+			ObjReader() {}
+			friend class Document;
+
+			Document* doc;
+		};
+
+		/**
+		 * @brief A utility class for structured object converters to write values
+		 */
+		struct ObjWriter {
+		  public:
+			/**
+			 * @brief Set a value in the object scope
+			 *
+			 * @tparam T The object type from which to derive the Jaguar data; must match the type declared in the index
+			 *
+			 * @param id The ID of the field to set
+			 * @param value The value to store in the field
+			 *
+			 * @throws std::runtime_error If a field exists in the document with a type that does not match
+			 */
+			template<typename T>
+			void Set(uint64_t id, const T& value);
+
+		  private:
+			ObjWriter() {}
+			friend class Document;
+
+			Document* doc;
+		};
+
+		/**
 		 * @brief Register a converter for a structured object type
 		 *
 		 * @tparam T The type to convert to/from
 		 *
-		 * @param dec A function to convert from Jaguar representation to a T object (TODO: Actual intake type)
-		 * @param enc A function to convert from a T object to Jaguar representation (TODO: Actual output type)
+		 * @param typeID The Jaguar type ID of the structured object type
+		 * @param dec A function to convert from Jaguar representation to a T object
+		 * @param enc A function to convert from a T object to Jaguar representation
 		 *
 		 * @throws If a converter has already been registered for T
 		 */
 		template<typename T>
-		void RegisterStructuredObjConverter(std::function<T()> dec, std::function<void(T)> enc);
+		void RegisterStructuredObjConverter(const std::string& typeID, std::function<T(const ScopeEntry&, const ObjReader&)> dec, std::function<void(const T&, ObjWriter&)> enc);
 
 		/**
 		 * @brief Query type information about a value field in the document by its path
@@ -81,8 +125,7 @@ namespace libjaguar {
 		 *
 		 * @throws std::runtime_error If no value field exists in the document with the given path
 		 */
-		template<typename T>
-		const ValueEntry QueryTypeinfo(const std::string& path);
+		const ValueEntry QueryValueInfo(const std::string& path);
 
 		/**
 		 * @brief Query type information about a scope field in the document by its path
@@ -93,8 +136,7 @@ namespace libjaguar {
 		 *
 		 * @throws std::runtime_error If no scope field exists in the document with the given path
 		 */
-		template<typename T>
-		const ScopeEntry QueryTypeinfo(const std::string& path);
+		const ScopeEntry QueryScopeInfo(const std::string& path);
 
 		/**
 		 * @brief Query the value of a field in the document by its path
@@ -124,16 +166,37 @@ namespace libjaguar {
 		 * @throws std::runtime_error If the provided type does not match an existing value at the same path
 		 */
 		template<typename T>
-		void SetValue(const T& value);
+		void SetValue(const std::string& path, const T& value);
 
 	  private:
 		//Reading data
 		std::optional<Reader> reader;
-		bool readerUsed;
+		enum class StreamState {
+			NoStream,	///No stream is being used
+			Unavailable,///A stream was being used but is now gone due to a move or other invalidating operation
+			Available	///A stream is being used and is good to go
+		} streamState;
 
 		//Storage
-		Index index;
+		struct ValueStorage {
+			///@name Type identification data
+			///@{
+			TypeTag type;  ///<Object type
+			uint32_t size; ///<Buffer/string size
+			uint8_t width; ///<Vector component count/matrix column count
+			uint8_t height;///<Matrix row count
+
+			///@}
+
+			///@name Value storage
+			///@{
+			std::vector<std::byte> mem;///<In-memory storage
+			std::streampos inStream;   ///<Location in stream
+
+			///@}
+		};
+		std::optional<Index> index;
 		std::unordered_map<std::type_index, std::pair<std::function<std::any()>, std::function<std::any()>>> converters;
-		//TODO: Value storage
+		std::unordered_map<uint64_t, ValueStorage> storage;
 	};
 }
