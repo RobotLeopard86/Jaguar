@@ -2,20 +2,22 @@
 
 #include "DllHelper.hpp"
 #include "Reader.hpp"
-#include "libjaguar/Index.hpp"
-#include "libjaguar/TypeTags.hpp"
+#include "Index.hpp"
+#include "TypeTags.hpp"
 
 #include <any>
 #include <functional>
 #include <istream>
 #include <ostream>
-#include <type_traits>
+#include <optional>
 #include <typeindex>
 #include <unordered_map>
 
 namespace libjaguar {
 	/**
 	 * @brief A lazy interface for reading, modifying, and writing Jaguar data
+	 *
+	 * <b>This class is move-only!</b>
 	 */
 	class LJAPI Document {
 	  public:
@@ -23,7 +25,7 @@ namespace libjaguar {
 		 * @brief Create an empty initial document
 		 */
 		Document()
-		  : reader(), streamState(StreamState::NoStream) {}
+		  : reader(), streamState(StreamState::NoStream), index(std::nullopt) {}
 
 		/**
 		 * @brief Create a document sourcing initial data from an input stream
@@ -31,7 +33,14 @@ namespace libjaguar {
 		 * @param stream The stream to read from
 		 */
 		Document(std::unique_ptr<std::istream>&& stream)
-		  : reader(std::make_optional<Reader>(std::move(stream))), streamState(StreamState::Available) {}
+		  : reader(std::make_optional<Reader>(std::move(stream))), streamState(StreamState::Available), index(Index {}) {}
+
+		///@cond
+		Document(const Document&) = delete;
+		Document& operator=(const Document&) = delete;
+		Document(Document&&);
+		Document& operator=(Document&&);
+		///@endcond
 
 		/**
 		 * @brief Load all values from the Jaguar stream into memory
@@ -198,5 +207,7 @@ namespace libjaguar {
 		std::optional<Index> index;
 		std::unordered_map<std::type_index, std::pair<std::function<std::any()>, std::function<std::any()>>> converters;
 		std::unordered_map<uint64_t, ValueStorage> storage;
+
+		void _Verify();
 	};
 }
