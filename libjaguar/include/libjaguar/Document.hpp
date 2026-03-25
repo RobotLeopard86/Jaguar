@@ -123,7 +123,11 @@ namespace libjaguar {
 		 * @throws If a converter has already been registered for T
 		 */
 		template<typename T>
-		void RegisterStructuredObjConverter(const std::string& typeID, std::function<T(const ScopeEntry&, const ObjReader&)> dec, std::function<void(const T&, ObjWriter&)> enc);
+		void RegisterStructuredObjConverter(const std::string& typeID, std::function<T(const ScopeEntry&, const ObjReader&)> dec, std::function<void(const T&, ObjWriter&)> enc) {
+			if(converters.contains(typeid(T))) throw std::runtime_error("A converter has already been registered for this type!");
+			structuredObjTypes[typeid(T)] = typeID;
+			converters[typeid(T)] = std::make_pair([dec](const ScopeEntry& s, const ObjReader& o) -> std::any { return std::make_any(std::move(dec(s, o))); }, [enc](const T& t, ObjWriter& o) -> void { enc(std::any_cast<T>(t), o); });
+		}
 
 		/**
 		 * @brief Query type information about a value field in the document by its path
@@ -188,24 +192,13 @@ namespace libjaguar {
 
 		//Storage
 		struct ValueStorage {
-			///@name Type identification data
-			///@{
-			TypeTag type;  ///<Object type
-			uint32_t size; ///<Buffer/string size
-			uint8_t width; ///<Vector component count/matrix column count
-			uint8_t height;///<Matrix row count
-
-			///@}
-
-			///@name Value storage
-			///@{
+			bool materialized;		   ///<Whether or not the data has actually been loaded into memory
 			std::vector<std::byte> mem;///<In-memory storage
 			std::streampos inStream;   ///<Location in stream
-
-			///@}
 		};
 		std::optional<Index> index;
-		std::unordered_map<std::type_index, std::pair<std::function<std::any()>, std::function<std::any()>>> converters;
+		std::unordered_map<std::type_index, std::string> structuredObjTypes;
+		std::unordered_map<std::type_index, std::pair<std::function<std::any(const ScopeEntry&, const ObjReader&)>, std::function<void(const std::any&, ObjWriter&)>>> converters;
 		std::unordered_map<uint64_t, ValueStorage> storage;
 
 		void _Verify();

@@ -3,13 +3,14 @@
 
 namespace libjaguar {
 	Document::Document(Document&& other)
-	  : reader(std::move(other.reader)), streamState(std::exchange(other.streamState, StreamState::Unavailable)), index(std::move(other.index)), converters(std::move(other.converters)), storage(std::move(other.storage)) {}
+	  : reader(std::move(other.reader)), streamState(std::exchange(other.streamState, StreamState::Unavailable)), index(std::move(other.index)), structuredObjTypes(std::move(other.structuredObjTypes)), converters(std::move(other.converters)), storage(std::move(other.storage)) {}
 
 	Document& Document::operator=(Document&& other) {
 		if(this != &other) {
 			reader = std::move(other.reader);
 			streamState = std::exchange(other.streamState, StreamState::Unavailable);
 			index = std::move(other.index);
+			structuredObjTypes = std::move(other.structuredObjTypes);
 			converters = std::move(other.converters);
 			storage = std::move(other.storage);
 		}
