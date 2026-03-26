@@ -259,6 +259,8 @@ namespace libjaguar {
 
 		const ValueStorage& _QueryInternal(const std::string& path);
 		void _SetInternal(const std::string& path, const ValueStorage& val);
+		std::any _QueryObjInternal(const std::string& path);
+		void _SetObjInternal(const std::string& path, const std::any& obj);
 	};
 
 	///@cond
@@ -274,6 +276,7 @@ namespace libjaguar {
 			return To<T>(_QueryInternal(path));
 		} else {
 			if(converters.contains(typeid(T))) {
+				return std::any_cast<T>(_QueryObjInternal(path));
 			}
 			throw std::runtime_error("No valid type registered!");
 		}
@@ -285,8 +288,9 @@ namespace libjaguar {
 			_SetInternal(path, From<T>(value));
 		} else {
 			if(converters.contains(typeid(T))) {
-			}
-			throw std::runtime_error("No valid type registered!");
+				_SetObjInternal(path, std::make_any(value));
+			} else
+				throw std::runtime_error("No valid type registered!");
 		}
 	}
 	///@endcond
