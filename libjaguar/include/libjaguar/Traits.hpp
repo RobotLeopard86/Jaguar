@@ -6,6 +6,7 @@
 #include <ranges>
 #include <type_traits>
 #include <vector>
+#include <array>
 
 namespace libjaguar {
 	///@cond

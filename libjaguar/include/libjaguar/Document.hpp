@@ -1,9 +1,9 @@
 #pragma once
 
 #include "DllHelper.hpp"
+#include "MathTypes.hpp"
 #include "Reader.hpp"
 #include "Index.hpp"
-#include "TypeTags.hpp"
 
 #include <any>
 #include <functional>
@@ -123,6 +123,7 @@ namespace libjaguar {
 		 * @throws If a converter has already been registered for T
 		 */
 		template<typename T>
+			requires std::is_class_v<T>
 		void RegisterStructuredObjConverter(const std::string& typeID, std::function<T(const ScopeEntry&, const ObjReader&)> dec, std::function<void(const T&, ObjWriter&)> enc) {
 			if(converters.contains(typeid(T))) throw std::runtime_error("A converter has already been registered for this type!");
 			structuredObjTypes[typeid(T)] = typeID;
@@ -202,5 +203,91 @@ namespace libjaguar {
 		std::unordered_map<uint64_t, ValueStorage> storage;
 
 		void _Verify();
+
+		friend struct ObjReader;
+		friend struct ObjWriter;
+
+		template<typename T>
+		ValueStorage From(const T&) = delete;
+
+		template<number T>
+		ValueStorage From(const T& num);
+
+		template<>
+		ValueStorage From(const bool& val);
+
+		template<>
+		ValueStorage From(const std::string& val);
+
+		template<byte_range T>
+		ValueStorage From(const T& range);
+
+		template<number T, uint8_t C>
+		ValueStorage From(const Vector<T, C>& vec);
+
+		template<number T, uint8_t W, uint8_t H>
+		ValueStorage From(const Matrix<T, W, H>& mat);
+
+		template<typename T>
+			requires std::is_class_v<T>
+		ValueStorage From(const T& obj);
+
+		template<typename T>
+		T To(const ValueStorage&) = delete;
+
+		template<number T>
+		T To(const ValueStorage& storage);
+
+		template<>
+		bool To(const ValueStorage& storage);
+
+		template<>
+		std::string To(const ValueStorage& storage);
+
+		template<byte_range T>
+		T To(const ValueStorage& storage);
+
+		template<number T, uint8_t C>
+		Vector<T, C> To(const ValueStorage& storage);
+
+		template<number T, uint8_t W, uint8_t H>
+		Matrix<T, W, H> To(const ValueStorage& storage);
+
+		template<typename T>
+			requires std::is_class_v<T>
+		T To(const ValueStorage& storage);
+
+		const ValueStorage& _QueryInternal(const std::string& path);
+		void _SetInternal(const std::string& path, const ValueStorage& val);
 	};
+
+	///@cond
+	template<typename T>
+	concept SingleVal = requires(Document& d, const T& t) {
+		d.From<std::template remove_cvref_t<T>>(t);
+		d.To(t)->std::template remove_cvref_t<T>;
+	};
+
+	template<typename T>
+	T Document::QueryValue(const std::string& path) {
+		if constexpr(SingleVal<T>) {
+			return To<T>(_QueryInternal(path));
+		} else {
+			if(converters.contains(typeid(T))) {
+			}
+			throw std::runtime_error("No valid type registered!");
+		}
+	}
+
+	template<typename T>
+	void Document::SetValue(const std::string& path, const T& value) {
+		if constexpr(SingleVal<T>) {
+			_SetInternal(path, From<T>(value));
+		} else {
+			if(converters.contains(typeid(T))) {
+			}
+			throw std::runtime_error("No valid type registered!");
+		}
+	}
+	///@endcond
 }
