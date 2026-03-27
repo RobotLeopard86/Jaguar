@@ -4,6 +4,7 @@ install_subdir('include' / 'libjaguar', install_dir: 'include')
 # libjaguar
 libjaguar = both_libraries('jaguar', sources: [
 	'src' / 'Decoder.cpp',
+	'src' / 'Document.cpp',
 	'src' / 'Encoder.cpp',
 	'src' / 'Reader.cpp',
 	'src' / 'Utilities.cpp',

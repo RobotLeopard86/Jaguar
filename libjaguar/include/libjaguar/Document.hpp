@@ -10,6 +10,7 @@
 #include <bit>
 #include <functional>
 #include <istream>
+#include <iterator>
 #include <ostream>
 #include <optional>
 #include <typeindex>
@@ -320,28 +321,135 @@ namespace libjaguar {
 		T To(const ValueStorage&) = delete;
 
 		template<number T>
-		T To(const ValueStorage& storage);
+		T To(const ValueStorage& storage) {
+			with_bits_t<bits_v<T>> work = 0;
+			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
+				work <<= 8;
+				work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+			}
+			return std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
+		}
 
 		template<>
-		bool To(const ValueStorage& storage);
+		bool To(const ValueStorage& storage) {
+			return storage.mem[0] == std::byte(1);
+		}
 
 		template<>
 		std::string To(const ValueStorage& storage);
 
 		template<byte_range T>
-		T To(const ValueStorage& storage);
+		T To(const ValueStorage& storage) {
+			T t;
+			std::ranges::copy(storage.mem.begin(), storage.mem.end(), std::back_inserter(t));
+			return t;
+		}
 
 		template<number T>
-		Vector<T, 2> To(const ValueStorage& storage);
+		Vector<T, 2> To(const ValueStorage& storage) {
+			Vector<T, 2> vec {.x = 0, .y = 0};
+			with_bits_t<bits_v<T>> work;
+			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
+				//Update component data
+				static uint8_t component = 0;
+				if(i % (bits_v<T> / 8) == 0) {
+					++component;
+					work = 0;
+					switch(component) {
+						case 1:
+							vec.x = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
+							break;
+						case 2:
+							vec.y = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
+							break;
+					}
+				}
+
+				//Push latest byte
+				work <<= 8;
+				work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+			}
+			return vec;
+		}
 
 		template<number T>
-		Vector<T, 3> To(const ValueStorage& storage);
+		Vector<T, 3> To(const ValueStorage& storage) {
+			Vector<T, 3> vec {.x = 0, .y = 0, .z = 0};
+			with_bits_t<bits_v<T>> work;
+			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
+				//Update component data
+				static uint8_t component = 0;
+				if(i % (bits_v<T> / 8) == 0) {
+					++component;
+					work = 0;
+					switch(component) {
+						case 1:
+							vec.x = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
+							break;
+						case 2:
+							vec.y = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
+							break;
+						case 3:
+							vec.z = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
+							break;
+					}
+				}
+
+				//Push latest byte
+				work <<= 8;
+				work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+			}
+			return vec;
+		}
 
 		template<number T>
-		Vector<T, 4> To(const ValueStorage& storage);
+		Vector<T, 4> To(const ValueStorage& storage) {
+			Vector<T, 4> vec {.x = 0, .y = 0, .z = 0, .w = 0};
+			with_bits_t<bits_v<T>> work;
+			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
+				//Update component data
+				static uint8_t component = 0;
+				if(i % (bits_v<T> / 8) == 0) {
+					++component;
+					work = 0;
+					switch(component) {
+						case 1:
+							vec.x = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
+							break;
+						case 2:
+							vec.y = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
+							break;
+						case 3:
+							vec.z = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
+							break;
+						case 4:
+							vec.w = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
+							break;
+					}
+				}
+
+				//Push latest byte
+				work <<= 8;
+				work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+			}
+			return vec;
+		}
 
 		template<number T, uint8_t W, uint8_t H>
-		Matrix<T, W, H> To(const ValueStorage& storage);
+		Matrix<T, W, H> To(const ValueStorage& storage) {
+			Matrix<T, W, H> mat;
+			for(uint8_t x = 0; x < W; ++x) {
+				for(uint8_t y = 0; y < H; ++y) {
+					with_bits_t<bits_v<T>> val = 0;
+					for(uint8_t i = 0; i < bits_v<T>; ++i) {
+						val <<= 8;
+						val &= (storage.mem[bits_v<T> * (x + 1) * (y + 1) + i] & 0xFF);
+					}
+					mat[x][y] = val;
+				}
+			}
+			return mat;
+		}
 
 		const ValueStorage& _QueryInternal(const std::string& path);
 		void _SetInternal(const std::string& path, const ValueStorage& val);

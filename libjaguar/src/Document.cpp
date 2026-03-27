@@ -49,4 +49,12 @@ namespace libjaguar {
 		std::memcpy(vs.mem.data(), val.data(), val.size());
 		return vs;
 	}
+
+	template<>
+	std::string Document::To(const ValueStorage& storage) {
+		std::string out;
+		out.resize(storage.mem.size());
+		std::memcpy(out.data(), storage.mem.data(), out.size());
+		return out;
+	}
 }
