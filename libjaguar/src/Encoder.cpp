@@ -5,10 +5,12 @@
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/ValueHeader.hpp"
 
+#include <set>
 #include <sstream>
 #include <cmath>
 #include <cstdint>
 #include <stdexcept>
+#include <unordered_map>
 
 namespace libjaguar {
 	Encoder::Encoder(Writer&& writer) : writer(std::move(writer)), writerValid(true) {}
@@ -354,11 +356,76 @@ namespace libjaguar {
 		if(entry.id != index.root.id) writer->put(static_cast<uint8_t>(TypeTag::ScopeBoundary));
 	}
 
+	//Implement DFS algorithm for type ordering
+	enum class VisitState {
+		Unvisited,
+		Visiting,
+		Visited
+	};
+
+	void DFS(const std::string& node, const std::unordered_map<std::string, std::vector<std::string>>& graph, std::unordered_map<std::string, VisitState>& state, std::vector<std::string>& result) {
+		//Pre-screening
+		switch(state[node]) {
+			//Cycle detection
+			case VisitState::Visiting: throw std::runtime_error("Dependency cycle detected in type list!");
+
+			//Known types are good
+			case VisitState::Visited: return;
+
+			//This is a new type
+			case VisitState::Unvisited:
+				state[node] = VisitState::Visiting;
+				break;
+		}
+
+		//Process dependencies
+		for(const auto& dep : graph.at(node)) {
+			DFS(dep, graph, state, result);
+		}
+
+		//We're done visiting (and thus dependencies are handled)
+		state[node] = VisitState::Visited;
+		result.push_back(node);
+	}
+
 	void Encoder::_Write(const Index& index, PayloadProvider* provider) {
-		//Handle types
+		//We have to sort types to ensure dependencies are handled in the right order since types can depend on each other
+		//So the first step is to find the dependencies
+		std::unordered_map<std::string, std::vector<std::string>> dependencies;
 		for(const auto& [id, layout] : index.types) {
-			//Validate it
-			ValidateTypeLayout(layout);
+			//Validate the layout first
+			if(!ValidateTypeLayout(layout)) throw std::runtime_error("Invalid type layout passed to encoder!");
+
+			//Find dependencies
+			std::set<std::string> deps;
+			for(const StructuredTypeLayout::Field& field : layout.fields) {
+				if(field.type == TypeTag::StructuredObj || (field.type == TypeTag::List && field.elementType == TypeTag::StructuredObj)) {
+					deps.insert(field.typeID);
+				}
+			}
+
+			//Add to dependency graph
+			std::vector<std::string> depsVec(deps.begin(), deps.end());
+			dependencies[id] = depsVec;
+		}
+
+		//Now we can run the sort (DFS algorithm)
+		std::unordered_map<std::string, VisitState> state;
+		std::vector<std::string> sorted;
+		for(const auto& [id, _] : dependencies) {
+			state[id] = VisitState::Unvisited;
+		}
+		for(const auto& [id, _] : dependencies) {
+			//Skip already known types (DFS would return but this saves us creating a stack frame)
+			if(state[id] == VisitState::Unvisited) {
+				DFS(id, dependencies, state, sorted);
+			}
+		}
+
+		//Write types (now sorted!)
+		for(const std::string& id : sorted) {
+			//Get the layout
+			const StructuredTypeLayout& layout = index.types.at(id);
 
 			//Create and write type decl header
 			ValueHeader header = {};
