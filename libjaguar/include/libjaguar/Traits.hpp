@@ -82,6 +82,29 @@ namespace libjaguar {
 	template<number T>
 	inline constexpr uint8_t bits_v = bits<T>::value;
 
+	template<uint8_t B>
+	struct with_bits {};
+
+	template<>
+	struct with_bits<8> {
+		using type = uint8_t;
+	};
+	template<>
+	struct with_bits<16> {
+		using type = uint16_t;
+	};
+	template<>
+	struct with_bits<32> {
+		using type = uint32_t;
+	};
+	template<>
+	struct with_bits<64> {
+		using type = uint64_t;
+	};
+
+	template<uint8_t B>
+	using with_bits_t = with_bits<B>::type;
+
 	template<typename T>
 	struct is_byte_range : public std::false_type {
 	};

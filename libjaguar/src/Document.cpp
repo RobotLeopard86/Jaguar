@@ -1,6 +1,8 @@
 #include "libjaguar/Document.hpp"
 #include "libjaguar/Decoder.hpp"
 
+#include <cstring>
+
 namespace libjaguar {
 	Document::Document(Document&& other)
 	  : reader(std::move(other.reader)), streamState(std::exchange(other.streamState, StreamState::Unavailable)), index(std::move(other.index)), structuredObjTypes(std::move(other.structuredObjTypes)), converters(std::move(other.converters)), storage(std::move(other.storage)) {}
@@ -41,5 +43,10 @@ namespace libjaguar {
 		}
 	}
 
-
+	template<>
+	Document::ValueStorage Document::From(const std::string& val) {
+		ValueStorage vs = {.materialized = true, .mem = std::vector<std::byte> {val.size()}, .inStream = 0};
+		std::memcpy(vs.mem.data(), val.data(), val.size());
+		return vs;
+	}
 }

@@ -5,7 +5,9 @@
 #include "Reader.hpp"
 #include "Index.hpp"
 
+#include <algorithm>
 #include <any>
+#include <bit>
 #include <functional>
 #include <istream>
 #include <ostream>
@@ -211,26 +213,108 @@ namespace libjaguar {
 		ValueStorage From(const T&) = delete;
 
 		template<number T>
-		ValueStorage From(const T& num);
+		ValueStorage From(const T& num) {
+			with_bits_t<bits_v<T>> work = std::bit_cast<with_bits_t<bits_v<T>>, T>(num);
+			std::vector<std::byte> mem(0, bits_v<T>);
+			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+				mem[i] = (work & 0xFF);
+				work >>= 8;
+			}
+			return ValueStorage {.materialized = true, .mem = mem, .inStream = 0};
+		}
 
 		template<>
-		ValueStorage From(const bool& val);
+		ValueStorage From(const bool& val) {
+			ValueStorage vs = {.materialized = true, .mem = std::vector<std::byte> {1}, .inStream = 0};
+			vs.mem[0] = std::byte(val ? 1 : 0);
+			return vs;
+		}
 
 		template<>
 		ValueStorage From(const std::string& val);
 
 		template<byte_range T>
-		ValueStorage From(const T& range);
+		ValueStorage From(const T& range) {
+			return ValueStorage {.materialized = true, .mem = std::vector<std::byte>(range.begin(), range.end()), .inStream = 0};
+		}
 
-		template<number T, uint8_t C>
-		ValueStorage From(const Vector<T, C>& vec);
+		template<number T>
+		ValueStorage From(const Vector<T, 2>& vec) {
+			ValueStorage vs {.materialized = true, .mem = std::vector<std::byte>(bits_v<T> / 4), .inStream = 0};
+			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
+			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+				vs.mem[i] = (x & 0xFF);
+				x >>= 8;
+			}
+			with_bits_t<bits_v<T>> y = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.y);
+			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+				vs.mem[bits_v<T> + i] = (y & 0xFF);
+				y >>= 8;
+			}
+			return vs;
+		}
+
+		template<number T>
+		ValueStorage From(const Vector<T, 3>& vec) {
+			ValueStorage vs {.materialized = true, .mem = std::vector<std::byte>(bits_v<T> / 8 * 3), .inStream = 0};
+			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
+			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+				vs.mem[i] = (x & 0xFF);
+				x >>= 8;
+			}
+			with_bits_t<bits_v<T>> y = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.y);
+			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+				vs.mem[bits_v<T> + i] = (y & 0xFF);
+				y >>= 8;
+			}
+			with_bits_t<bits_v<T>> z = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.z);
+			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+				vs.mem[bits_v<T> * 2 + i] = (z & 0xFF);
+				z >>= 8;
+			}
+			return vs;
+		}
+
+		template<number T>
+		ValueStorage From(const Vector<T, 4>& vec) {
+			ValueStorage vs {.materialized = true, .mem = std::vector<std::byte>(bits_v<T> / 2), .inStream = 0};
+			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
+			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+				vs.mem[i] = (x & 0xFF);
+				x >>= 8;
+			}
+			with_bits_t<bits_v<T>> y = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.y);
+			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+				vs.mem[bits_v<T> + i] = (y & 0xFF);
+				y >>= 8;
+			}
+			with_bits_t<bits_v<T>> z = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.z);
+			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+				vs.mem[bits_v<T> * 2 + i] = (z & 0xFF);
+				z >>= 8;
+			}
+			with_bits_t<bits_v<T>> w = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.w);
+			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+				vs.mem[bits_v<T> * 3 + i] = (w & 0xFF);
+				w >>= 8;
+			}
+			return vs;
+		}
 
 		template<number T, uint8_t W, uint8_t H>
-		ValueStorage From(const Matrix<T, W, H>& mat);
-
-		template<typename T>
-			requires std::is_class_v<T>
-		ValueStorage From(const T& obj);
+		ValueStorage From(const Matrix<T, W, H>& mat) {
+			ValueStorage vs {.materialized = true, .mem = std::vector<std::byte>(bits_v<T> / 2), .inStream = 0};
+			for(uint8_t x = 0; x < W; ++x) {
+				for(uint8_t y = 0; y < H; ++y) {
+					with_bits_t<bits_v<T>> val = std::bit_cast<with_bits_t<bits_v<T>>, T>(mat[x][y]);
+					for(uint8_t i = 0; i < bits_v<T>; ++i) {
+						vs.mem[bits_v<T> * (x + 1) * (y + 1) + i] = (val & 0xFF);
+						val >>= 8;
+					}
+				}
+			}
+			return vs;
+		}
 
 		template<typename T>
 		T To(const ValueStorage&) = delete;
@@ -247,15 +331,17 @@ namespace libjaguar {
 		template<byte_range T>
 		T To(const ValueStorage& storage);
 
-		template<number T, uint8_t C>
-		Vector<T, C> To(const ValueStorage& storage);
+		template<number T>
+		Vector<T, 2> To(const ValueStorage& storage);
+
+		template<number T>
+		Vector<T, 3> To(const ValueStorage& storage);
+
+		template<number T>
+		Vector<T, 4> To(const ValueStorage& storage);
 
 		template<number T, uint8_t W, uint8_t H>
 		Matrix<T, W, H> To(const ValueStorage& storage);
-
-		template<typename T>
-			requires std::is_class_v<T>
-		T To(const ValueStorage& storage);
 
 		const ValueStorage& _QueryInternal(const std::string& path);
 		void _SetInternal(const std::string& path, const ValueStorage& val);

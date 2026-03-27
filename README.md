@@ -6,7 +6,9 @@
 ## About
 Jaguar is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Here, you can find the Jaguar specification, `libjaguar` reference encoding/decoding library, and `jaguartool` CLI tool for creating Jaguar streams via a text format.  
 
-For more information about `libjaguar` and `jaguartool`, visit [the documentation](https://robotleopard86.github.io/Jaguar)
+For more information about `libjaguar` and `jaguartool`, visit [the documentation](https://robotleopard86.github.io/Jaguar).  
+
+`libjaguar` requires C++20.
 
 ## Features
 * Byte-packed encoding
