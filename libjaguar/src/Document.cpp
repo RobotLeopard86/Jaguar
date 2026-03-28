@@ -1,7 +1,12 @@
 #include "libjaguar/Document.hpp"
 #include "libjaguar/Decoder.hpp"
+#include "libjaguar/Encoder.hpp"
+#include "libjaguar/Writer.hpp"
 
+#include <cmath>
 #include <cstring>
+#include <ostream>
+#include <stdexcept>
 
 namespace libjaguar {
 	Document::Document(Document&& other)
@@ -56,5 +61,76 @@ namespace libjaguar {
 		out.resize(storage.mem.size());
 		std::memcpy(out.data(), storage.mem.data(), out.size());
 		return out;
+	}
+
+	class Document::DocPayloadProvider : public PayloadProvider {
+	  public:
+		DocPayloadProvider(Document* doc)
+		  : doc(doc) {}
+
+		//TODO: implement methods
+		void String(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) override {}
+		void Buffer(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) override {}
+		bool Boolean(uint64_t id) override {
+			return true;
+		}
+		int64_t SignedInt(uint64_t id, uint8_t bits) override {
+			return 37;
+		}
+		uint64_t UnsignedInt(uint64_t id, uint8_t bits) override {
+			return 37;
+		}
+		float Float32(uint64_t id) override {
+			return M_PIf;
+		}
+		double Float64(uint64_t id) override {
+			return M_PI;
+		}
+		int64_t SignedIntVec(uint64_t id, VecComponent component, uint8_t bits) override {
+			return 41;
+		}
+		uint64_t UnsignedIntVec(uint64_t id, VecComponent component, uint8_t bits) override {
+			return 41;
+		}
+		float Float32Vec(uint64_t id, VecComponent component) override {
+			return M_PI_2f;
+		}
+		double Float64Vec(uint64_t id, VecComponent component) override {
+			return M_PI_2;
+		}
+		int64_t SignedIntMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits) override {
+			return 19;
+		}
+		uint64_t UnsignedIntMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits) override {
+			return 19;
+		}
+		float Float32Mat(uint64_t id, uint8_t x, uint8_t y) override {
+			return expf(1);
+		}
+		double Float64Mat(uint64_t id, uint8_t x, uint8_t y) override {
+			return exp(1);
+		}
+
+	  private:
+		Document* doc;
+	};
+
+	void Document::ExportTo(std::ostream& out) {
+		if(!index.has_value()) throw std::runtime_error("Cannot export document with no index!");
+
+		//Create encoder
+		std::unique_ptr<std::ostream> stream = std::make_unique<std::ostream>(out.rdbuf());
+		Writer w(std::move(stream));
+		Encoder enc(std::move(w));
+
+		//Create payload provider
+		DocPayloadProvider provider(this);
+
+		//Encode document
+		enc.Write(index.value(), provider);
+
+		//Hand back the streambuf
+		w->flush();
+		out.rdbuf(w->rdbuf());
 	}
 }

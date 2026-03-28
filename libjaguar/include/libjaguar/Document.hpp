@@ -13,6 +13,8 @@
 #include <iterator>
 #include <ostream>
 #include <optional>
+#include <stdexcept>
+#include <string>
 #include <typeindex>
 #include <unordered_map>
 
@@ -46,13 +48,37 @@ namespace libjaguar {
 		///@endcond
 
 		/**
+		 * @brief Load a value from the Jaguar stream into memory
+		 *
+		 * @warning If the specified object is a large buffer, this may result in high memory usage
+		 *
+		 * @param path The path of the value to materialize
+		 *
+		 * @throws std::runtime_error If the document has no backing input stream or the provided value path does not exist
+		 */
+		void Materialize(const std::string& path) {
+			Materialize(GenIndexID(path));
+		}
+
+		/**
+		 * @brief Load a value from the Jaguar stream into memory
+		 *
+		 * @warning If the specified object is a large buffer, this may result in high memory usage
+		 *
+		 * @param id The ID of the value to materialize
+		 *
+		 * @throws std::runtime_error If the document has no backing input stream or there is no value with the provided ID does not exist
+		 */
+		void Materialize(uint64_t id);
+
+		/**
 		 * @brief Load all values from the Jaguar stream into memory
 		 *
 		 * @warning If the stream contains large buffer objects or just a lot of values in general, this may result in high memory usage
 		 *
 		 * @throws std::runtime_error If the document has no backing input stream
 		 */
-		void Materialize();
+		void MaterializeAll();
 
 		/**
 		 * @brief Export the contents of the document to a Jaguar stream
@@ -73,20 +99,23 @@ namespace libjaguar {
 			 *
 			 * @tparam T The object type to return the Jaguar data as; must match the type declared in the index
 			 *
-			 * @param id The ID of the field to get
+			 * @param field The name of the field to retrieve
 			 *
 			 * @return The current value stored in that field
 			 *
-			 * @throws std::runtime_error If no field exists in the document with the given ID and type or it is out-of-bounds for the scope
+			 * @throws std::runtime_error If no field exists in the document with the given ID and type
 			 */
 			template<typename T>
-			T Get(uint64_t id) const;
+			T Get(const std::string& field) {
+				return doc->QueryValue<T>(basePath + "." + field);
+			}
 
 		  private:
 			ObjReader() {}
 			friend class Document;
 
 			Document* doc;
+			std::string basePath;
 		};
 
 		/**
@@ -99,19 +128,22 @@ namespace libjaguar {
 			 *
 			 * @tparam T The object type from which to derive the Jaguar data; must match the type declared in the index
 			 *
-			 * @param id The ID of the field to set
+			 * @param field The name of the field to set
 			 * @param value The value to store in the field
 			 *
 			 * @throws std::runtime_error If a field exists in the document with a type that does not match
 			 */
 			template<typename T>
-			void Set(uint64_t id, const T& value);
+			void Set(const std::string& field, const T& value) {
+				doc->SetValue(basePath + "." + field, value);
+			}
 
 		  private:
 			ObjWriter() {}
 			friend class Document;
 
 			Document* doc;
+			std::string basePath;
 		};
 
 		/**
@@ -451,10 +483,13 @@ namespace libjaguar {
 			return mat;
 		}
 
-		const ValueStorage& _QueryInternal(const std::string& path);
-		void _SetInternal(const std::string& path, const ValueStorage& val);
+		const ValueStorage& _QueryInternal(uint64_t id);
+		void _SetInternal(uint64_t id, const ValueStorage& val);
 		std::any _QueryObjInternal(const std::string& path);
 		void _SetObjInternal(const std::string& path, const std::any& obj);
+
+		class DocPayloadProvider;
+		friend class DocPayloadProvider;
 	};
 
 	///@cond
@@ -467,7 +502,7 @@ namespace libjaguar {
 	template<typename T>
 	T Document::QueryValue(const std::string& path) {
 		if constexpr(SingleVal<T>) {
-			return To<T>(_QueryInternal(path));
+			return To<T>(_QueryInternal(GenIndexID(path)));
 		} else {
 			if(converters.contains(typeid(T))) {
 				return std::any_cast<T>(_QueryObjInternal(path));
@@ -479,7 +514,7 @@ namespace libjaguar {
 	template<typename T>
 	void Document::SetValue(const std::string& path, const T& value) {
 		if constexpr(SingleVal<T>) {
-			_SetInternal(path, From<T>(value));
+			_SetInternal(GenIndexID(path), From<T>(value));
 		} else {
 			if(converters.contains(typeid(T))) {
 				_SetObjInternal(path, std::make_any(value));
