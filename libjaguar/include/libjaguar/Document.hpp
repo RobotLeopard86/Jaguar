@@ -67,7 +67,7 @@ namespace libjaguar {
 		 *
 		 * @param id The ID of the value to materialize
 		 *
-		 * @throws std::runtime_error If the document has no backing input stream or there is no value with the provided ID does not exist
+		 * @throws std::runtime_error If the document has no backing input stream or there is no value with the provided ID
 		 */
 		void Materialize(uint64_t id);
 
@@ -78,7 +78,9 @@ namespace libjaguar {
 		 *
 		 * @throws std::runtime_error If the document has no backing input stream
 		 */
-		void MaterializeAll();
+		void MaterializeAll() {
+			Materialize(index->root.id);
+		}
 
 		/**
 		 * @brief Export the contents of the document to a Jaguar stream
@@ -161,7 +163,7 @@ namespace libjaguar {
 			requires std::is_class_v<T>
 		void RegisterStructuredObjConverter(const std::string& typeID, std::function<T(const ScopeEntry&, const ObjReader&)> dec, std::function<void(const T&, ObjWriter&)> enc) {
 			if(converters.contains(typeid(T))) throw std::runtime_error("A converter has already been registered for this type!");
-			structuredObjTypes[typeid(T)] = typeID;
+			structuredObjTypes[typeID] = typeid(T);
 			converters[typeid(T)] = std::make_pair([dec](const ScopeEntry& s, const ObjReader& o) -> std::any { return std::make_any(std::move(dec(s, o))); }, [enc](const T& t, ObjWriter& o) -> void { enc(std::any_cast<T>(t), o); });
 		}
 
@@ -233,7 +235,7 @@ namespace libjaguar {
 			std::streampos inStream;   ///<Location in stream
 		};
 		std::optional<Index> index;
-		std::unordered_map<std::type_index, std::string> structuredObjTypes;
+		std::unordered_map<std::string, std::type_index> structuredObjTypes;
 		std::unordered_map<std::type_index, std::pair<std::function<std::any(const ScopeEntry&, const ObjReader&)>, std::function<void(const std::any&, ObjWriter&)>>> converters;
 		std::unordered_map<uint64_t, ValueStorage> storage;
 

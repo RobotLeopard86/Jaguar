@@ -3,7 +3,7 @@
 #include "libjaguar/Encoder.hpp"
 #include "libjaguar/Writer.hpp"
 
-#include <cmath>
+#include <numbers>
 #include <cstring>
 #include <ostream>
 #include <stdexcept>
@@ -44,6 +44,22 @@ namespace libjaguar {
 
 				//Reset to initial position
 				reader.value()->seekg(beg);
+
+				//Walk index to create initial storage map
+				const auto indexWalk = [this](const ScopeEntry& entry) -> void {
+					auto impl = [this](const ScopeEntry& entry, auto& implRef) mutable -> void {
+						for(const ValueEntry& val : entry.subvalues) {
+							ValueStorage vs = {};
+							vs.materialized = false;
+							vs.inStream = val.streamBeginPosition;
+							vs.mem = {};
+							storage[val.id] = vs;
+						}
+						for(const ScopeEntry& scope : entry.subscopes) implRef(scope, implRef);
+					};
+					impl(entry, impl);
+				};
+				indexWalk(index->root);
 			}
 		}
 	}
@@ -81,10 +97,10 @@ namespace libjaguar {
 			return 37;
 		}
 		float Float32(uint64_t id) override {
-			return M_PIf;
+			return std::numbers::pi_v<float>;
 		}
 		double Float64(uint64_t id) override {
-			return M_PI;
+			return std::numbers::pi_v<double>;
 		}
 		int64_t SignedIntVec(uint64_t id, VecComponent component, uint8_t bits) override {
 			return 41;
@@ -93,10 +109,10 @@ namespace libjaguar {
 			return 41;
 		}
 		float Float32Vec(uint64_t id, VecComponent component) override {
-			return M_PI_2f;
+			return std::numbers::phi_v<float>;
 		}
 		double Float64Vec(uint64_t id, VecComponent component) override {
-			return M_PI_2;
+			return std::numbers::phi_v<double>;
 		}
 		int64_t SignedIntMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits) override {
 			return 19;
@@ -105,10 +121,10 @@ namespace libjaguar {
 			return 19;
 		}
 		float Float32Mat(uint64_t id, uint8_t x, uint8_t y) override {
-			return expf(1);
+			return std::numbers::e_v<float>;
 		}
 		double Float64Mat(uint64_t id, uint8_t x, uint8_t y) override {
-			return exp(1);
+			return std::numbers::e_v<double>;
 		}
 
 	  private:
@@ -132,5 +148,41 @@ namespace libjaguar {
 		//Hand back the streambuf
 		w->flush();
 		out.rdbuf(w->rdbuf());
+	}
+
+	void Document::Materialize(uint64_t id) {
+		//Check if this is an end value (very easy to materialize) (all values have preloaded entries in the storage map)
+		if(storage.contains(id)) {
+			if(!storage[id].materialized) {
+				//TODO
+			}
+			return;
+		}
+
+		//Otherwise we gotta walk the index to find the item
+		const auto indexWalk = [id](ScopeEntry& entry) -> std::optional<std::reference_wrapper<ScopeEntry>> {
+			auto impl = [id](ScopeEntry& entry, auto& implRef) mutable -> std::optional<std::reference_wrapper<ScopeEntry>> {
+				if(entry.id == id) return std::make_optional(std::reference_wrapper<ScopeEntry>(entry));
+				for(ScopeEntry& scope : entry.subscopes) {
+					auto result = implRef(scope, implRef);
+					if(result.has_value()) return result;
+				}
+				return std::nullopt;
+			};
+			return impl(entry, impl);
+		};
+		auto maybeScope = indexWalk(index->root);
+		if(!maybeScope.has_value()) throw std::runtime_error("No field with the provided ID exists!");
+		const ScopeEntry& scope = maybeScope->get();
+
+		//Now we can go through each subscope and subvalue to materialize them
+		const auto materializeScope = [this](const ScopeEntry& entry) -> void {
+			auto impl = [this](const ScopeEntry& entry, auto& implRef) mutable -> void {
+				for(const ValueEntry& val : entry.subvalues) Materialize(val.id);
+				for(const ScopeEntry& subscope : entry.subscopes) implRef(subscope, implRef);
+			};
+			return impl(entry, impl);
+		};
+		materializeScope(scope);
 	}
 }
