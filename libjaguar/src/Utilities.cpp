@@ -3,7 +3,9 @@
 #include "libjaguar/StructuredTypeLayout.hpp"
 #include "libjaguar/TypeTags.hpp"
 
+#include <cmath>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -60,6 +62,9 @@ namespace libjaguar {
 	}
 
 	uint64_t GenIndexID(const std::string& path) {
+		//Check UTF-8
+		if(!CheckUTF8(path)) throw std::runtime_error("Invalid UTF-8!");
+
 		//Initial seed
 		uint64_t hash = 0xEE674237ull;
 
@@ -164,5 +169,54 @@ namespace libjaguar {
 			}
 		}
 		return true;
+	}
+
+	uint32_t CalcValueSize(TypeTag tag, MathTypeDescriptor mathData, uint32_t buffSize) {
+		if(!IsValue(tag)) return 0;
+		uint32_t result = 0;
+		switch(tag) {
+			case TypeTag::String:
+				if(buffSize >= std::pow(2, 24)) throw std::runtime_error("String is too long (> 24-bit integer limit!)");
+			case TypeTag::ByteBuffer:
+				result = buffSize;
+				break;
+			case TypeTag::SInt8:
+			case TypeTag::UInt8:
+			case TypeTag::Boolean:
+				result = 1;
+				break;
+			case TypeTag::SInt32:
+			case TypeTag::UInt32:
+			case TypeTag::Float32:
+				result = 4;
+				break;
+			case TypeTag::SInt64:
+			case TypeTag::UInt64:
+			case TypeTag::Float64:
+				result = 8;
+				break;
+			case TypeTag::SInt16:
+			case TypeTag::UInt16:
+				result = 2;
+				break;
+			case TypeTag::Vector:
+				if(mathData.height != 1) return 0;
+			case TypeTag::Matrix: {
+				//Check math data validity
+				if(mathData.width < 2 || mathData.width > 4) return 0;
+				if(mathData.height > 4) return 0;
+				if(tag == TypeTag::Matrix && mathData.height < 2) return 0;
+
+				//Prepare for byte calculation
+				uint8_t asByte = static_cast<uint8_t>(mathData.type);
+				if((asByte & 0xF) >= 0xE) asByte -= 2;
+
+				//This looks weird but it's just converting the type tag to the approriate number of bytes for the type
+				result = std::pow(2, (asByte & 0xF) - 0xA) * mathData.width * mathData.height;
+				break;
+			}
+			default: break;
+		}
+		return result;
 	}
 }

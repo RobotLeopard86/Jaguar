@@ -4,6 +4,7 @@
 #include "MathTypes.hpp"
 #include "Reader.hpp"
 #include "Index.hpp"
+#include "Utilities.hpp"
 
 #include <algorithm>
 #include <any>
@@ -30,7 +31,7 @@ namespace libjaguar {
 		 * @brief Create an empty initial document
 		 */
 		Document()
-		  : reader(), streamState(StreamState::NoStream), index(std::nullopt) {}
+		  : reader(), streamState(StreamState::NoStream), index(Index {}) {}
 
 		/**
 		 * @brief Create a document sourcing initial data from an input stream
@@ -38,7 +39,7 @@ namespace libjaguar {
 		 * @param stream The stream to read from
 		 */
 		Document(std::unique_ptr<std::istream>&& stream)
-		  : reader(std::make_optional<Reader>(std::move(stream))), streamState(StreamState::Available), index(Index {}) {}
+		  : reader(std::make_optional<Reader>(std::move(stream))), streamState(StreamState::Available), index(std::nullopt) {}
 
 		///@cond
 		Document(const Document&) = delete;
@@ -78,9 +79,7 @@ namespace libjaguar {
 		 *
 		 * @throws std::runtime_error If the document has no backing input stream
 		 */
-		void MaterializeAll() {
-			Materialize(index->root.id);
-		}
+		void MaterializeAll();
 
 		/**
 		 * @brief Export the contents of the document to a Jaguar stream
@@ -162,6 +161,7 @@ namespace libjaguar {
 		template<typename T>
 			requires std::is_class_v<T>
 		void RegisterStructuredObjConverter(const std::string& typeID, std::function<T(const ScopeEntry&, const ObjReader&)> dec, std::function<void(const T&, ObjWriter&)> enc) {
+			if(!CheckUTF8(typeID)) throw std::runtime_error("Cannot register a structured object type with an invalid UTF-8 type ID!");
 			if(converters.contains(typeid(T))) throw std::runtime_error("A converter has already been registered for this type!");
 			structuredObjTypes[typeID] = typeid(T);
 			converters[typeid(T)] = std::make_pair([dec](const ScopeEntry& s, const ObjReader& o) -> std::any { return std::make_any(std::move(dec(s, o))); }, [enc](const T& t, ObjWriter& o) -> void { enc(std::any_cast<T>(t), o); });
@@ -176,7 +176,7 @@ namespace libjaguar {
 		 *
 		 * @throws std::runtime_error If no value field exists in the document with the given path
 		 */
-		const ValueEntry QueryValueInfo(const std::string& path);
+		const ValueEntry& QueryValueInfo(const std::string& path);
 
 		/**
 		 * @brief Query type information about a scope field in the document by its path
@@ -187,7 +187,7 @@ namespace libjaguar {
 		 *
 		 * @throws std::runtime_error If no scope field exists in the document with the given path
 		 */
-		const ScopeEntry QueryScopeInfo(const std::string& path);
+		const ScopeEntry& QueryScopeInfo(const std::string& path);
 
 		/**
 		 * @brief Query the value of a field in the document by its path
@@ -239,7 +239,7 @@ namespace libjaguar {
 		std::unordered_map<std::type_index, std::pair<std::function<std::any(const ScopeEntry&, const ObjReader&)>, std::function<void(const std::any&, ObjWriter&)>>> converters;
 		std::unordered_map<uint64_t, ValueStorage> storage;
 
-		void _Verify();
+		bool _Verify();
 
 		friend struct ObjReader;
 		friend struct ObjWriter;
@@ -485,6 +485,8 @@ namespace libjaguar {
 			return mat;
 		}
 
+		const ValueEntry& _ValInfoInternal(uint64_t id);
+		const ScopeEntry& _ScopeInfoInternal(uint64_t id);
 		const ValueStorage& _QueryInternal(uint64_t id);
 		void _SetInternal(uint64_t id, const ValueStorage& val);
 		std::any _QueryObjInternal(const std::string& path);
@@ -503,6 +505,7 @@ namespace libjaguar {
 
 	template<typename T>
 	T Document::QueryValue(const std::string& path) {
+		if(!CheckUTF8(path)) throw std::runtime_error("Invalid UTF-8 supplied as path data to query is not allowed!");
 		if constexpr(SingleVal<T>) {
 			return To<T>(_QueryInternal(GenIndexID(path)));
 		} else {
@@ -515,6 +518,7 @@ namespace libjaguar {
 
 	template<typename T>
 	void Document::SetValue(const std::string& path, const T& value) {
+		if(!CheckUTF8(path)) throw std::runtime_error("Invalid UTF-8 supplied as path data to query is not allowed!");
 		if constexpr(SingleVal<T>) {
 			_SetInternal(GenIndexID(path), From<T>(value));
 		} else {

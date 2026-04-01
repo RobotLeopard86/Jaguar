@@ -34,14 +34,9 @@ namespace libjaguar {
 	 * @brief An index entry representing a new scope
 	 */
 	struct LJAPI ScopeEntry : public Entry {
-		bool list;				///<Determines if this scope represents a list or an object
-		TypeTag listElementType;///<Type of contained elements in a list
-
-		struct ListMathData {
-			uint8_t width; ///<Number of components in a vector or columns in a matrix
-			uint8_t height;///<Number of rows in a matrix
-			TypeTag type;  ///<Vector subtype (int, float, etc.)
-		} listMathData;	   ///<Stores all data related to handling lists of vectors or matrices
+		bool list;						///<Determines if this scope represents a list or an object
+		TypeTag listElementType;		///<Type of contained elements in a list
+		MathTypeDescriptor listMathData;///<Stores all data related to handling lists of vectors or matrices
 
 		std::string typeID;				  ///<Type ID for a structured object or list of structured objects
 		std::vector<ScopeEntry> subscopes;///<Child scope list

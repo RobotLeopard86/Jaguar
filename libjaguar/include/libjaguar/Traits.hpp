@@ -1,12 +1,8 @@
 #pragma once
 
-#include "TypeTags.hpp"
-
 #include <cstdint>
 #include <ranges>
 #include <type_traits>
-#include <vector>
-#include <array>
 
 namespace libjaguar {
 	///@cond

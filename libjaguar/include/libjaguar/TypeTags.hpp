@@ -58,4 +58,24 @@ namespace libjaguar {
 		uint8_t asUint = static_cast<uint8_t>(tag);
 		return (tag != TypeTag::ScopeBoundary) && ((asUint >> 4) != 0x3);
 	}
+
+	/**
+	 * @brief Describes the special paramaters for math type values
+	 */
+	struct MathTypeDescriptor {
+		uint8_t width; ///<Number of components in a vector or columns in a matrix
+		uint8_t height;///<Number of rows in a matrix (set to 1 for a vector)
+		TypeTag type;  ///<Vector/matrix element type (int, float, etc.)
+	};
+
+	/**
+	 * @brief Calculate the expected size in bytes of a value TypeTag (that is, one for which IsValue returns @c true)
+	 *
+	 * @param tag The type to analyze
+	 * @param mathData The supplementary info about the math types (vector and matrix), if those types are selected
+	 * @param buffSize The size of a buffer-type object (string and byte buffer), if those types are selected
+	 *
+	 * @return The size in bytes, or 0 if the provided type was not a value or the supplementary info is invalid
+	 */
+	uint32_t CalcValueSize(TypeTag tag, MathTypeDescriptor mathData, uint32_t buffSize);
 }

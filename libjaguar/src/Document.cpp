@@ -1,12 +1,17 @@
 #include "libjaguar/Document.hpp"
 #include "libjaguar/Decoder.hpp"
 #include "libjaguar/Encoder.hpp"
+#include "libjaguar/Index.hpp"
 #include "libjaguar/Writer.hpp"
+#include "Utilities.hpp"
 
 #include <numbers>
 #include <cstring>
 #include <ostream>
 #include <stdexcept>
+
+#define INDEX_READ_CHECK \
+	if(!index.has_value() && !_Verify()) throw std::runtime_error("Could not validate document stream state required for read operation!")
 
 namespace libjaguar {
 	Document::Document(Document&& other)
@@ -24,10 +29,13 @@ namespace libjaguar {
 		return *this;
 	}
 
-	void Document::_Verify() {
+	bool Document::_Verify() {
 		if(streamState == StreamState::Available) {
 			//Fix that up (shouldn't need to be checked but safety measure)
-			if(!reader.has_value()) streamState = StreamState::Unavailable;
+			if(!reader.has_value()) {
+				streamState = StreamState::Unavailable;
+				return false;
+			}
 
 			//Setup index if needed
 			if(!index.has_value()) {
@@ -61,7 +69,10 @@ namespace libjaguar {
 				};
 				indexWalk(index->root);
 			}
-		}
+
+			return true;
+		} else
+			return false;
 	}
 
 	template<>
@@ -132,7 +143,7 @@ namespace libjaguar {
 	};
 
 	void Document::ExportTo(std::ostream& out) {
-		if(!index.has_value()) throw std::runtime_error("Cannot export document with no index!");
+		INDEX_READ_CHECK;
 
 		//Create encoder
 		std::unique_ptr<std::ostream> stream = std::make_unique<std::ostream>(out.rdbuf());
@@ -150,16 +161,78 @@ namespace libjaguar {
 		out.rdbuf(w->rdbuf());
 	}
 
+	void Document::MaterializeAll() {
+		INDEX_READ_CHECK;
+		Materialize(index->root.id);
+	}
+
 	void Document::Materialize(uint64_t id) {
+		INDEX_READ_CHECK;
+
 		//Check if this is an end value (very easy to materialize) (all values have preloaded entries in the storage map)
 		if(storage.contains(id)) {
-			if(!storage[id].materialized) {
-				//TODO
+			//If the object is already materialized, nothing happens
+			if(ValueStorage& vs = storage[id]; vs.materialized) {
+				//Something happens (we nab the value)
+				reader.value()->seekg(vs.inStream);
+				{
+					const ValueEntry& typeInfo = _ValInfoInternal(id);
+					MathTypeDescriptor mtd = {};
+					if((static_cast<uint8_t>(typeInfo.type) >> 4) == 0x4) {
+						mtd.width = typeInfo.width;
+						mtd.height = typeInfo.height;
+						mtd.type = typeInfo.elementType;
+					}
+					vs.mem.resize(CalcValueSize(typeInfo.type, mtd, static_cast<uint8_t>(typeInfo.type) <= 0xC ? typeInfo.size : 0));
+				}
+				//TODO: Read and parse value
 			}
 			return;
 		}
 
-		//Otherwise we gotta walk the index to find the item
+		//Otherwise we gotta grab the item's type info to materialize it
+		const ScopeEntry& scope = _ScopeInfoInternal(id);
+
+		//Now we can go through each subscope and subvalue to materialize them
+		const auto materializeScope = [this](const ScopeEntry& entry) -> void {
+			auto impl = [this](const ScopeEntry& entry, auto& implRef) mutable -> void {
+				for(const ValueEntry& val : entry.subvalues) Materialize(val.id);
+				for(const ScopeEntry& subscope : entry.subscopes) implRef(subscope, implRef);
+			};
+			return impl(entry, impl);
+		};
+		materializeScope(scope);
+	}
+
+	const ValueEntry& Document::_ValInfoInternal(uint64_t id) {
+		//Verify stream state if needed
+		INDEX_READ_CHECK;
+
+		//Now we follow the path down
+		const auto indexWalk = [id](ScopeEntry& entry) -> std::optional<std::reference_wrapper<ValueEntry>> {
+			auto impl = [id](ScopeEntry& entry, auto& implRef) mutable -> std::optional<std::reference_wrapper<ValueEntry>> {
+				for(ValueEntry& value : entry.subvalues) {
+					if(value.id == id) return std::make_optional(std::reference_wrapper<ValueEntry>(value));
+				}
+				for(ScopeEntry& scope : entry.subscopes) {
+					auto result = implRef(scope, implRef);
+					if(result.has_value()) return result;
+				}
+				return std::nullopt;
+			};
+			return impl(entry, impl);
+		};
+		auto maybeVal = indexWalk(index->root);
+		if(!maybeVal.has_value()) throw std::runtime_error("No value with the provided ID exists!");
+		const ValueEntry& value = maybeVal->get();
+		return value;
+	}
+
+	const ScopeEntry& Document::_ScopeInfoInternal(uint64_t id) {
+		//Verify stream state if needed
+		INDEX_READ_CHECK;
+
+		//Now we follow the path down
 		const auto indexWalk = [id](ScopeEntry& entry) -> std::optional<std::reference_wrapper<ScopeEntry>> {
 			auto impl = [id](ScopeEntry& entry, auto& implRef) mutable -> std::optional<std::reference_wrapper<ScopeEntry>> {
 				if(entry.id == id) return std::make_optional(std::reference_wrapper<ScopeEntry>(entry));
@@ -172,17 +245,18 @@ namespace libjaguar {
 			return impl(entry, impl);
 		};
 		auto maybeScope = indexWalk(index->root);
-		if(!maybeScope.has_value()) throw std::runtime_error("No field with the provided ID exists!");
+		if(!maybeScope.has_value()) throw std::runtime_error("No scope with the provided ID exists!");
 		const ScopeEntry& scope = maybeScope->get();
+		return scope;
+	}
 
-		//Now we can go through each subscope and subvalue to materialize them
-		const auto materializeScope = [this](const ScopeEntry& entry) -> void {
-			auto impl = [this](const ScopeEntry& entry, auto& implRef) mutable -> void {
-				for(const ValueEntry& val : entry.subvalues) Materialize(val.id);
-				for(const ScopeEntry& subscope : entry.subscopes) implRef(subscope, implRef);
-			};
-			return impl(entry, impl);
-		};
-		materializeScope(scope);
+	const ValueEntry& Document::QueryValueInfo(const std::string& path) {
+		if(!CheckUTF8(path)) throw std::runtime_error("Path supplied to document that is invalid UTF-8 data!");
+		return _ValInfoInternal(GenIndexID(path));
+	}
+
+	const ScopeEntry& Document::QueryScopeInfo(const std::string& path) {
+		if(!CheckUTF8(path)) throw std::runtime_error("Path supplied to document that is invalid UTF-8 data!");
+		return _ScopeInfoInternal(GenIndexID(path));
 	}
 }

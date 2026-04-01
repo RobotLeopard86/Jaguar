@@ -73,47 +73,18 @@ namespace libjaguar {
 
 		//Buffer objects and size checks
 		if(static_cast<uint8_t>(header.type) <= 0xC) entry.size = header.size;
-		if(header.type == TypeTag::String && header.size >= std::pow(2, 24)) DECODE_ERROR("Encountered a string that is too long (> 24-bit integer limit!)");
+		if(header.type == TypeTag::String && entry.size >= std::pow(2, 24)) DECODE_ERROR("Encountered a string that is too long (> 24-bit integer limit!)");
 
 		//Calculate size of value body to skip
 		std::size_t skipAmountBytes = 0;
-		switch(header.type) {
-			case TypeTag::String:
-			case TypeTag::ByteBuffer:
-				skipAmountBytes = header.size;
-				break;
-			case TypeTag::SInt8:
-			case TypeTag::UInt8:
-			case TypeTag::Boolean:
-				skipAmountBytes = 1;
-				break;
-			case TypeTag::SInt32:
-			case TypeTag::UInt32:
-			case TypeTag::Float32:
-				skipAmountBytes = 4;
-				break;
-			case TypeTag::SInt64:
-			case TypeTag::UInt64:
-			case TypeTag::Float64:
-				skipAmountBytes = 8;
-				break;
-			case TypeTag::SInt16:
-			case TypeTag::UInt16:
-				skipAmountBytes = 2;
-				break;
-			case TypeTag::ScopeBoundary:
-				skipAmountBytes = 0;
-				break;
-			case TypeTag::Vector:
-			case TypeTag::Matrix: {
-				uint8_t asByte = static_cast<uint8_t>(header.elementType);
-				if((asByte & 0xF) >= 0xE) asByte -= 2;
-
-				//This looks weird but it's just converting the type tag to the approriate number of bytes for the type
-				skipAmountBytes = std::pow(2, (asByte & 0xF) - 0xA) * entry.width * entry.height;
-				break;
+		if(header.type != TypeTag::ScopeBoundary) {
+			MathTypeDescriptor mtd = {};
+			if((static_cast<uint8_t>(header.type) >> 4) == 0x4) {
+				mtd.width = entry.width;
+				mtd.height = entry.height;
+				mtd.type = entry.elementType;
 			}
-			default: break;
+			skipAmountBytes = CalcValueSize(header.type, mtd, static_cast<uint8_t>(header.type) <= 0xC ? header.size : 0);
 		}
 		reader->ignore(skipAmountBytes);
 
