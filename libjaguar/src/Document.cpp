@@ -2,6 +2,8 @@
 #include "libjaguar/Decoder.hpp"
 #include "libjaguar/Encoder.hpp"
 #include "libjaguar/Index.hpp"
+#include "libjaguar/MathTypes.hpp"
+#include "libjaguar/TypeTags.hpp"
 #include "libjaguar/Writer.hpp"
 #include "Utilities.hpp"
 
@@ -95,34 +97,136 @@ namespace libjaguar {
 		DocPayloadProvider(Document* doc)
 		  : doc(doc) {}
 
-		//TODO: implement methods
 		void String(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) override {}
 		void Buffer(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) override {}
 		bool Boolean(uint64_t id) override {
-			return true;
+			if(doc->_ValInfoInternal(id).type != TypeTag::Boolean) throw std::runtime_error("Requested a boolean for a value that is not one!");
+			return doc->To<bool>(doc->_QueryInternal(id));
 		}
 		int64_t SignedInt(uint64_t id, uint8_t bits) override {
-			return 37;
+			switch(bits) {
+				case 8:
+					if(doc->_ValInfoInternal(id).type != TypeTag::SInt8) throw std::runtime_error("Requested an SInt8 for a value that is not one!");
+					break;
+				case 16:
+					if(doc->_ValInfoInternal(id).type != TypeTag::SInt16) throw std::runtime_error("Requested an SInt16 for a value that is not one!");
+					break;
+				case 32:
+					if(doc->_ValInfoInternal(id).type != TypeTag::SInt32) throw std::runtime_error("Requested an SInt32 for a value that is not one!");
+					break;
+				case 64:
+					if(doc->_ValInfoInternal(id).type != TypeTag::SInt64) throw std::runtime_error("Requested an SInt64 for a value that is not one!");
+					break;
+				default: break;
+			}
+			return doc->To<int64_t>(doc->_QueryInternal(id));
 		}
 		uint64_t UnsignedInt(uint64_t id, uint8_t bits) override {
-			return 37;
+			switch(bits) {
+				case 8:
+					if(doc->_ValInfoInternal(id).type != TypeTag::UInt8) throw std::runtime_error("Requested a UInt8 for a value that is not one!");
+					break;
+				case 16:
+					if(doc->_ValInfoInternal(id).type != TypeTag::UInt16) throw std::runtime_error("Requested a UInt16 for a value that is not one!");
+					break;
+				case 32:
+					if(doc->_ValInfoInternal(id).type != TypeTag::UInt32) throw std::runtime_error("Requested a UInt32 for a value that is not one!");
+					break;
+				case 64:
+					if(doc->_ValInfoInternal(id).type != TypeTag::UInt64) throw std::runtime_error("Requested a UInt64 for a value that is not one!");
+					break;
+				default: break;
+			}
+			return doc->To<uint64_t>(doc->_QueryInternal(id));
 		}
 		float Float32(uint64_t id) override {
-			return std::numbers::pi_v<float>;
+			if(doc->_ValInfoInternal(id).type != TypeTag::Float32) throw std::runtime_error("Requested a Float32 for a value that is not one!");
+			return doc->To<float>(doc->_QueryInternal(id));
 		}
 		double Float64(uint64_t id) override {
-			return std::numbers::pi_v<double>;
+			if(doc->_ValInfoInternal(id).type != TypeTag::Float64) throw std::runtime_error("Requested a Float64 for a value that is not one!");
+			return doc->To<double>(doc->_QueryInternal(id));
 		}
 		int64_t SignedIntVec(uint64_t id, VecComponent component, uint8_t bits) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::Vector) throw std::runtime_error("Requested a vector for a value that is not one!");
+			switch(component) {
+				case VecComponent::Z:
+					if(ve.width < 3) throw std::runtime_error("Requested Z component of less than 3-component vector vector");
+				case VecComponent::W:
+					if(ve.width != 4) throw std::runtime_error("Requested W component of non-4-component vector");
+					break;
+				default: break;
+			}
+			switch(bits) {
+				case 8:
+					if(ve.elementType != TypeTag::SInt8) throw std::runtime_error("Requested a vector of SInt8 for a value that is not one!");
+					break;
+				case 16:
+					if(ve.elementType != TypeTag::SInt16) throw std::runtime_error("Requested a vector of SInt16 for a value that is not one!");
+					break;
+				case 32:
+					if(ve.elementType != TypeTag::SInt32) throw std::runtime_error("Requested a vector of SInt32 for a value that is not one!");
+					break;
+				case 64:
+					if(ve.elementType != TypeTag::SInt64) throw std::runtime_error("Requested a vector of SInt64 for a value that is not one!");
+					break;
+				default: break;
+			}
 			return 41;
 		}
 		uint64_t UnsignedIntVec(uint64_t id, VecComponent component, uint8_t bits) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::Vector) throw std::runtime_error("Requested a vector for a value that is not one!");
+			switch(component) {
+				case VecComponent::Z:
+					if(ve.width < 3) throw std::runtime_error("Requested Z component of less than 3-component vector vector");
+				case VecComponent::W:
+					if(ve.width != 4) throw std::runtime_error("Requested W component of non-4-component vector");
+					break;
+				default: break;
+			}
+			switch(bits) {
+				case 8:
+					if(ve.elementType != TypeTag::UInt8) throw std::runtime_error("Requested a vector of UInt8 for a value that is not one!");
+					break;
+				case 16:
+					if(ve.elementType != TypeTag::UInt16) throw std::runtime_error("Requested a vector of UInt16 for a value that is not one!");
+					break;
+				case 32:
+					if(ve.elementType != TypeTag::UInt32) throw std::runtime_error("Requested a vector of UInt32 for a value that is not one!");
+					break;
+				case 64:
+					if(ve.elementType != TypeTag::UInt64) throw std::runtime_error("Requested a vector of UInt64 for a value that is not one!");
+					break;
+				default: break;
+			}
 			return 41;
 		}
 		float Float32Vec(uint64_t id, VecComponent component) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::Vector || ve.elementType != TypeTag::Float32) throw std::runtime_error("Requested a vector of Float32 for a value that is not one!");
+			switch(component) {
+				case VecComponent::Z:
+					if(ve.width < 3) throw std::runtime_error("Requested Z component of less than 3-component vector vector");
+				case VecComponent::W:
+					if(ve.width != 4) throw std::runtime_error("Requested W component of non-4-component vector");
+					break;
+				default: break;
+			}
 			return std::numbers::phi_v<float>;
 		}
 		double Float64Vec(uint64_t id, VecComponent component) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::Vector || ve.elementType != TypeTag::Float64) throw std::runtime_error("Requested a vector of Float64 for a value that is not one!");
+			switch(component) {
+				case VecComponent::Z:
+					if(ve.width < 3) throw std::runtime_error("Requested Z component of less than 3-component vector vector");
+				case VecComponent::W:
+					if(ve.width != 4) throw std::runtime_error("Requested W component of non-4-component vector");
+					break;
+				default: break;
+			}
 			return std::numbers::phi_v<double>;
 		}
 		int64_t SignedIntMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits) override {
