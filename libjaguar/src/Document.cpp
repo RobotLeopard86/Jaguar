@@ -363,4 +363,24 @@ namespace libjaguar {
 		if(!CheckUTF8(path)) throw std::runtime_error("Path supplied to document that is invalid UTF-8 data!");
 		return _ScopeInfoInternal(GenIndexID(path));
 	}
+
+	const Document::ValueStorage& Document::_QueryInternal(uint64_t id) {
+		//TODO: type checking
+		if(!storage.contains(id)) throw std::runtime_error("Cannot query value of nonexistent or scope field!");
+		if(!storage[id].materialized) Materialize(id);
+		return storage[id];
+	}
+
+	void Document::_SetInternal(uint64_t id, const ValueStorage& val) {
+		//TODO: type checking
+		storage[id] = val;
+	}
+
+	std::any Document::_QueryObjInternal(const std::string& path) {
+		//TODO: implement me
+	}
+
+	void Document::_SetObjInternal(const std::string& path, const std::any& obj) {
+		//TODO: implement me
+	}
 }
