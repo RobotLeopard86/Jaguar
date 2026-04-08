@@ -6,22 +6,6 @@
 #include <stdexcept>
 
 namespace libjaguar {
-	///@cond
-	template<number T, uint8_t C>
-		requires(C < 1 || C > 4)
-	class LJAPI Vector {};
-	///@endcond
-
-	/**
-	 * @brief Enum referring to a vector component (uses XYZ notation for simplicity)
-	 */
-	enum class VecComponent : uint8_t {
-		X = 0,
-		Y = 1,
-		Z = 2,
-		W = 3
-	};
-
 	/**
 	 * @brief 2-component vector
 	 *

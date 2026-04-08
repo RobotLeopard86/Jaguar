@@ -134,6 +134,7 @@ namespace libjaguar {
 					//Read into intermediate
 					std::size_t len = std::min(header.size - current, chunkSize);
 					provider->String(entry.id, intermediate, len, current);
+					if(intermediate.str().size() != len) throw std::runtime_error("Incorrect amount of data provided by payload provider for string chunk!");
 
 					//Write data slice
 					writer.WriteString(intermediate.str());
@@ -153,6 +154,7 @@ namespace libjaguar {
 					//Read into intermediate
 					std::size_t len = std::min(header.size - current, chunkSize);
 					provider->Buffer(entry.id, intermediate, len, current);
+					if(intermediate.str().size() != len) throw std::runtime_error("Incorrect amount of data provided by payload provider for string chunk!");
 
 					//Write data slice
 					writer.WriteBufferFromStream(&intermediate, len);
@@ -166,7 +168,7 @@ namespace libjaguar {
 				writer.WriteBool(provider->Boolean(entry.id));
 				break;
 			case TypeTag::Float32:
-				_WriteNum(TypeTag::Float32, (uint64_t)std::bit_cast<uint32_t, float>(provider->Float32(entry.id)));
+				_WriteNum(TypeTag::Float32, std::bit_cast<uint32_t, float>(provider->Float32(entry.id)));
 				break;
 			case TypeTag::Float64:
 				_WriteNum(TypeTag::Float64, std::bit_cast<uint64_t, double>(provider->Float64(entry.id)));
@@ -175,36 +177,117 @@ namespace libjaguar {
 			case TypeTag::SInt16:
 			case TypeTag::SInt32:
 			case TypeTag::SInt64:
-				_WriteNum(header.type, std::bit_cast<uint64_t, int64_t>(provider->SignedInt(entry.id, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8)));
-				break;
 			case TypeTag::UInt8:
 			case TypeTag::UInt16:
 			case TypeTag::UInt32:
 			case TypeTag::UInt64:
-				_WriteNum(header.type, provider->UnsignedInt(entry.id, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8));
+				_WriteNum(header.type, provider->Integer(entry.id, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.type) < 0x20));
 				break;
 			case TypeTag::Vector: {
-				for(uint8_t x = 0; x < header.width; ++x) {
-					uint64_t val = [&]() -> uint64_t {
+				std::vector<uint64_t> nums;
+				switch(header.width) {
+					case 2:
 						switch(header.elementType) {
-							case TypeTag::Float32:
-								return (uint64_t)std::bit_cast<uint32_t, float>(provider->Float32Vec(entry.id, (VecComponent)x));
-							case TypeTag::Float64:
-								return std::bit_cast<uint64_t, double>(provider->Float64Vec(entry.id, (VecComponent)x));
+							case TypeTag::Float32: {
+								Vector<float, 2> vec = provider->Float32Vec2(entry.id);
+								nums.push_back(std::bit_cast<uint32_t, float>(vec.x));
+								nums.push_back(std::bit_cast<uint32_t, float>(vec.y));
+								break;
+							}
+							case TypeTag::Float64: {
+								Vector<double, 2> vec = provider->Float64Vec2(entry.id);
+								nums.push_back(std::bit_cast<uint64_t, double>(vec.x));
+								nums.push_back(std::bit_cast<uint64_t, double>(vec.y));
+								break;
+							}
 							case TypeTag::SInt8:
 							case TypeTag::SInt16:
 							case TypeTag::SInt32:
 							case TypeTag::SInt64:
-								return std::bit_cast<uint64_t, int64_t>(provider->SignedIntVec(entry.id, (VecComponent)x, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8));
 							case TypeTag::UInt8:
 							case TypeTag::UInt16:
 							case TypeTag::UInt32:
-							case TypeTag::UInt64:
-								return provider->UnsignedIntVec(entry.id, (VecComponent)x, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8);
-							default: return 0;
+							case TypeTag::UInt64: {
+								Vector<uint64_t, 2> vec = provider->IntegerVec2(entry.id, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
+								nums.push_back(vec.x);
+								nums.push_back(vec.y);
+								break;
+							}
+							default: break;
 						}
-					}();
-					_WriteNum(header.elementType, val);
+						break;
+					case 3:
+						switch(header.elementType) {
+							case TypeTag::Float32: {
+								Vector<float, 3> vec = provider->Float32Vec3(entry.id);
+								nums.push_back(std::bit_cast<uint32_t, float>(vec.x));
+								nums.push_back(std::bit_cast<uint32_t, float>(vec.y));
+								nums.push_back(std::bit_cast<uint32_t, float>(vec.z));
+								break;
+							}
+							case TypeTag::Float64: {
+								Vector<double, 3> vec = provider->Float64Vec3(entry.id);
+								nums.push_back(std::bit_cast<uint64_t, double>(vec.x));
+								nums.push_back(std::bit_cast<uint64_t, double>(vec.y));
+								nums.push_back(std::bit_cast<uint64_t, double>(vec.z));
+								break;
+							}
+							case TypeTag::SInt8:
+							case TypeTag::SInt16:
+							case TypeTag::SInt32:
+							case TypeTag::SInt64:
+							case TypeTag::UInt8:
+							case TypeTag::UInt16:
+							case TypeTag::UInt32:
+							case TypeTag::UInt64: {
+								Vector<uint64_t, 3> vec = provider->IntegerVec3(entry.id, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
+								nums.push_back(vec.x);
+								nums.push_back(vec.y);
+								nums.push_back(vec.z);
+								break;
+							}
+							default: break;
+						}
+						break;
+					case 4:
+						switch(header.elementType) {
+							case TypeTag::Float32: {
+								Vector<float, 4> vec = provider->Float32Vec4(entry.id);
+								nums.push_back(std::bit_cast<uint32_t, float>(vec.x));
+								nums.push_back(std::bit_cast<uint32_t, float>(vec.y));
+								nums.push_back(std::bit_cast<uint32_t, float>(vec.z));
+								nums.push_back(std::bit_cast<uint32_t, float>(vec.w));
+								break;
+							}
+							case TypeTag::Float64: {
+								Vector<double, 4> vec = provider->Float64Vec4(entry.id);
+								nums.push_back(std::bit_cast<uint64_t, double>(vec.x));
+								nums.push_back(std::bit_cast<uint64_t, double>(vec.y));
+								nums.push_back(std::bit_cast<uint64_t, double>(vec.z));
+								nums.push_back(std::bit_cast<uint64_t, double>(vec.w));
+								break;
+							}
+							case TypeTag::SInt8:
+							case TypeTag::SInt16:
+							case TypeTag::SInt32:
+							case TypeTag::SInt64:
+							case TypeTag::UInt8:
+							case TypeTag::UInt16:
+							case TypeTag::UInt32:
+							case TypeTag::UInt64: {
+								Vector<uint64_t, 4> vec = provider->IntegerVec4(entry.id, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
+								nums.push_back(vec.x);
+								nums.push_back(vec.y);
+								nums.push_back(vec.z);
+								nums.push_back(vec.w);
+								break;
+							}
+							default: break;
+						}
+						break;
+				}
+				for(uint8_t i = 0; i < nums.size(); ++i) {
+					_WriteNum(header.elementType, nums[i]);
 				}
 			}
 			case TypeTag::Matrix: {
@@ -220,12 +303,11 @@ namespace libjaguar {
 								case TypeTag::SInt16:
 								case TypeTag::SInt32:
 								case TypeTag::SInt64:
-									return std::bit_cast<uint64_t, int64_t>(provider->SignedIntMat(entry.id, x, y, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8));
 								case TypeTag::UInt8:
 								case TypeTag::UInt16:
 								case TypeTag::UInt32:
 								case TypeTag::UInt64:
-									return provider->UnsignedIntMat(entry.id, x, y, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8);
+									return provider->IntegerMat(entry.id, x, y, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
 								default: return 0;
 							}
 						}();

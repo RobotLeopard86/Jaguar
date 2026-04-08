@@ -24,7 +24,7 @@ namespace libjaguar {
 		 * @param chunkSize The requested amount of string data to send (used for large strings); will always be aligned to 4 bytes except for at the end of strings to ensure that all sequences are valid UTF-8
 		 * @param offset Where in the string to start reading from
 		 *
-		 * @warning If the requested amount of data is not written (too much or too little), encoding will <b>halt</b>.
+		 * @warning If the requested amount of data is not provided (too much or too little), encoding will <b>halt</b>.
 		 * @warning If the returned data is not proper UTF-8, encoding will <b>halt</b>.
 		 */
 		virtual void String(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) = 0;
@@ -37,7 +37,7 @@ namespace libjaguar {
 		 * @param chunkSize The requested amount of data to send
 		 * @param offset Where in the buffer to start reading from*
 		 *
-		 * @warning If the requested amount of data is not written (too much or too little), encoding will <b>halt</b>.
+		 * @warning If the requested amount of data is not provided (too much or too little), encoding will <b>halt</b>.
 		 */
 		virtual void Buffer(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) = 0;
 
@@ -51,28 +51,17 @@ namespace libjaguar {
 		virtual bool Boolean(uint64_t id) = 0;
 
 		/**
-		 * @brief Called to request a signed integer value
-		 *
-		 * @param id The ID of the value to fetch
-		 * @param bits The bit width of the integer being requested (e.g., 32 for an int32_t)
-		 *
-		 * @return The value
-		 *
-		 * @warning If the provided value is larger than is possible to fit in the requested bit width, encoding will <b>halt</b>.
-		 */
-		virtual int64_t SignedInt(uint64_t id, uint8_t bits) = 0;
-
-		/**
-		 * @brief Called to request an unsigned integer value
+		 * @brief Called to request an integer value
 		 *
 		 * @param id The ID of the value to fetch
 		 * @param bits The bit width of the integer being requested (e.g., 32 for a uint32_t)
+		 * @param isSigned Whether the value is signed or not (so int*_t or uint*_t)
 		 *
 		 * @return The value
 		 *
-		 * @warning If the provided value is larger than is possible to fit in the requested bit width, encoding will <b>halt</b>.
+		 * @warning If the provided value is larger than is possible to fit in the requested bit width and sign, encoding will <b>halt</b>.
 		 */
-		virtual uint64_t UnsignedInt(uint64_t id, uint8_t bits) = 0;
+		virtual uint64_t Integer(uint64_t id, uint8_t bits, bool isSigned) = 0;
 
 		/**
 		 * @brief Called to request a single-precision (32-bit) floating point value
@@ -93,83 +82,117 @@ namespace libjaguar {
 		virtual double Float64(uint64_t id) = 0;
 
 		/**
-		 * @brief Called to request a signed integer component of a vector; may be called multiple times to fill the entire vector
+		 * @brief Called to request a 2-component vector of integers
 		 *
 		 * @param id The ID of the vector being requested
-		 * @param component The component being requested
-		 * @param bits The bit width of the integer being requested (e.g., 32 for an int32_t)
+		 * @param bits The bit width of the vector element type being requested (e.g., 32 for a vector of uint32_t)
+		 * @param isSigned Whether the vector element type is signed or not (so int*_t or uint*_t)
 		 *
 		 * @return The element value
 		 *
-		 * @warning If the provided value is larger than is possible to fit in the requested bit width, encoding will <b>halt</b>.
+		 * @warning If the provided value is larger than is possible to fit in the requested bit width and sign, encoding will <b>halt</b>.
 		 */
-		virtual int64_t SignedIntVec(uint64_t id, VecComponent component, uint8_t bits) = 0;
+		virtual Vector<uint64_t, 2> IntegerVec2(uint64_t id, uint8_t bits, bool isSigned) = 0;
 
 		/**
-		 * @brief Called to request an unsigned integer component of a vector; may be called multiple times to fill the entire vector
+		 * @brief Called to request a 3-component vector of integers
 		 *
 		 * @param id The ID of the vector being requested
-		 * @param component The component being requested
-		 * @param bits The bit width of the integer being requested (e.g., 32 for a uint32_t)
+		 * @param bits The bit width of the vector element type being requested (e.g., 32 for a vector of uint32_t)
+		 * @param isSigned Whether the vector element type is signed or not (so int*_t or uint*_t)
 		 *
 		 * @return The element value
 		 *
-		 * @warning If the provided value is larger than is possible to fit in the requested bit width, encoding will <b>halt</b>.
+		 * @warning If any of the provided values are larger than is possible to fit in the requested bit width and sign, encoding will <b>halt</b>.
 		 */
-		virtual uint64_t UnsignedIntVec(uint64_t id, VecComponent component, uint8_t bits) = 0;
+		virtual Vector<uint64_t, 3> IntegerVec3(uint64_t id, uint8_t bits, bool isSigned) = 0;
 
 		/**
-		 * @brief Called to request a single-precision (32-bit) floating point of a vector; may be called multiple times to fill the entire vector
+		 * @brief Called to request a 4-component vector of integers
 		 *
 		 * @param id The ID of the vector being requested
-		 * @param component The component being requested
+		 * @param bits The bit width of the vector element type being requested (e.g., 32 for a vector of uint32_t)
+		 * @param isSigned Whether the vector element type is signed or not (so int*_t or uint*_t)
+		 *
+		 * @return The element value
+		 *
+		 * @warning If any of the provided values are larger than is possible to fit in the requested bit width and sign, encoding will <b>halt</b>.
+		 */
+		virtual Vector<uint64_t, 4> IntegerVec4(uint64_t id, uint8_t bits, bool isSigned) = 0;
+
+		/**
+		 * @brief Called to request a 2-component vector of single-precision (32-bit) floating point numbers
+		 *
+		 * @param id The ID of the vector being requested
 		 *
 		 * @return The element value
 		 */
-		virtual float Float32Vec(uint64_t id, VecComponent component) = 0;
+		virtual Vector<float, 2> Float32Vec2(uint64_t id) = 0;
 
 		/**
-		 * @brief Called to request a double-precision (64-bit) floating point of a vector; may be called multiple times to fill the entire vector
+		 * @brief Called to request a 3-component vector of single-precision (32-bit) floating point numbers
 		 *
 		 * @param id The ID of the vector being requested
-		 * @param component The component being requested
 		 *
 		 * @return The element value
 		 */
-		virtual double Float64Vec(uint64_t id, VecComponent component) = 0;
+		virtual Vector<float, 3> Float32Vec3(uint64_t id) = 0;
 
 		/**
-		 * @brief Called to request a signed integer component of a matrix; may be called multiple times to fill the entire matrix
+		 * @brief Called to request a 4-component vector of single-precision (32-bit) floating point numbers
 		 *
 		 * @param id The ID of the vector being requested
+		 *
+		 * @return The element value
+		 */
+		virtual Vector<float, 4> Float32Vec4(uint64_t id) = 0;
+
+		/**
+		 * @brief Called to request a 2-component vector of double-precision (64-bit) floating point numbers
+		 *
+		 * @param id The ID of the vector being requested
+		 *
+		 * @return The element value
+		 */
+		virtual Vector<double, 2> Float64Vec2(uint64_t id) = 0;
+
+		/**
+		 * @brief Called to request a 3-component vector of double-precision (64-bit) floating point numbers
+		 *
+		 * @param id The ID of the vector being requested
+		 *
+		 * @return The element value
+		 */
+		virtual Vector<double, 3> Float64Vec3(uint64_t id) = 0;
+
+		/**
+		 * @brief Called to request a 4-component vector of double-precision (64-bit) floating point numbers
+		 *
+		 * @param id The ID of the vector being requested
+		 *
+		 * @return The element value
+		 */
+		virtual Vector<double, 4> Float64Vec4(uint64_t id) = 0;
+
+		/**
+		 * @brief Called to request an integer component of a matrix; may be called multiple times to fill the entire matrix
+		 *
+		 * @param id The ID of the matrix being requested
 		 * @param x The x coordinate of the value being requested (column # starting from 0 at left)
 		 * @param y The y coordinate of the value being requested (row # starting from 0 at top)
-		 * @param bits The bit width of the integer being requested (e.g., 32 for an int32_t)
-		 *
-		 * @return The element value
-		 *
-		 * @warning If the provided value is larger than is possible to fit in the requested bit width, encoding will <b>halt</b>.
-		 */
-		virtual int64_t SignedIntMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits) = 0;
-
-		/**
-		 * @brief Called to request an unsigned integer component of a matrix; may be called multiple times to fill the entire matrix
-		 *
-		 * @param id The ID of the vector being requested
-		 * @param x The x coordinate of the value being requested (column # starting from 0 at left)
-		 * @param y The y coordinate of the value being requested (row # starting from 0 at top)
 		 * @param bits The bit width of the integer being requested (e.g., 32 for a uint32_t)
+		 * @param isSigned Whether the matrix element type is signed or not (so int*_t or uint*_t)
 		 *
 		 * @return The element value
 		 *
 		 * @warning If the provided value is larger than is possible to fit in the requested bit width, encoding will <b>halt</b>.
 		 */
-		virtual uint64_t UnsignedIntMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits) = 0;
+		virtual uint64_t IntegerMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits, bool isSigned) = 0;
 
 		/**
 		 * @brief Called to request a single-precision (32-bit) floating point of a matrix; may be called multiple times to fill the entire matrix
 		 *
-		 * @param id The ID of the vector being requested
+		 * @param id The ID of the matrix being requested
 		 * @param x The x coordinate of the value being requested (column # starting from 0 at left)
 		 * @param y The y coordinate of the value being requested (row # starting from 0 at top)
 		 *
@@ -180,7 +203,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a double-precision (64-bit) floating point of a matrix; may be called multiple times to fill the entire matrix
 		 *
-		 * @param id The ID of the vector being requested
+		 * @param id The ID of the matrix being requested
 		 * @param x The x coordinate of the value being requested (column # starting from 0 at left)
 		 * @param y The y coordinate of the value being requested (row # starting from 0 at top)
 		 *

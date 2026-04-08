@@ -4,6 +4,8 @@
 #include <ranges>
 #include <type_traits>
 
+#include "DllHelper.hpp"
+
 namespace libjaguar {
 	///@cond
 	template<typename T>
@@ -115,5 +117,35 @@ namespace libjaguar {
 
 	template<typename T>
 	concept byte_range = std::ranges::range<T> && is_byte_range_v<T>;
+
+	template<typename T>
+	struct is_vec : public std::false_type {
+		static constexpr uint8_t count = 0;
+	};
+
+	template<number T, uint8_t C>
+		requires(C >= 2 && C <= 4)
+	class LJAPI Vector {};
+
+	template<number T, uint8_t C>
+	struct is_vec<Vector<T, C>> : public std::true_type {
+		static constexpr uint8_t count = C;
+		using subtype = T;
+	};
+
+	template<typename T>
+	inline constexpr bool is_vec_v = is_vec<T>::value;
+
+	template<typename T>
+	concept vec = is_vec_v<T>;
+
+	template<typename T, uint8_t C>
+	concept vec_c = is_vec_v<T> && T::count == C;
+
+	template<uint8_t C, vec T>
+	using vec_subtype_t = T::subtype;
+
+	template<uint8_t C, vec T>
+	inline constexpr uint8_t vec_count_v = T::count;
 	///@endcond
 }

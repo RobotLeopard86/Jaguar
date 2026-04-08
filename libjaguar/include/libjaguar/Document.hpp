@@ -4,6 +4,7 @@
 #include "MathTypes.hpp"
 #include "Reader.hpp"
 #include "Index.hpp"
+#include "Traits.hpp"
 #include "Utilities.hpp"
 
 #include <algorithm>
@@ -379,9 +380,9 @@ namespace libjaguar {
 			return t;
 		}
 
-		template<number T>
-		Vector<T, 2> To(const ValueStorage& storage) {
-			Vector<T, 2> vec {.x = 0, .y = 0};
+		template<vec_c<2> V, typename T = vec_subtype_t<2, V>>
+		V To(const ValueStorage& storage) {
+			V vec {.x = 0, .y = 0};
 			with_bits_t<bits_v<T>> work;
 			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
 				//Update component data
@@ -406,9 +407,9 @@ namespace libjaguar {
 			return vec;
 		}
 
-		template<number T>
-		Vector<T, 3> To(const ValueStorage& storage) {
-			Vector<T, 3> vec {.x = 0, .y = 0, .z = 0};
+		template<vec_c<3> V, typename T = vec_subtype_t<3, V>>
+		V To(const ValueStorage& storage) {
+			V vec {.x = 0, .y = 0, .z = 0};
 			with_bits_t<bits_v<T>> work;
 			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
 				//Update component data
@@ -436,9 +437,9 @@ namespace libjaguar {
 			return vec;
 		}
 
-		template<number T>
-		Vector<T, 4> To(const ValueStorage& storage) {
-			Vector<T, 4> vec {.x = 0, .y = 0, .z = 0, .w = 0};
+		template<vec_c<4> V, typename T = vec_subtype_t<4, V>>
+		V To(const ValueStorage& storage) {
+			V vec {.x = 0, .y = 0, .z = 0, .w = 0};
 			with_bits_t<bits_v<T>> work;
 			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
 				//Update component data
