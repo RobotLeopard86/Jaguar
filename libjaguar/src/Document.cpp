@@ -6,7 +6,6 @@
 #include "libjaguar/Writer.hpp"
 #include "Utilities.hpp"
 
-#include <numbers>
 #include <cstring>
 #include <ostream>
 #include <stdexcept>
@@ -140,18 +139,18 @@ namespace libjaguar {
 			if(doc->_ValInfoInternal(id).type != TypeTag::Float64) throw std::runtime_error("Requested a Float64 for a value that is not one!");
 			return doc->To<double>(doc->_QueryInternal(id));
 		}
-		Vector<uint64_t, 2> IntegerVec2(uint64_t id, uint8_t bits, bool isSigned) {}
-		Vector<uint64_t, 3> IntegerVec3(uint64_t id, uint8_t bits, bool isSigned) {}
-		Vector<uint64_t, 4> IntegerVec4(uint64_t id, uint8_t bits, bool isSigned) {}
-		Vector<float, 2> Float32Vec2(uint64_t id) {}
-		Vector<float, 3> Float32Vec3(uint64_t id) {}
-		Vector<float, 4> Float32Vec4(uint64_t id) {}
-		Vector<double, 2> Float64Vec2(uint64_t id) {}
-		Vector<double, 3> Float64Vec3(uint64_t id) {}
-		Vector<double, 4> Float64Vec4(uint64_t id) {}
-		uint64_t IntegerMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits, bool isSigned) {}
-		float Float32Mat(uint64_t id, uint8_t x, uint8_t y) {}
-		double Float64Mat(uint64_t id, uint8_t x, uint8_t y) {}
+		Vector<uint64_t, 2> IntegerVec2(uint64_t id, uint8_t bits, bool isSigned) override {}
+		Vector<uint64_t, 3> IntegerVec3(uint64_t id, uint8_t bits, bool isSigned) override {}
+		Vector<uint64_t, 4> IntegerVec4(uint64_t id, uint8_t bits, bool isSigned) override {}
+		Vector<float, 2> Float32Vec2(uint64_t id) override {}
+		Vector<float, 3> Float32Vec3(uint64_t id) override {}
+		Vector<float, 4> Float32Vec4(uint64_t id) override {}
+		Vector<double, 2> Float64Vec2(uint64_t id) override {}
+		Vector<double, 3> Float64Vec3(uint64_t id) override {}
+		Vector<double, 4> Float64Vec4(uint64_t id) override {}
+		uint64_t IntegerMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits, bool isSigned) override {}
+		float Float32Mat(uint64_t id, uint8_t x, uint8_t y) override {}
+		double Float64Mat(uint64_t id, uint8_t x, uint8_t y) override {}
 
 	  private:
 		Document* doc;
@@ -188,19 +187,25 @@ namespace libjaguar {
 		if(storage.contains(id)) {
 			//If the object is already materialized, nothing happens
 			if(ValueStorage& vs = storage[id]; vs.materialized) {
-				//Something happens (we nab the value)
+				//Seek to start of value body
 				reader.value()->seekg(vs.inStream);
-				{
-					const ValueEntry& typeInfo = _ValInfoInternal(id);
-					MathTypeDescriptor mtd = {};
-					if((static_cast<uint8_t>(typeInfo.type) >> 4) == 0x4) {
-						mtd.width = typeInfo.width;
-						mtd.height = typeInfo.height;
-						mtd.type = typeInfo.elementType;
-					}
-					vs.mem.resize(CalcValueSize(typeInfo.type, mtd, static_cast<uint8_t>(typeInfo.type) <= 0xC ? typeInfo.size : 0));
+
+				//Grab type info to calculate value size
+				const ValueEntry& typeInfo = _ValInfoInternal(id);
+				MathTypeDescriptor mtd = {};
+				if((static_cast<uint8_t>(typeInfo.type) >> 4) == 0x4) {
+					mtd.width = typeInfo.width;
+					mtd.height = typeInfo.height;
+					mtd.type = typeInfo.elementType;
 				}
-				//TODO: Read and parse value
+				uint32_t valSize = CalcValueSize(typeInfo.type, mtd, static_cast<uint8_t>(typeInfo.type) <= 0xC ? typeInfo.size : 0);
+
+				//Fetch data into storage memory
+				//We can use it directly because ValueStorage is laid out the same as in the stream
+				vs.mem.resize(valSize);
+				reader.value()->read(reinterpret_cast<char*>(vs.mem.data()), valSize);
+				if(reader.value()->eof()) throw std::runtime_error("Unexpected EOF in stream while materializing value!");
+				if(!reader.value()->good()) throw std::runtime_error("Unexpected stream IO error while materializing value!");
 			}
 			return;
 		}
