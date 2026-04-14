@@ -102,29 +102,30 @@ namespace libjaguar {
 			return doc->To<bool>(doc->_QueryInternal(id));
 		}
 		uint64_t Integer(uint64_t id, uint8_t bits, bool isSigned) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
 			switch(bits) {
 				case 8:
-					if(isSigned && doc->_ValInfoInternal(id).type != TypeTag::SInt8)
+					if(isSigned && ve.type != TypeTag::SInt8)
 						throw std::runtime_error("Requested an SInt8 for a value that is not one!");
-					else if(!isSigned && doc->_ValInfoInternal(id).type != TypeTag::UInt8)
+					else if(!isSigned && ve.type != TypeTag::UInt8)
 						throw std::runtime_error("Requested a UInt8 for a value that is not one!");
 					break;
 				case 16:
-					if(isSigned && doc->_ValInfoInternal(id).type != TypeTag::SInt16)
+					if(isSigned && ve.type != TypeTag::SInt16)
 						throw std::runtime_error("Requested an SInt16 for a value that is not one!");
-					else if(!isSigned && doc->_ValInfoInternal(id).type != TypeTag::UInt16)
+					else if(!isSigned && ve.type != TypeTag::UInt16)
 						throw std::runtime_error("Requested a UInt16 for a value that is not one!");
 					break;
 				case 32:
-					if(isSigned && doc->_ValInfoInternal(id).type != TypeTag::SInt32)
+					if(isSigned && ve.type != TypeTag::SInt32)
 						throw std::runtime_error("Requested an SInt32 for a value that is not one!");
-					else if(!isSigned && doc->_ValInfoInternal(id).type != TypeTag::UInt32)
+					else if(!isSigned && ve.type != TypeTag::UInt32)
 						throw std::runtime_error("Requested a UInt32 for a value that is not one!");
 					break;
 				case 64:
-					if(isSigned && doc->_ValInfoInternal(id).type != TypeTag::SInt64)
+					if(isSigned && ve.type != TypeTag::SInt64)
 						throw std::runtime_error("Requested an SInt64 for a value that is not one!");
-					else if(!isSigned && doc->_ValInfoInternal(id).type != TypeTag::UInt64)
+					else if(!isSigned && ve.type != TypeTag::UInt64)
 						throw std::runtime_error("Requested a UInt64 for a value that is not one!");
 					break;
 				default: break;
@@ -139,18 +140,159 @@ namespace libjaguar {
 			if(doc->_ValInfoInternal(id).type != TypeTag::Float64) throw std::runtime_error("Requested a Float64 for a value that is not one!");
 			return doc->To<double>(doc->_QueryInternal(id));
 		}
-		Vector<uint64_t, 2> IntegerVec2(uint64_t id, uint8_t bits, bool isSigned) override {}
-		Vector<uint64_t, 3> IntegerVec3(uint64_t id, uint8_t bits, bool isSigned) override {}
-		Vector<uint64_t, 4> IntegerVec4(uint64_t id, uint8_t bits, bool isSigned) override {}
-		Vector<float, 2> Float32Vec2(uint64_t id) override {}
-		Vector<float, 3> Float32Vec3(uint64_t id) override {}
-		Vector<float, 4> Float32Vec4(uint64_t id) override {}
-		Vector<double, 2> Float64Vec2(uint64_t id) override {}
-		Vector<double, 3> Float64Vec3(uint64_t id) override {}
-		Vector<double, 4> Float64Vec4(uint64_t id) override {}
+		Vector<uint64_t, 2> IntegerVec2(uint64_t id, uint8_t bits, bool isSigned) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::Vector || ve.width != 2) throw std::runtime_error("Requested a 2-component vector for a value that is not one!");
+			switch(bits) {
+				case 8:
+					if(isSigned && ve.elementType != TypeTag::SInt8)
+						throw std::runtime_error("Requested a vector with element type SInt8 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt8)
+						throw std::runtime_error("Requested a vector with element type UInt8 for a value that is not one!");
+					{
+						Vector<uint8_t, 2> vec = doc->To<Vector<uint8_t, 2>>(doc->_QueryInternal(id));
+						return Vector<uint64_t, 2> {.x = vec.x, .y = vec.y};
+					}
+				case 16:
+					if(isSigned && ve.elementType != TypeTag::SInt16)
+						throw std::runtime_error("Requested a vector with element type SInt16 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt16)
+						throw std::runtime_error("Requested a vector with element type UInt16 for a value that is not one!");
+					{
+						Vector<uint16_t, 2> vec = doc->To<Vector<uint16_t, 2>>(doc->_QueryInternal(id));
+						return Vector<uint64_t, 2> {.x = vec.x, .y = vec.y};
+					}
+				case 32:
+					if(isSigned && ve.elementType != TypeTag::SInt32)
+						throw std::runtime_error("Requested a vector with element type SInt32 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt32)
+						throw std::runtime_error("Requested a vector with element type UInt32 for a value that is not one!");
+					{
+						Vector<uint32_t, 2> vec = doc->To<Vector<uint32_t, 2>>(doc->_QueryInternal(id));
+						return Vector<uint64_t, 2> {.x = vec.x, .y = vec.y};
+					}
+				case 64:
+					if(isSigned && ve.elementType != TypeTag::SInt64)
+						throw std::runtime_error("Requested a vector with element type SInt64 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt64)
+						throw std::runtime_error("Requested a vector with element type UInt64 for a value that is not one!");
+					return doc->To<Vector<uint64_t, 2>>(doc->_QueryInternal(id));
+				default: return {};
+			}
+		}
+		Vector<uint64_t, 3> IntegerVec3(uint64_t id, uint8_t bits, bool isSigned) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::Vector || ve.width != 3) throw std::runtime_error("Requested a 3-component vector for a value that is not one!");
+			switch(bits) {
+				case 8:
+					if(isSigned && ve.elementType != TypeTag::SInt8)
+						throw std::runtime_error("Requested a vector with element type SInt8 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt8)
+						throw std::runtime_error("Requested a vector with element type UInt8 for a value that is not one!");
+					{
+						Vector<uint8_t, 3> vec = doc->To<Vector<uint8_t, 3>>(doc->_QueryInternal(id));
+						return Vector<uint64_t, 3> {.x = vec.x, .y = vec.y, .z = vec.z};
+					}
+				case 16:
+					if(isSigned && ve.elementType != TypeTag::SInt16)
+						throw std::runtime_error("Requested a vector with element type SInt16 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt16)
+						throw std::runtime_error("Requested a vector with element type UInt16 for a value that is not one!");
+					{
+						Vector<uint16_t, 3> vec = doc->To<Vector<uint16_t, 3>>(doc->_QueryInternal(id));
+						return Vector<uint64_t, 3> {.x = vec.x, .y = vec.y, .z = vec.z};
+					}
+				case 32:
+					if(isSigned && ve.elementType != TypeTag::SInt32)
+						throw std::runtime_error("Requested a vector with element type SInt32 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt32)
+						throw std::runtime_error("Requested a vector with element type UInt32 for a value that is not one!");
+					{
+						Vector<uint32_t, 3> vec = doc->To<Vector<uint32_t, 3>>(doc->_QueryInternal(id));
+						return Vector<uint64_t, 3> {.x = vec.x, .y = vec.y, .z = vec.z};
+					}
+				case 64:
+					if(isSigned && ve.elementType != TypeTag::SInt64)
+						throw std::runtime_error("Requested a vector with element type SInt64 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt64)
+						throw std::runtime_error("Requested a vector with element type UInt64 for a value that is not one!");
+					return doc->To<Vector<uint64_t, 3>>(doc->_QueryInternal(id));
+				default: return {};
+			}
+		}
+		Vector<uint64_t, 4> IntegerVec4(uint64_t id, uint8_t bits, bool isSigned) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::Vector || ve.width != 4) throw std::runtime_error("Requested a 4-component vector for a value that is not one!");
+			switch(bits) {
+				case 8:
+					if(isSigned && ve.elementType != TypeTag::SInt8)
+						throw std::runtime_error("Requested a vector with element type SInt8 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt8)
+						throw std::runtime_error("Requested a vector with element type UInt8 for a value that is not one!");
+					{
+						Vector<uint8_t, 4> vec = doc->To<Vector<uint8_t, 4>>(doc->_QueryInternal(id));
+						return Vector<uint64_t, 4> {.x = vec.x, .y = vec.y, .z = vec.z, .w = vec.w};
+					}
+				case 16:
+					if(isSigned && ve.elementType != TypeTag::SInt16)
+						throw std::runtime_error("Requested a vector with element type SInt16 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt16)
+						throw std::runtime_error("Requested a vector with element type UInt16 for a value that is not one!");
+					{
+						Vector<uint16_t, 4> vec = doc->To<Vector<uint16_t, 4>>(doc->_QueryInternal(id));
+						return Vector<uint64_t, 4> {.x = vec.x, .y = vec.y, .z = vec.z, .w = vec.w};
+					}
+				case 32:
+					if(isSigned && ve.elementType != TypeTag::SInt32)
+						throw std::runtime_error("Requested a vector with element type SInt32 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt32)
+						throw std::runtime_error("Requested a vector with element type UInt32 for a value that is not one!");
+					{
+						Vector<uint32_t, 4> vec = doc->To<Vector<uint32_t, 4>>(doc->_QueryInternal(id));
+						return Vector<uint64_t, 4> {.x = vec.x, .y = vec.y, .z = vec.z, .w = vec.w};
+					}
+				case 64:
+					if(isSigned && ve.elementType != TypeTag::SInt64)
+						throw std::runtime_error("Requested a vector with element type SInt64 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt64)
+						throw std::runtime_error("Requested a vector with element type UInt64 for a value that is not one!");
+					return doc->To<Vector<uint64_t, 4>>(doc->_QueryInternal(id));
+				default: return {};
+			}
+		}
+		Vector<float, 2> Float32Vec2(uint64_t id) override {
+			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Vector || ve.width != 2 || ve.elementType != TypeTag::Float32) throw std::runtime_error("Requested a 2-component vector with element type Float64 for a value that is not one!");
+			return doc->To<Vector<float, 2>>(doc->_QueryInternal(id));
+		}
+		Vector<float, 3> Float32Vec3(uint64_t id) override {
+			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Vector || ve.width != 3 || ve.elementType != TypeTag::Float32) throw std::runtime_error("Requested a 2-component vector with element type Float64 for a value that is not one!");
+			return doc->To<Vector<float, 3>>(doc->_QueryInternal(id));
+		}
+		Vector<float, 4> Float32Vec4(uint64_t id) override {
+			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Vector || ve.width != 4 || ve.elementType != TypeTag::Float32) throw std::runtime_error("Requested a 2-component vector with element type Float64 for a value that is not one!");
+			return doc->To<Vector<float, 4>>(doc->_QueryInternal(id));
+		}
+		Vector<double, 2> Float64Vec2(uint64_t id) override {
+			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Vector || ve.width != 2 || ve.elementType != TypeTag::Float64) throw std::runtime_error("Requested a 2-component vector with element type Float64 for a value that is not one!");
+			return doc->To<Vector<double, 2>>(doc->_QueryInternal(id));
+		}
+		Vector<double, 3> Float64Vec3(uint64_t id) override {
+			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Vector || ve.width != 3 || ve.elementType != TypeTag::Float64) throw std::runtime_error("Requested a 2-component vector with element type Float64 for a value that is not one!");
+			return doc->To<Vector<double, 3>>(doc->_QueryInternal(id));
+		}
+		Vector<double, 4> Float64Vec4(uint64_t id) override {
+			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Vector || ve.width != 4 || ve.elementType != TypeTag::Float64) throw std::runtime_error("Requested a 2-component vector with element type Float64 for a value that is not one!");
+			return doc->To<Vector<double, 4>>(doc->_QueryInternal(id));
+		}
 		uint64_t IntegerMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits, bool isSigned) override {}
-		float Float32Mat(uint64_t id, uint8_t x, uint8_t y) override {}
-		double Float64Mat(uint64_t id, uint8_t x, uint8_t y) override {}
+		float Float32Mat(uint64_t id, uint8_t x, uint8_t y) override {
+			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Matrix || ve.width != x || ve.height != y || ve.elementType != TypeTag::Float32) throw std::runtime_error("Requested a matrix with the incorrect dimensions or element type for the value!");
+			//return doc->_QueryInternal(id)
+		}
+		double Float64Mat(uint64_t id, uint8_t x, uint8_t y) override {
+			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Matrix || ve.width != x || ve.height != y || ve.elementType != TypeTag::Float64) throw std::runtime_error("Requested a matrix with the incorrect dimensions or element type for the value!");
+			//return doc->_QueryInternal(id)
+		}
 
 	  private:
 		Document* doc;
@@ -281,22 +423,20 @@ namespace libjaguar {
 	}
 
 	const Document::ValueStorage& Document::_QueryInternal(uint64_t id) {
-		//TODO: type checking
 		if(!storage.contains(id)) throw std::runtime_error("Cannot query value of nonexistent or scope field!");
 		if(!storage[id].materialized) Materialize(id);
 		return storage[id];
 	}
 
 	void Document::_SetInternal(uint64_t id, const ValueStorage& val) {
-		//TODO: type checking
 		storage[id] = val;
 	}
 
 	std::any Document::_QueryObjInternal(const std::string& path) {
-		//TODO: implement me
+		//TODO: implement me or else
 	}
 
 	void Document::_SetObjInternal(const std::string& path, const std::any& obj) {
-		//TODO: implement me
+		//TODO: implement me or else
 	}
 }

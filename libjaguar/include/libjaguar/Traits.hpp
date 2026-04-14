@@ -119,7 +119,7 @@ namespace libjaguar {
 	concept byte_range = std::ranges::range<T> && is_byte_range_v<T>;
 
 	template<typename T>
-	struct is_vec : public std::false_type {
+	struct vec_trait : public std::false_type {
 		static constexpr uint8_t count = 0;
 	};
 
@@ -128,24 +128,24 @@ namespace libjaguar {
 	class LJAPI Vector {};
 
 	template<number T, uint8_t C>
-	struct is_vec<Vector<T, C>> : public std::true_type {
+	struct vec_trait<Vector<T, C>> : public std::true_type {
 		static constexpr uint8_t count = C;
 		using subtype = T;
 	};
 
 	template<typename T>
-	inline constexpr bool is_vec_v = is_vec<T>::value;
+	inline constexpr bool is_vec_v = vec_trait<T>::value;
 
 	template<typename T>
 	concept vec = is_vec_v<T>;
 
 	template<typename T, uint8_t C>
-	concept vec_c = is_vec_v<T> && T::count == C;
+	concept vec_c = is_vec_v<T> && vec_trait<T>::count == C;
 
 	template<uint8_t C, vec T>
-	using vec_subtype_t = T::subtype;
+	using vec_subtype_t = vec_trait<T>::subtype;
 
 	template<uint8_t C, vec T>
-	inline constexpr uint8_t vec_count_v = T::count;
+	inline constexpr uint8_t vec_count_v = vec_trait<T>::count;
 	///@endcond
 }

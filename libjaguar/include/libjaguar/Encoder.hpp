@@ -19,7 +19,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a string value; may be called multiple times for large strings
 		 *
-		 * @param id The ID of the value to fetch
+		 * @param id The ID of the value to fetch, @b guaranteed to be a value that exists
 		 * @param out The stream to write output to (use @c write, not @c operator<< to ensure exact transfer)
 		 * @param chunkSize The requested amount of string data to send (used for large strings); will always be aligned to 4 bytes except for at the end of strings to ensure that all sequences are valid UTF-8
 		 * @param offset Where in the string to start reading from
@@ -32,10 +32,10 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a byte buffer value; may be called multiple times for large buffers
 		 *
-		 * @param id The ID of the value to fetch
+		 * @param id The ID of the value to fetch, @b guaranteed to be a value that exists
 		 * @param out The stream to write output to (use @c write, not @c operator<< to avoid interpretation of bytes as a string)
 		 * @param chunkSize The requested amount of data to send
-		 * @param offset Where in the buffer to start reading from*
+		 * @param offset Where in the buffer to start reading from
 		 *
 		 * @warning If the requested amount of data is not provided (too much or too little), encoding will <b>halt</b>.
 		 */
@@ -44,7 +44,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a boolean value
 		 *
-		 * @param id The ID of the value to fetch
+		 * @param id The ID of the value to fetch, @b guaranteed to be a value that exists
 		 *
 		 * @return The boolean value
 		 */
@@ -53,8 +53,8 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request an integer value
 		 *
-		 * @param id The ID of the value to fetch
-		 * @param bits The bit width of the integer being requested (e.g., 32 for a uint32_t)
+		 * @param id The ID of the value to fetch, @b guaranteed to be a value that exists
+		 * @param bits The bit width of the integer being requested (e.g., 32 for a uint32_t), @b guaranteed to be 8, 16, 32, or 64
 		 * @param isSigned Whether the value is signed or not (so int*_t or uint*_t)
 		 *
 		 * @return The value
@@ -66,7 +66,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a single-precision (32-bit) floating point value
 		 *
-		 * @param id The ID of the value to fetch
+		 * @param id The ID of the value to fetch, @b guaranteed to be a value that exists
 		 *
 		 * @return The value
 		 */
@@ -75,7 +75,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a double-precision (64-bit) floating point value
 		 *
-		 * @param id The ID of the value to fetch
+		 * @param id The ID of the value to fetch, @b guaranteed to be a value that exists
 		 *
 		 * @return The value
 		 */
@@ -84,8 +84,8 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a 2-component vector of integers
 		 *
-		 * @param id The ID of the vector being requested
-		 * @param bits The bit width of the vector element type being requested (e.g., 32 for a vector of uint32_t)
+		 * @param id The ID of the vector being requested, @b guaranteed to be a value that exists
+		 * @param bits The bit width of the vector element type being requested (e.g., 32 for a vector of uint32_t), @b guaranteed to be 8, 16, 32, or 64
 		 * @param isSigned Whether the vector element type is signed or not (so int*_t or uint*_t)
 		 *
 		 * @return The element value
@@ -97,8 +97,8 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a 3-component vector of integers
 		 *
-		 * @param id The ID of the vector being requested
-		 * @param bits The bit width of the vector element type being requested (e.g., 32 for a vector of uint32_t)
+		 * @param id The ID of the vector being requested, @b guaranteed to be a value that exists
+		 * @param bits The bit width of the vector element type being requested (e.g., 32 for a vector of uint32_t), @b guaranteed to be 8, 16, 32, or 64
 		 * @param isSigned Whether the vector element type is signed or not (so int*_t or uint*_t)
 		 *
 		 * @return The element value
@@ -110,8 +110,8 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a 4-component vector of integers
 		 *
-		 * @param id The ID of the vector being requested
-		 * @param bits The bit width of the vector element type being requested (e.g., 32 for a vector of uint32_t)
+		 * @param id The ID of the vector being requested, @b guaranteed to be a value that exists
+		 * @param bits The bit width of the vector element type being requested (e.g., 32 for a vector of uint32_t), @b guaranteed to be 8, 16, 32, or 64
 		 * @param isSigned Whether the vector element type is signed or not (so int*_t or uint*_t)
 		 *
 		 * @return The element value
@@ -123,7 +123,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a 2-component vector of single-precision (32-bit) floating point numbers
 		 *
-		 * @param id The ID of the vector being requested
+		 * @param id The ID of the vector being requested, @b guaranteed to be a value that exists
 		 *
 		 * @return The element value
 		 */
@@ -132,7 +132,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a 3-component vector of single-precision (32-bit) floating point numbers
 		 *
-		 * @param id The ID of the vector being requested
+		 * @param id The ID of the vector being requested, @b guaranteed to be a value that exists
 		 *
 		 * @return The element value
 		 */
@@ -141,7 +141,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a 4-component vector of single-precision (32-bit) floating point numbers
 		 *
-		 * @param id The ID of the vector being requested
+		 * @param id The ID of the vector being requested, @b guaranteed to be a value that exists
 		 *
 		 * @return The element value
 		 */
@@ -150,7 +150,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a 2-component vector of double-precision (64-bit) floating point numbers
 		 *
-		 * @param id The ID of the vector being requested
+		 * @param id The ID of the vector being requested, @b guaranteed to be a value that exists
 		 *
 		 * @return The element value
 		 */
@@ -159,7 +159,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a 3-component vector of double-precision (64-bit) floating point numbers
 		 *
-		 * @param id The ID of the vector being requested
+		 * @param id The ID of the vector being requested, @b guaranteed to be a value that exists
 		 *
 		 * @return The element value
 		 */
@@ -168,7 +168,7 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a 4-component vector of double-precision (64-bit) floating point numbers
 		 *
-		 * @param id The ID of the vector being requested
+		 * @param id The ID of the vector being requested, @b guaranteed to be a value that exists
 		 *
 		 * @return The element value
 		 */
@@ -177,10 +177,10 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request an integer component of a matrix; may be called multiple times to fill the entire matrix
 		 *
-		 * @param id The ID of the matrix being requested
-		 * @param x The x coordinate of the value being requested (column # starting from 0 at left)
-		 * @param y The y coordinate of the value being requested (row # starting from 0 at top)
-		 * @param bits The bit width of the integer being requested (e.g., 32 for a uint32_t)
+		 * @param id The ID of the matrix being requested, @b guaranteed to be a value that exists
+		 * @param x The x coordinate of the value being requested (column # starting from 0 at left), @b guaranteed to be in the range 0-3
+		 * @param y The y coordinate of the value being requested (row # starting from 0 at top), @b guaranteed to be in the range 0-3
+		 * @param bits The bit width of the integer being requested (e.g., 32 for a uint32_t), @b guaranteed to be 8, 16, 32, or 64
 		 * @param isSigned Whether the matrix element type is signed or not (so int*_t or uint*_t)
 		 *
 		 * @return The element value
@@ -192,9 +192,9 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a single-precision (32-bit) floating point of a matrix; may be called multiple times to fill the entire matrix
 		 *
-		 * @param id The ID of the matrix being requested
-		 * @param x The x coordinate of the value being requested (column # starting from 0 at left)
-		 * @param y The y coordinate of the value being requested (row # starting from 0 at top)
+		 * @param id The ID of the matrix being requested, @b guaranteed to be a value that exists
+		 * @param x The x coordinate of the value being requested (column # starting from 0 at left), @b guaranteed to be in the range 0-3
+		 * @param y The y coordinate of the value being requested (row # starting from 0 at top), @b guaranteed to be in the range 0-3
 		 *
 		 * @return The element value
 		 */
@@ -203,9 +203,9 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a double-precision (64-bit) floating point of a matrix; may be called multiple times to fill the entire matrix
 		 *
-		 * @param id The ID of the matrix being requested
-		 * @param x The x coordinate of the value being requested (column # starting from 0 at left)
-		 * @param y The y coordinate of the value being requested (row # starting from 0 at top)
+		 * @param id The ID of the matrix being requested, @b guaranteed to be a value that exists
+		 * @param x The x coordinate of the value being requested (column # starting from 0 at left), @b guaranteed to be in the range 0-3
+		 * @param y The y coordinate of the value being requested (row # starting from 0 at top), @b guaranteed to be in the range 0-3
 		 *
 		 * @return The element value
 		 */

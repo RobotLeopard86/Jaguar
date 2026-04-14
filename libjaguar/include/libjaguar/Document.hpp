@@ -380,8 +380,9 @@ namespace libjaguar {
 			return t;
 		}
 
-		template<vec_c<2> V, typename T = vec_subtype_t<2, V>>
+		template<vec_c<2> V>
 		V To(const ValueStorage& storage) {
+			using T = vec_subtype_t<2, V>;
 			V vec {.x = 0, .y = 0};
 			with_bits_t<bits_v<T>> work;
 			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
@@ -401,14 +402,19 @@ namespace libjaguar {
 				}
 
 				//Push latest byte
-				work <<= 8;
-				work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+				if constexpr(bits_v<T> > 8) {
+					work <<= 8;
+					work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+				} else {
+					work = (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+				}
 			}
 			return vec;
 		}
 
-		template<vec_c<3> V, typename T = vec_subtype_t<3, V>>
+		template<vec_c<3> V>
 		V To(const ValueStorage& storage) {
+			using T = vec_subtype_t<3, V>;
 			V vec {.x = 0, .y = 0, .z = 0};
 			with_bits_t<bits_v<T>> work;
 			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
@@ -431,14 +437,19 @@ namespace libjaguar {
 				}
 
 				//Push latest byte
-				work <<= 8;
-				work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+				if constexpr(bits_v<T> > 8) {
+					work <<= 8;
+					work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+				} else {
+					work = (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+				}
 			}
 			return vec;
 		}
 
-		template<vec_c<4> V, typename T = vec_subtype_t<4, V>>
+		template<vec_c<4> V>
 		V To(const ValueStorage& storage) {
+			using T = vec_subtype_t<4, V>;
 			V vec {.x = 0, .y = 0, .z = 0, .w = 0};
 			with_bits_t<bits_v<T>> work;
 			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
@@ -464,8 +475,12 @@ namespace libjaguar {
 				}
 
 				//Push latest byte
-				work <<= 8;
-				work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+				if constexpr(bits_v<T> > 8) {
+					work <<= 8;
+					work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+				} else {
+					work = (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+				}
 			}
 			return vec;
 		}
@@ -477,8 +492,12 @@ namespace libjaguar {
 				for(uint8_t y = 0; y < H; ++y) {
 					with_bits_t<bits_v<T>> val = 0;
 					for(uint8_t i = 0; i < bits_v<T>; ++i) {
-						val <<= 8;
-						val &= (storage.mem[bits_v<T> * (x + 1) * (y + 1) + i] & 0xFF);
+						if constexpr(bits_v<T> > 8) {
+							val <<= 8;
+							val &= (storage.mem[bits_v<T> * (x + 1) * (y + 1) + i] & 0xFF);
+						} else {
+							val = (storage.mem[bits_v<T> * (x + 1) * (y + 1) + i] & 0xFF);
+						}
 					}
 					mat[x][y] = val;
 				}
@@ -508,6 +527,7 @@ namespace libjaguar {
 	T Document::QueryValue(const std::string& path) {
 		if(!CheckUTF8(path)) throw std::runtime_error("Invalid UTF-8 supplied as path data to query is not allowed!");
 		if constexpr(SingleVal<T>) {
+			//TODO: type checking
 			return To<T>(_QueryInternal(GenIndexID(path)));
 		} else {
 			if(converters.contains(typeid(T))) {
@@ -521,6 +541,7 @@ namespace libjaguar {
 	void Document::SetValue(const std::string& path, const T& value) {
 		if(!CheckUTF8(path)) throw std::runtime_error("Invalid UTF-8 supplied as path data to query is not allowed!");
 		if constexpr(SingleVal<T>) {
+			//TODO: type checking
 			_SetInternal(GenIndexID(path), From<T>(value));
 		} else {
 			if(converters.contains(typeid(T))) {
