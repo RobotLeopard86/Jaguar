@@ -491,12 +491,13 @@ namespace libjaguar {
 			for(uint8_t x = 0; x < W; ++x) {
 				for(uint8_t y = 0; y < H; ++y) {
 					with_bits_t<bits_v<T>> val = 0;
-					for(uint8_t i = 0; i < bits_v<T>; ++i) {
+					unsigned int bytes = (bits_v<T> / 8);
+					for(uint8_t i = 0; i < bytes; ++i) {
 						if constexpr(bits_v<T> > 8) {
 							val <<= 8;
-							val &= (storage.mem[bits_v<T> * (x + 1) * (y + 1) + i] & 0xFF);
+							val &= T(storage.mem[bytes * (x + 1) * (y + 1) + i] & std::byte(0xFF));
 						} else {
-							val = (storage.mem[bits_v<T> * (x + 1) * (y + 1) + i] & 0xFF);
+							val = T(storage.mem[bytes * (x + 1) * (y + 1) + i] & std::byte(0xFF));
 						}
 					}
 					mat[x][y] = val;

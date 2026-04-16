@@ -284,14 +284,64 @@ namespace libjaguar {
 			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Vector || ve.width != 4 || ve.elementType != TypeTag::Float64) throw std::runtime_error("Requested a 2-component vector with element type Float64 for a value that is not one!");
 			return doc->To<Vector<double, 4>>(doc->_QueryInternal(id));
 		}
-		uint64_t IntegerMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits, bool isSigned) override {}
+		uint64_t IntegerMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits, bool isSigned) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::Matrix || ve.width != x || ve.height != y) throw std::runtime_error("Requested a matrix with the incorrect dimensions for the value!");
+			switch(bits) {
+				case 8:
+					if(isSigned && ve.elementType != TypeTag::SInt8)
+						throw std::runtime_error("Requested a matrix with element type SInt8 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt8)
+						throw std::runtime_error("Requested a matrix with element type UInt8 for a value that is not one!");
+					break;
+				case 16:
+					if(isSigned && ve.elementType != TypeTag::SInt16)
+						throw std::runtime_error("Requested a matrix with element type SInt16 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt16)
+						throw std::runtime_error("Requested a matrix with element type UInt16 for a value that is not one!");
+					break;
+				case 32:
+					if(isSigned && ve.elementType != TypeTag::SInt32)
+						throw std::runtime_error("Requested a matrix with element type SInt32 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt32)
+						throw std::runtime_error("Requested a matrix with element type UInt32 for a value that is not one!");
+					break;
+				case 64:
+					if(isSigned && ve.elementType != TypeTag::SInt64)
+						throw std::runtime_error("Requested a matrix with element type SInt64 for a value that is not one!");
+					else if(!isSigned && ve.elementType != TypeTag::UInt64)
+						throw std::runtime_error("Requested a matrix with element type UInt64 for a value that is not one!");
+					break;
+				default: break;
+			}
+
+			const ValueStorage& storage = doc->_QueryInternal(id);
+			uint64_t out = 0;
+			for(uint8_t i = ((bits / 8) * (x + 1) * (y + 1)); i < (bits / 8); ++i) {
+				out <<= 8;
+				out &= uint64_t(storage.mem[i] & std::byte(0xFF));
+			}
+			return out;
+		}
 		float Float32Mat(uint64_t id, uint8_t x, uint8_t y) override {
 			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Matrix || ve.width != x || ve.height != y || ve.elementType != TypeTag::Float32) throw std::runtime_error("Requested a matrix with the incorrect dimensions or element type for the value!");
-			//return doc->_QueryInternal(id)
+			const ValueStorage& storage = doc->_QueryInternal(id);
+			uint32_t out = 0;
+			for(uint8_t i = (4 * (x + 1) * (y + 1)); i < 4; ++i) {
+				out <<= 8;
+				out &= uint32_t(storage.mem[i] & std::byte(0xFF));
+			}
+			return std::bit_cast<float, uint32_t>(out);
 		}
 		double Float64Mat(uint64_t id, uint8_t x, uint8_t y) override {
 			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Matrix || ve.width != x || ve.height != y || ve.elementType != TypeTag::Float64) throw std::runtime_error("Requested a matrix with the incorrect dimensions or element type for the value!");
-			//return doc->_QueryInternal(id)
+			const ValueStorage& storage = doc->_QueryInternal(id);
+			uint64_t out = 0;
+			for(uint8_t i = (8 * (x + 1) * (y + 1)); i < 8; ++i) {
+				out <<= 8;
+				out &= uint64_t(storage.mem[i] & std::byte(0xFF));
+			}
+			return std::bit_cast<double, uint64_t>(out);
 		}
 
 	  private:
