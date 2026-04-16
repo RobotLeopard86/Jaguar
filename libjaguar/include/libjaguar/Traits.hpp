@@ -119,33 +119,61 @@ namespace libjaguar {
 	concept byte_range = std::ranges::range<T> && is_byte_range_v<T>;
 
 	template<typename T>
-	struct vec_trait : public std::false_type {
-		static constexpr uint8_t count = 0;
-	};
+	struct vec_info : public std::false_type {};
+
+	template<typename T>
+	struct mat_info : public std::false_type {};
 
 	template<number T, uint8_t C>
 		requires(C >= 2 && C <= 4)
-	class LJAPI Vector {};
+	class LJAPI Vector {
+	};
+
+	template<number T, uint8_t W, uint8_t H>
+		requires(W >= 2 && W <= 4 && H >= 2 && H <= 4)
+	class LJAPI Matrix;
 
 	template<number T, uint8_t C>
-	struct vec_trait<Vector<T, C>> : public std::true_type {
+	struct vec_info<Vector<T, C>> : public std::true_type {
 		static constexpr uint8_t count = C;
 		using subtype = T;
 	};
 
+	template<number T, uint8_t W, uint8_t H>
+	struct mat_info<Matrix<T, W, H>> : public std::true_type {
+		static constexpr uint8_t width = W;
+		static constexpr uint8_t height = H;
+		using subtype = T;
+	};
+
 	template<typename T>
-	inline constexpr bool is_vec_v = vec_trait<T>::value;
+	inline constexpr bool is_vec_v = vec_info<T>::value;
 
 	template<typename T>
 	concept vec = is_vec_v<T>;
 
 	template<typename T, uint8_t C>
-	concept vec_c = is_vec_v<T> && vec_trait<T>::count == C;
+	concept vec_c = is_vec_v<T> && vec_info<T>::count == C;
 
-	template<uint8_t C, vec T>
-	using vec_subtype_t = vec_trait<T>::subtype;
+	template<typename T>
+	inline constexpr bool is_mat_v = mat_info<T>::value;
 
-	template<uint8_t C, vec T>
-	inline constexpr uint8_t vec_count_v = vec_trait<T>::count;
+	template<typename T>
+	concept mat = is_mat_v<T>;
+
+	template<vec T>
+	using vec_subtype_t = vec_info<T>::subtype;
+
+	template<vec T>
+	inline constexpr uint8_t vec_count_v = vec_info<T>::count;
+
+	template<mat T>
+	using mat_subtype_t = mat_info<T>::subtype;
+
+	template<mat T>
+	inline constexpr uint8_t mat_width_v = mat_info<T>::width;
+
+	template<mat T>
+	inline constexpr uint8_t mat_height_v = mat_info<T>::height;
 	///@endcond
 }

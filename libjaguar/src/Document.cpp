@@ -472,13 +472,25 @@ namespace libjaguar {
 		return _ScopeInfoInternal(GenIndexID(path));
 	}
 
+	bool Document::_Has(uint64_t id) {
+		INDEX_READ_CHECK;
+		return storage.contains(id);
+	}
+
 	const Document::ValueStorage& Document::_QueryInternal(uint64_t id) {
+		//Verify stream state if needed
+		INDEX_READ_CHECK;
+
+		//Check storage state
 		if(!storage.contains(id)) throw std::runtime_error("Cannot query value of nonexistent or scope field!");
 		if(!storage[id].materialized) Materialize(id);
+
+		//Send back the value
 		return storage[id];
 	}
 
 	void Document::_SetInternal(uint64_t id, const ValueStorage& val) {
+		//So... we just set it now
 		storage[id] = val;
 	}
 
@@ -487,6 +499,10 @@ namespace libjaguar {
 	}
 
 	void Document::_SetObjInternal(const std::string& path, const std::any& obj) {
+		//TODO: implement me or else
+	}
+
+	void Document::DeleteValue(const std::string& path) {
 		//TODO: implement me or else
 	}
 }
