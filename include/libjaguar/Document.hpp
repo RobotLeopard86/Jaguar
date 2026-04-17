@@ -5,6 +5,7 @@
 #include "Reader.hpp"
 #include "Index.hpp"
 #include "Traits.hpp"
+#include "TypeTags.hpp"
 
 #include <algorithm>
 #include <any>
@@ -166,11 +167,14 @@ namespace libjaguar {
 		 */
 		template<typename T>
 			requires std::is_class_v<T>
-		void RegisterStructuredObjConverter(const std::string& typeID, std::function<T(const ScopeEntry&, const ObjReader&)> dec, std::function<void(const T&, ObjWriter&)> enc) {
+		void RegisterStructuredObjConverter(const std::string& typeID, std::function<T(const ScopeEntry&, ObjReader&)> dec, std::function<void(const T&, ObjWriter&)> enc) {
 			if(!CheckUTF8(typeID)) throw std::runtime_error("Cannot register a structured object type with an invalid UTF-8 type ID!");
 			if(converters.contains(typeid(T))) throw std::runtime_error("A converter has already been registered for this type!");
-			structuredObjTypes[typeID] = typeid(T);
-			converters[typeid(T)] = std::make_pair([dec](const ScopeEntry& s, const ObjReader& o) -> std::any { return std::make_any(std::move(dec(s, o))); }, [enc](const T& t, ObjWriter& o) -> void { enc(std::any_cast<T>(t), o); });
+			structuredObjTypes.insert_or_assign(typeID, typeid(T));
+			auto dec2 = [dec](const ScopeEntry& s, ObjReader& o) -> std::any { return std::make_any<T>(std::move(dec(s, o))); };
+			auto enc2 = [enc](const std::any& t, ObjWriter& o) -> void { enc(std::any_cast<T>(t), o); };
+			auto cvt = std::make_pair<std::function<std::any(const ScopeEntry&, ObjReader&)>, std::function<void(const std::any&, ObjWriter&)>>(dec2, enc2);
+			converters.insert_or_assign(typeid(T), std::move(cvt));
 		}
 
 		/**
@@ -247,6 +251,14 @@ namespace libjaguar {
 		 */
 		void DeleteValue(const std::string& path);
 
+		///@cond
+		struct ValueStorage {
+			bool materialized;		   //Whether or not the data has actually been loaded into memory
+			std::vector<std::byte> mem;//In-memory storage
+			std::streampos inStream;   //Location in stream
+		};
+		///@endcond
+
 	  private:
 		//Reading data
 		std::optional<Reader> reader;
@@ -257,14 +269,9 @@ namespace libjaguar {
 		} streamState;
 
 		//Storage
-		struct ValueStorage {
-			bool materialized;		   ///<Whether or not the data has actually been loaded into memory
-			std::vector<std::byte> mem;///<In-memory storage
-			std::streampos inStream;   ///<Location in stream
-		};
 		std::optional<Index> index;
 		std::unordered_map<std::string, std::type_index> structuredObjTypes;
-		std::unordered_map<std::type_index, std::pair<std::function<std::any(const ScopeEntry&, const ObjReader&)>, std::function<void(const std::any&, ObjWriter&)>>> converters;
+		std::unordered_map<std::type_index, std::pair<std::function<std::any(const ScopeEntry&, ObjReader&)>, std::function<void(const std::any&, ObjWriter&)>>> converters;
 		std::unordered_map<uint64_t, ValueStorage> storage;
 
 		bool _Verify();
@@ -278,9 +285,9 @@ namespace libjaguar {
 		template<number T>
 		ValueStorage From(const T& num) {
 			with_bits_t<bits_v<T>> work = std::bit_cast<with_bits_t<bits_v<T>>, T>(num);
-			std::vector<std::byte> mem(0, bits_v<T>);
+			std::vector<std::byte> mem(bits_v<T>);
 			for(uint8_t i = 0; i < bits_v<T>; ++i) {
-				mem[i] = (work & 0xFF);
+				mem[i] = std::byte(work & 0xFF);
 				work >>= 8;
 			}
 			return ValueStorage {.materialized = true, .mem = mem, .inStream = 0};
@@ -294,7 +301,7 @@ namespace libjaguar {
 		}
 
 		template<>
-		ValueStorage From(const std::string& val);
+		ValueStorage From<std::string>(const std::string& val);
 
 		template<byte_range T>
 		ValueStorage From(const T& range) {
@@ -385,10 +392,7 @@ namespace libjaguar {
 		template<number T>
 		T To(const ValueStorage& storage) {
 			with_bits_t<bits_v<T>> work = 0;
-			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
-				work <<= 8;
-				work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
-			}
+			for(uint8_t i = 0; i < storage.mem.size(); ++i) work |= (with_bits_t<bits_v<T>>(static_cast<uint8_t>(storage.mem[i]) & 0xFF) << (i * 8));
 			return std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
 		}
 
@@ -398,7 +402,7 @@ namespace libjaguar {
 		}
 
 		template<>
-		std::string To(const ValueStorage& storage);
+		std::string To<std::string>(const ValueStorage& storage);
 
 		template<byte_range T>
 		T To(const ValueStorage& storage) {
@@ -430,8 +434,7 @@ namespace libjaguar {
 
 				//Push latest byte
 				if constexpr(bits_v<T> > 8) {
-					work <<= 8;
-					work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+					work |= (with_bits_t<bits_v<T>>(static_cast<uint8_t>(storage.mem[i]) & 0xFF) << (i * 8));
 				} else {
 					work = (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
 				}
@@ -465,8 +468,7 @@ namespace libjaguar {
 
 				//Push latest byte
 				if constexpr(bits_v<T> > 8) {
-					work <<= 8;
-					work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+					work |= (with_bits_t<bits_v<T>>(static_cast<uint8_t>(storage.mem[i]) & 0xFF) << (i * 8));
 				} else {
 					work = (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
 				}
@@ -503,8 +505,7 @@ namespace libjaguar {
 
 				//Push latest byte
 				if constexpr(bits_v<T> > 8) {
-					work <<= 8;
-					work &= (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
+					work |= (with_bits_t<bits_v<T>>(static_cast<uint8_t>(storage.mem[i]) & 0xFF) << (i * 8));
 				} else {
 					work = (static_cast<uint8_t>(storage.mem[i]) & 0xFF);
 				}
@@ -521,10 +522,9 @@ namespace libjaguar {
 					unsigned int bytes = (bits_v<T> / 8);
 					for(uint8_t i = 0; i < bytes; ++i) {
 						if constexpr(bits_v<T> > 8) {
-							val <<= 8;
-							val &= T(storage.mem[bytes * (x + 1) * (y + 1) + i] & std::byte(0xFF));
+							val |= (with_bits_t<bits_v<T>>(static_cast<uint8_t>(storage.mem[bytes * (x + 1) * (y + 1) + i]) & 0xFF) << (i * 8));
 						} else {
-							val = T(storage.mem[bytes * (x + 1) * (y + 1) + i] & std::byte(0xFF));
+							val = (storage.mem[bytes * (x + 1) * (y + 1) + i] & std::byte(0xFF));
 						}
 					}
 					mat[x][y] = val;
@@ -534,6 +534,10 @@ namespace libjaguar {
 		}
 
 		template<typename T>
+		void VerifyTypeCompatibility(const ValueEntry& ve);
+
+		template<typename T>
+			requires(!is_vec_v<T>) && (!is_mat_v<T>)
 		void VerifyTypeCompatibility(const ValueEntry& ve) {
 			switch(ve.type) {
 				case TypeTag::String:
@@ -579,78 +583,87 @@ namespace libjaguar {
 					if constexpr(!std::is_same_v<T, uint64_t>) throw std::runtime_error("Type incompatibility: UInt64 checked against non-matching candidate type!");
 					break;
 				case TypeTag::Vector:
-					if constexpr(!is_vec_v<T>) throw std::runtime_error("Type incompatibility: Vector checked against non-matching candidate type!");
-					if(vec_count_v<T> != ve.width) throw std::runtime_error("Type incompatibility: Vector requires a candidate storage with inappropriate component count!");
-					switch(ve.elementType) {
-						case TypeTag::Float32:
-							if constexpr(!std::is_same_v<vec_subtype_t<T>, float>) throw std::runtime_error("Type incompatibility: Vector of Float32 checked against non-matching candidate type!");
-							break;
-						case TypeTag::Float64:
-							if constexpr(!std::is_same_v<vec_subtype_t<T>, double>) throw std::runtime_error("Type incompatibility: Vector of Float64 checked against non-matching candidate type!");
-							break;
-						case TypeTag::SInt8:
-							if constexpr(!std::is_same_v<vec_subtype_t<T>, int8_t>) throw std::runtime_error("Type incompatibility: Vector of SInt8 checked against non-matching candidate type!");
-							break;
-						case TypeTag::SInt16:
-							if constexpr(!std::is_same_v<vec_subtype_t<T>, int16_t>) throw std::runtime_error("Type incompatibility: Vector of SInt16 checked against non-matching candidate type!");
-							break;
-						case TypeTag::SInt32:
-							if constexpr(!std::is_same_v<vec_subtype_t<T>, int32_t>) throw std::runtime_error("Type incompatibility: Vector of SInt32 checked against non-matching candidate type!");
-							break;
-						case TypeTag::SInt64:
-							if constexpr(!std::is_same_v<vec_subtype_t<T>, int64_t>) throw std::runtime_error("Type incompatibility: Vector of SInt64 checked against non-matching candidate type!");
-							break;
-						case TypeTag::UInt8:
-							if constexpr(!std::is_same_v<vec_subtype_t<T>, uint8_t>) throw std::runtime_error("Type incompatibility: Vector of UInt8 checked against non-matching candidate type!");
-							break;
-						case TypeTag::UInt16:
-							if constexpr(!std::is_same_v<vec_subtype_t<T>, uint16_t>) throw std::runtime_error("Type incompatibility: Vector of UInt16 checked against non-matching candidate type!");
-							break;
-						case TypeTag::UInt32:
-							if constexpr(!std::is_same_v<vec_subtype_t<T>, uint32_t>) throw std::runtime_error("Type incompatibility: Vector of UInt32 checked against non-matching candidate type!");
-							break;
-						case TypeTag::UInt64:
-							if constexpr(!std::is_same_v<vec_subtype_t<T>, uint64_t>) throw std::runtime_error("Type incompatibility: Vector of UInt64 checked against non-matching candidate type!");
-							break;
-						default: break;
-					}
-					break;
+					throw std::runtime_error("Type incompatibility: Vector checked against non-matching candidate type!");
 				case TypeTag::Matrix:
-					if constexpr(!is_mat_v<T>) throw std::runtime_error("Type incompatibility: Matrix checked against non-matching candidate type!");
-					if(mat_width_v<T> != ve.width || mat_height_v<T> != ve.height) throw std::runtime_error("Type incompatibility: Matrix requires a candidate storage with inappropriate dimensions!");
-					switch(ve.elementType) {
-						case TypeTag::Float32:
-							if constexpr(!std::is_same_v<mat_subtype_t<T>, float>) throw std::runtime_error("Type incompatibility: Matrix of Float32 checked against non-matching candidate type!");
-							break;
-						case TypeTag::Float64:
-							if constexpr(!std::is_same_v<mat_subtype_t<T>, double>) throw std::runtime_error("Type incompatibility: Matrix of Float64 checked against non-matching candidate type!");
-							break;
-						case TypeTag::SInt8:
-							if constexpr(!std::is_same_v<mat_subtype_t<T>, int8_t>) throw std::runtime_error("Type incompatibility: Matrix of SInt8 checked against non-matching candidate type!");
-							break;
-						case TypeTag::SInt16:
-							if constexpr(!std::is_same_v<mat_subtype_t<T>, int16_t>) throw std::runtime_error("Type incompatibility: Matrix of SInt16 checked against non-matching candidate type!");
-							break;
-						case TypeTag::SInt32:
-							if constexpr(!std::is_same_v<mat_subtype_t<T>, int32_t>) throw std::runtime_error("Type incompatibility: Matrix of SInt32 checked against non-matching candidate type!");
-							break;
-						case TypeTag::SInt64:
-							if constexpr(!std::is_same_v<mat_subtype_t<T>, int64_t>) throw std::runtime_error("Type incompatibility: Matrix of SInt64 checked against non-matching candidate type!");
-							break;
-						case TypeTag::UInt8:
-							if constexpr(!std::is_same_v<mat_subtype_t<T>, uint8_t>) throw std::runtime_error("Type incompatibility: Matrix of UInt8 checked against non-matching candidate type!");
-							break;
-						case TypeTag::UInt16:
-							if constexpr(!std::is_same_v<mat_subtype_t<T>, uint16_t>) throw std::runtime_error("Type incompatibility: Matrix of UInt16 checked against non-matching candidate type!");
-							break;
-						case TypeTag::UInt32:
-							if constexpr(!std::is_same_v<mat_subtype_t<T>, uint32_t>) throw std::runtime_error("Type incompatibility: Matrix of UInt32 checked against non-matching candidate type!");
-							break;
-						case TypeTag::UInt64:
-							if constexpr(!std::is_same_v<mat_subtype_t<T>, uint64_t>) throw std::runtime_error("Type incompatibility: Matrix of UInt64 checked against non-matching candidate type!");
-							break;
-						default: break;
-					}
+					throw std::runtime_error("Type incompatibility: Vector checked against non-matching candidate type!");
+					break;
+				default: break;
+			}
+		}
+
+		template<vec T>
+		void VerifyTypeCompatibility(const ValueEntry& ve) {
+			if(ve.type != TypeTag::Vector) throw std::runtime_error("Type incompatibility: Vector checked against non-matching candidate type!");
+			if(vec_count_v<T> != ve.width) throw std::runtime_error("Type incompatibility: Vector requires a candidate storage with inappropriate component count!");
+			switch(ve.elementType) {
+				case TypeTag::Float32:
+					if constexpr(!std::is_same_v<vec_subtype_t<T>, float>) throw std::runtime_error("Type incompatibility: Vector of Float32 checked against non-matching candidate type!");
+					break;
+				case TypeTag::Float64:
+					if constexpr(!std::is_same_v<vec_subtype_t<T>, double>) throw std::runtime_error("Type incompatibility: Vector of Float64 checked against non-matching candidate type!");
+					break;
+				case TypeTag::SInt8:
+					if constexpr(!std::is_same_v<vec_subtype_t<T>, int8_t>) throw std::runtime_error("Type incompatibility: Vector of SInt8 checked against non-matching candidate type!");
+					break;
+				case TypeTag::SInt16:
+					if constexpr(!std::is_same_v<vec_subtype_t<T>, int16_t>) throw std::runtime_error("Type incompatibility: Vector of SInt16 checked against non-matching candidate type!");
+					break;
+				case TypeTag::SInt32:
+					if constexpr(!std::is_same_v<vec_subtype_t<T>, int32_t>) throw std::runtime_error("Type incompatibility: Vector of SInt32 checked against non-matching candidate type!");
+					break;
+				case TypeTag::SInt64:
+					if constexpr(!std::is_same_v<vec_subtype_t<T>, int64_t>) throw std::runtime_error("Type incompatibility: Vector of SInt64 checked against non-matching candidate type!");
+					break;
+				case TypeTag::UInt8:
+					if constexpr(!std::is_same_v<vec_subtype_t<T>, uint8_t>) throw std::runtime_error("Type incompatibility: Vector of UInt8 checked against non-matching candidate type!");
+					break;
+				case TypeTag::UInt16:
+					if constexpr(!std::is_same_v<vec_subtype_t<T>, uint16_t>) throw std::runtime_error("Type incompatibility: Vector of UInt16 checked against non-matching candidate type!");
+					break;
+				case TypeTag::UInt32:
+					if constexpr(!std::is_same_v<vec_subtype_t<T>, uint32_t>) throw std::runtime_error("Type incompatibility: Vector of UInt32 checked against non-matching candidate type!");
+					break;
+				case TypeTag::UInt64:
+					if constexpr(!std::is_same_v<vec_subtype_t<T>, uint64_t>) throw std::runtime_error("Type incompatibility: Vector of UInt64 checked against non-matching candidate type!");
+					break;
+				default: break;
+			}
+		}
+
+		template<mat T>
+		void VerifyTypeCompatibility(const ValueEntry& ve) {
+			if(ve.type != TypeTag::Matrix) throw std::runtime_error("Type incompatibility: Matrix checked against non-matching candidate type!");
+			if(mat_width_v<T> != ve.width || mat_height_v<T> != ve.height) throw std::runtime_error("Type incompatibility: Matrix requires a candidate storage with inappropriate dimensions!");
+			switch(ve.elementType) {
+				case TypeTag::Float32:
+					if constexpr(!std::is_same_v<mat_subtype_t<T>, float>) throw std::runtime_error("Type incompatibility: Matrix of Float32 checked against non-matching candidate type!");
+					break;
+				case TypeTag::Float64:
+					if constexpr(!std::is_same_v<mat_subtype_t<T>, double>) throw std::runtime_error("Type incompatibility: Matrix of Float64 checked against non-matching candidate type!");
+					break;
+				case TypeTag::SInt8:
+					if constexpr(!std::is_same_v<mat_subtype_t<T>, int8_t>) throw std::runtime_error("Type incompatibility: Matrix of SInt8 checked against non-matching candidate type!");
+					break;
+				case TypeTag::SInt16:
+					if constexpr(!std::is_same_v<mat_subtype_t<T>, int16_t>) throw std::runtime_error("Type incompatibility: Matrix of SInt16 checked against non-matching candidate type!");
+					break;
+				case TypeTag::SInt32:
+					if constexpr(!std::is_same_v<mat_subtype_t<T>, int32_t>) throw std::runtime_error("Type incompatibility: Matrix of SInt32 checked against non-matching candidate type!");
+					break;
+				case TypeTag::SInt64:
+					if constexpr(!std::is_same_v<mat_subtype_t<T>, int64_t>) throw std::runtime_error("Type incompatibility: Matrix of SInt64 checked against non-matching candidate type!");
+					break;
+				case TypeTag::UInt8:
+					if constexpr(!std::is_same_v<mat_subtype_t<T>, uint8_t>) throw std::runtime_error("Type incompatibility: Matrix of UInt8 checked against non-matching candidate type!");
+					break;
+				case TypeTag::UInt16:
+					if constexpr(!std::is_same_v<mat_subtype_t<T>, uint16_t>) throw std::runtime_error("Type incompatibility: Matrix of UInt16 checked against non-matching candidate type!");
+					break;
+				case TypeTag::UInt32:
+					if constexpr(!std::is_same_v<mat_subtype_t<T>, uint32_t>) throw std::runtime_error("Type incompatibility: Matrix of UInt32 checked against non-matching candidate type!");
+					break;
+				case TypeTag::UInt64:
+					if constexpr(!std::is_same_v<mat_subtype_t<T>, uint64_t>) throw std::runtime_error("Type incompatibility: Matrix of UInt64 checked against non-matching candidate type!");
 					break;
 				default: break;
 			}
@@ -660,8 +673,8 @@ namespace libjaguar {
 		const ScopeEntry& _ScopeInfoInternal(uint64_t id);
 		const ValueStorage& _QueryInternal(uint64_t id);
 		void _SetInternal(uint64_t id, const ValueStorage& val);
-		std::any _QueryObjInternal(const std::string& path);
-		void _SetObjInternal(const std::string& path, const std::any& obj);
+		std::any _QueryObjInternal(const std::string& path, std::type_index type);
+		void _SetObjInternal(const std::string& path, const std::any& obj, std::type_index type);
 		bool _Has(uint64_t id);
 
 		class DocPayloadProvider;
@@ -670,9 +683,9 @@ namespace libjaguar {
 
 	///@cond
 	template<typename T>
-	concept SingleVal = requires(Document& d, const T& t) {
-		d.From<std::template remove_cvref_t<T>>(t);
-		d.To(t)->std::template remove_cvref_t<T>;
+	concept SingleVal = requires(Document& d, const T& t, const Document::ValueStorage& s) {
+		{ d.From<std::remove_cvref_t<T>>(t) };
+		{ d.To<std::remove_cvref_t<T>>(s) };
 	};
 
 	template<typename T>
@@ -684,8 +697,8 @@ namespace libjaguar {
 			return To<T>(_QueryInternal(GenIndexID(path)));
 		} else {
 			if(converters.contains(typeid(T))) {
-				if(structuredObjTypes[_ScopeInfoInternal(GenIndexID(path)).typeID] != typeid(T)) throw std::runtime_error("Structured object type mismatch!");
-				return std::any_cast<T>(_QueryObjInternal(path));
+				if(structuredObjTypes.at(_ScopeInfoInternal(GenIndexID(path)).typeID) != typeid(T)) throw std::runtime_error("Structured object type mismatch!");
+				return std::any_cast<T>(_QueryObjInternal(path, typeid(T)));
 			}
 			throw std::runtime_error("No valid type registered!");
 		}
@@ -705,8 +718,8 @@ namespace libjaguar {
 			_SetInternal(id, From<T>(value));
 		} else {
 			if(converters.contains(typeid(T))) {
-				if(uint64_t id = GenIndexID(path); _Has(id) && structuredObjTypes[_ScopeInfoInternal(id).typeID] != typeid(T)) throw std::runtime_error("Existing structured object type mismatch!");
-				_SetObjInternal(path, std::make_any(value));
+				if(uint64_t id = GenIndexID(path); _Has(id) && structuredObjTypes.at(_ScopeInfoInternal(id).typeID) != typeid(T)) throw std::runtime_error("Existing structured object type mismatch!");
+				_SetObjInternal(path, std::make_any(value), typeid(T));
 			} else
 				throw std::runtime_error("No valid type registered!");
 		}

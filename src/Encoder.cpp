@@ -47,8 +47,15 @@ namespace libjaguar {
 			case TypeTag::SInt64: {
 				//This looks weird but it's just converting the type tag to the approriate number of bytes for the type
 				uint8_t bytes = std::pow(2, (static_cast<uint8_t>(type) & 0xF) - 0xA);
-				int64_t val = std::bit_cast<int64_t, uint64_t>(asBits);
-				if(std::abs(val) > (std::pow(2, bytes * 8) / 2 - 1) && val > std::pow(2, bytes * 8) / -2) throw std::runtime_error("Provider returned value too large for the requested type!");
+
+				//Sign extend the value to ensure negative values are handled properly
+				uint64_t mask = (bytes == 8) ? ~0ull : ((1ull << (bytes * 8)) - 1);
+				uint64_t cvt = asBits & mask;
+				uint64_t signBitExtended = 1ull << ((bytes * 8) - 1);
+				if(cvt & signBitExtended) cvt |= ~mask;
+				int64_t trueValue = static_cast<int64_t>(cvt);
+
+				if(std::abs(trueValue) > (std::pow(2, bytes * 8) / 2 - 1) && trueValue > std::pow(2, bytes * 8) / -2) throw std::runtime_error("Provider returned value too large for the requested type!");
 				switch(bytes) {
 					case 1:
 						writer.WriteInteger<uint8_t>(asBits);

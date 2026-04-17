@@ -77,14 +77,14 @@ namespace libjaguar {
 	}
 
 	template<>
-	Document::ValueStorage Document::From(const std::string& val) {
+	Document::ValueStorage Document::From<std::string>(const std::string& val) {
 		ValueStorage vs = {.materialized = true, .mem = std::vector<std::byte> {val.size()}, .inStream = 0};
 		std::memcpy(vs.mem.data(), val.data(), val.size());
 		return vs;
 	}
 
 	template<>
-	std::string Document::To(const ValueStorage& storage) {
+	std::string Document::To<std::string>(const ValueStorage& storage) {
 		std::string out;
 		out.resize(storage.mem.size());
 		std::memcpy(out.data(), storage.mem.data(), out.size());
@@ -394,7 +394,6 @@ namespace libjaguar {
 			if(ValueStorage& vs = storage[id]; !vs.materialized) {
 				//Seek to start of value body
 				reader.value()->seekg(vs.inStream, std::ios::beg);
-				std::streampos walter = reader.value()->tellg();
 
 				//Grab type info to calculate value size
 				const ValueEntry& typeInfo = _ValInfoInternal(id);
@@ -412,6 +411,7 @@ namespace libjaguar {
 				reader.value()->read(reinterpret_cast<char*>(vs.mem.data()), valSize);
 				if(reader.value()->eof()) throw std::runtime_error("Unexpected EOF in stream while materializing value!");
 				if(!reader.value()->good()) throw std::runtime_error("Unexpected stream IO error while materializing value!");
+				vs.materialized = true;
 			}
 			return;
 		}
@@ -508,12 +508,22 @@ namespace libjaguar {
 		storage[id] = val;
 	}
 
-	std::any Document::_QueryObjInternal(const std::string& path) {
-		//TODO: implement me or else
+	std::any Document::_QueryObjInternal(const std::string& path, std::type_index type) {
+		//Create reader object and get it
+		ObjReader rd;
+		rd.basePath = path;
+		rd.doc = this;
+
+		//Execute conversion
+		return converters[type].first(QueryScopeInfo(path), rd);
 	}
 
-	void Document::_SetObjInternal(const std::string& path, const std::any& obj) {
-		//TODO: implement me or else
+	void Document::_SetObjInternal(const std::string& path, const std::any& obj, std::type_index type) {
+		//Set all values
+		ObjWriter ow;
+		ow.basePath = path;
+		ow.doc = this;
+		converters[type].second(obj, ow);
 	}
 
 	void Document::DeleteValue(const std::string& path) {
