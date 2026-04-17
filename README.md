@@ -4,9 +4,9 @@
 <img src="jaguar_logo.png" width="500px" />
 
 ## About
-Jaguar is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Here, you can find the Jaguar specification, `libjaguar` reference encoding/decoding library, and `jaguartool` CLI tool for creating Jaguar streams via a text format.  
+Jaguar is a stream-oriented binary data exchange format with an emphasis on simplicity and efficiency. Here, you can find the Jaguar specification and the `libjaguar` reference encoding/decoding library.  
 
-For more information about `libjaguar` and `jaguartool`, visit [the documentation](https://robotleopard86.github.io/Jaguar).  
+For more information about `libjaguar`, visit [its documentation](https://robotleopard86.github.io/Jaguar/latest/api/index.html).  
 
 `libjaguar` requires C++20.
 
@@ -27,8 +27,9 @@ You will need:
 * Meson
 * Ninja  
 
-Configure the build directory with `meson setup build --native-file native.ini`, then run `meson compile -C build` to build `libjaguar` and `jaguartool`. You do not have to use the native file (which sets the compiler to Clang and the linker to LLD), but it is recommended.
+Configure the build directory with `meson setup build --native-file native.ini`, then run `meson compile -C build` to build `libjaguar`. You do not have to use the native file (which sets the compiler to Clang and the linker to LLD), but it is recommended.
 
 ## Licensing
-The Jaguar spec and supporting documents are provided and licensed under Creative Commons Attribution-ShareAlike 4.0 International. To view a copy of this license, visit [https://creativecommons.org/licenses/by-sa/4.0/](https://creativecommons.org/licenses/by-sa/4.0/).  
-`libjaguar` and `jaguartool` are licensed under the Apache License 2.0, which can be found in the root directory.
+The Jaguar specification and supporting documents are provided and licensed under Creative Commons Attribution-ShareAlike 4.0 International. To view a copy of this license, visit [https://creativecommons.org/licenses/by-sa/4.0/](https://creativecommons.org/licenses/by-sa/4.0/).  
+
+`libjaguar` is licensed under the Apache License 2.0, which can be found in the root directory.

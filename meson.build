@@ -17,10 +17,18 @@ if host_machine.system() == 'windows'
 	endif
 endif
 
-# Build libjaguar
-subdir('libjaguar')
+# Install headers
+install_subdir('include' / 'libjaguar', install_dir: 'include')
 
-# Build jaguartool if requested
-if get_option('jaguartool')
-	subdir('tool')
-endif
+# libjaguar
+libjaguar = both_libraries('jaguar', sources: [
+	'src' / 'Decoder.cpp',
+	'src' / 'Document.cpp',
+	'src' / 'Encoder.cpp',
+	'src' / 'Reader.cpp',
+	'src' / 'Utilities.cpp',
+	'src' / 'Writer.cpp'
+], include_directories: ['include', 'src'], pic: true, install: true)
+
+# Dependency
+libjaguar_dep = declare_dependency(link_with: libjaguar, include_directories: 'include')
