@@ -51,6 +51,7 @@ namespace libjaguar {
 				reader = std::move(dec).ReleaseReader();
 
 				//Reset to initial position
+				reader.value()->clear();
 				reader.value()->seekg(beg);
 
 				//Walk index to create initial storage map
@@ -95,8 +96,19 @@ namespace libjaguar {
 		DocPayloadProvider(Document* doc)
 		  : doc(doc) {}
 
-		void String(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) override {}
-		void Buffer(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) override {}
+		void String(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::String) throw std::runtime_error("Requested a string for a value that is not one!");
+			std::string chunk = doc->To<std::string>(doc->_QueryInternal(id)).substr(offset, chunkSize);
+			out.write(chunk.data(), chunkSize);
+		}
+		void Buffer(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) override {
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::ByteBuffer) throw std::runtime_error("Requested a byte buffer for a value that is not one!");
+			const ValueStorage& vs = doc->_QueryInternal(id);
+			if((int64_t(vs.mem.size()) - offset - chunkSize) < 0) throw std::runtime_error("Bad byte amount request!");
+			out.write(reinterpret_cast<const char*>(vs.mem.data()), chunkSize);
+		}
 		bool Boolean(uint64_t id) override {
 			if(doc->_ValInfoInternal(id).type != TypeTag::Boolean) throw std::runtime_error("Requested a boolean for a value that is not one!");
 			return doc->To<bool>(doc->_QueryInternal(id));
@@ -363,6 +375,7 @@ namespace libjaguar {
 		enc.Write(index.value(), provider);
 
 		//Hand back the streambuf
+		w = std::move(enc).ReleaseWriter();
 		w->flush();
 		out.rdbuf(w->rdbuf());
 	}
@@ -378,9 +391,10 @@ namespace libjaguar {
 		//Check if this is an end value (very easy to materialize) (all values have preloaded entries in the storage map)
 		if(storage.contains(id)) {
 			//If the object is already materialized, nothing happens
-			if(ValueStorage& vs = storage[id]; vs.materialized) {
+			if(ValueStorage& vs = storage[id]; !vs.materialized) {
 				//Seek to start of value body
-				reader.value()->seekg(vs.inStream);
+				reader.value()->seekg(vs.inStream, std::ios::beg);
+				std::streampos walter = reader.value()->tellg();
 
 				//Grab type info to calculate value size
 				const ValueEntry& typeInfo = _ValInfoInternal(id);
@@ -503,6 +517,62 @@ namespace libjaguar {
 	}
 
 	void Document::DeleteValue(const std::string& path) {
-		//TODO: implement me or else
+		//Verify stream state if needed
+		INDEX_READ_CHECK;
+
+		if(!CheckUTF8(path)) throw std::runtime_error("Path supplied to document that is invalid UTF-8 data!");
+		uint64_t id = GenIndexID(path);
+
+		//Make sure this isn't a list item
+		if(path.ends_with("]")) throw std::runtime_error("Cannot delete individual list items; must delete whole list!");
+
+		//Find parent
+		const auto indexWalk = [id](ScopeEntry& entry) -> std::optional<std::reference_wrapper<ScopeEntry>> {
+			auto impl = [id](ScopeEntry& entry, auto& implRef) mutable -> std::optional<std::reference_wrapper<ScopeEntry>> {
+				for(ValueEntry& value : entry.subvalues) {
+					if(value.id == id) return std::make_optional(std::reference_wrapper<ScopeEntry>(entry));
+				}
+				for(ScopeEntry& scope : entry.subscopes) {
+					if(scope.id == id) return std::make_optional(std::reference_wrapper<ScopeEntry>(entry));
+					if(auto result = implRef(scope, implRef); result.has_value()) return result;
+				}
+				return std::nullopt;
+			};
+			return impl(entry, impl);
+		};
+		auto maybeScope = indexWalk(index->root);
+		if(!maybeScope.has_value()) throw std::runtime_error("Couldn't find parent scope!");
+		ScopeEntry& parentScope = maybeScope->get();
+		if(!parentScope.typeID.empty()) throw std::runtime_error("Cannot delete member of structured object; must delete whole object!");
+
+		//Check if this is a value (it'll be in storage if so)
+		if(storage.contains(id)) {
+			//It's a value; wipe it from storage and delete its entry
+			storage.erase(id);
+			for(auto it = parentScope.subvalues.begin(); it != parentScope.subvalues.end(); ++it) {
+				if(it->id == id) parentScope.subvalues.erase(it);
+			}
+		} else {
+			//It's a scope, so we need to erase all the children
+			const auto purgeScope = [this](ScopeEntry& entry) -> void {
+				auto impl = [this](ScopeEntry& entry, auto& implRef) mutable -> void {
+					for(ValueEntry& val : entry.subvalues) {
+						storage.erase(val.id);
+					}
+					entry.subvalues.clear();
+					for(ScopeEntry& subscope : entry.subscopes) implRef(subscope, implRef);
+					entry.subscopes.clear();
+				};
+				return impl(entry, impl);
+			};
+			auto scopeIt = [&parentScope, id]() -> decltype(parentScope.subscopes)::iterator {
+				for(auto it = parentScope.subscopes.begin(); it != parentScope.subscopes.end(); ++it) {
+					if(it->id == id) return it;
+				}
+				throw std::runtime_error("UNREACHABLE CODE!!!! HOW DID YOU GET HERE!!!!!");
+			}();
+			purgeScope(*scopeIt);
+			parentScope.subscopes.erase(scopeIt);
+		}
 	}
 }

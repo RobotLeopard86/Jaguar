@@ -5,7 +5,6 @@
 #include "Reader.hpp"
 #include "Index.hpp"
 #include "Traits.hpp"
-#include "Utilities.hpp"
 
 #include <algorithm>
 #include <any>
@@ -23,6 +22,10 @@
 #include <unordered_map>
 
 namespace libjaguar {
+	///@cond
+	bool CheckUTF8(const std::string& string);
+	///@endcond
+
 	/**
 	 * @brief A lazy interface for reading, modifying, and writing Jaguar data
 	 *
