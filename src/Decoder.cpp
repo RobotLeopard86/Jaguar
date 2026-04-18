@@ -269,13 +269,14 @@ namespace libjaguar {
 				std::string newScopePath;
 				if(!scopePath.empty()) {
 					if(scopePath.ends_with("["))
-						newScopePath = scopePath + header.name + "]";
+						newScopePath = scopePath + entry.name + "]";
 					else
-						newScopePath = scopePath + "." + header.name;
+						newScopePath = scopePath + "." + entry.name;
 				} else {
 					newScopePath = entry.name;
 				}
 				entry.id = GenIndexID(newScopePath);
+				if(entry.list) newScopePath += "[";
 				if(nest > 1 && header.type == TypeTag::StructuredObjTypeDecl) DECODE_ERROR("Type declarations may only appear in the root scope!");
 
 				//Handle different scope types

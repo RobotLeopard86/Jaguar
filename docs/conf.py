@@ -40,7 +40,7 @@ exhale_args = {
     "exhaleExecutesDoxygen": True,
     "afterTitleDescription": "Welcome to the libjaguar documentation. Here you can find comprehensive information on the libjaguar API; check out the map below!",
     "exhaleDoxygenStdin": dedent('''
-									INPUT = ../libjaguar/include
+									INPUT = ../include
                                     EXCLUDE_SYMBOLS = std*,LJAPI,LJBUILD
 									HIDE_UNDOC_MEMBERS = YES
 									MAX_INITIALIZER_LINES = 0

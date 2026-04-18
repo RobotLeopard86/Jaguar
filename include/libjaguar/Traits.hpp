@@ -108,7 +108,7 @@ namespace libjaguar {
 	};
 
 	template<std::ranges::range T>
-		requires std::is_same_v<unsigned char, std::ranges::range_value_t<T>> || std::is_same_v<std::byte, std::ranges::range_value_t<T>>
+		requires std::is_same_v<unsigned char, std::ranges::range_value_t<T>> || std::is_same_v<unsigned char, std::ranges::range_value_t<T>>
 	struct is_byte_range<T> : public std::true_type {
 	};
 
@@ -175,5 +175,15 @@ namespace libjaguar {
 
 	template<mat T>
 	inline constexpr uint8_t mat_height_v = mat_info<T>::height;
+
+	template<typename T>
+	concept indexable_range = std::ranges::sized_range<T> && std::ranges::random_access_range<T> && requires(T t, std::size_t i, std::ranges::range_value_t<T> v) {
+		t[i] = v;
+	};
+
+	template<typename T>
+	concept resizable_range = requires(T t, std::size_t n) {
+		t.resize(n);
+	};
 	///@endcond
 }

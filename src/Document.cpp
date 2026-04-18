@@ -2,6 +2,7 @@
 #include "libjaguar/Decoder.hpp"
 #include "libjaguar/Encoder.hpp"
 #include "libjaguar/Index.hpp"
+#include "libjaguar/StructuredTypeLayout.hpp"
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/Writer.hpp"
 #include "Utilities.hpp"
@@ -9,6 +10,8 @@
 #include <cstring>
 #include <ostream>
 #include <stdexcept>
+#include <typeindex>
+#include <utility>
 
 #define INDEX_READ_CHECK \
 	if(!index.has_value() && !_Verify()) throw std::runtime_error("Could not validate document stream state required for read operation!")
@@ -78,7 +81,7 @@ namespace libjaguar {
 
 	template<>
 	Document::ValueStorage Document::From<std::string>(const std::string& val) {
-		ValueStorage vs = {.materialized = true, .mem = std::vector<std::byte> {val.size()}, .inStream = 0};
+		ValueStorage vs = {.materialized = true, .mem = std::vector<unsigned char>(val.size()), .inStream = 0};
 		std::memcpy(vs.mem.data(), val.data(), val.size());
 		return vs;
 	}
@@ -331,7 +334,7 @@ namespace libjaguar {
 			uint64_t out = 0;
 			for(uint8_t i = ((bits / 8) * (x + 1) * (y + 1)); i < (bits / 8); ++i) {
 				out <<= 8;
-				out &= uint64_t(storage.mem[i] & std::byte(0xFF));
+				out &= uint64_t(storage.mem[i] & static_cast<unsigned char>(0xFF));
 			}
 			return out;
 		}
@@ -341,7 +344,7 @@ namespace libjaguar {
 			uint32_t out = 0;
 			for(uint8_t i = (4 * (x + 1) * (y + 1)); i < 4; ++i) {
 				out <<= 8;
-				out &= uint32_t(storage.mem[i] & std::byte(0xFF));
+				out &= uint32_t(storage.mem[i] & static_cast<unsigned char>(0xFF));
 			}
 			return std::bit_cast<float, uint32_t>(out);
 		}
@@ -351,7 +354,7 @@ namespace libjaguar {
 			uint64_t out = 0;
 			for(uint8_t i = (8 * (x + 1) * (y + 1)); i < 8; ++i) {
 				out <<= 8;
-				out &= uint64_t(storage.mem[i] & std::byte(0xFF));
+				out &= uint64_t(storage.mem[i] & static_cast<unsigned char>(0xFF));
 			}
 			return std::bit_cast<double, uint64_t>(out);
 		}
@@ -486,9 +489,25 @@ namespace libjaguar {
 		return _ScopeInfoInternal(GenIndexID(path));
 	}
 
-	bool Document::_Has(uint64_t id) {
+	bool Document::HasValue(const std::string& path) {
+		//Verify stream state if needed
 		INDEX_READ_CHECK;
-		return storage.contains(id);
+
+		//Search for value first
+		try {
+			//This will throw if there's no value at the path (there could be a scope), otherwise we'll make it through to the return
+			QueryValueInfo(path);
+			return true;
+		} catch(...) {
+			//Try for scope; this will throw if there's no scope at the path, otherwise we'll make it through to the return
+			try {
+				QueryScopeInfo(path);
+				return true;
+			} catch(...) {
+				//No scope or value; nonexistent
+				return false;
+			}
+		}
 	}
 
 	const Document::ValueStorage& Document::_QueryInternal(uint64_t id) {
@@ -515,7 +534,7 @@ namespace libjaguar {
 		rd.doc = this;
 
 		//Execute conversion
-		return converters[type].first(QueryScopeInfo(path), rd);
+		return converters[type].first(rd);
 	}
 
 	void Document::_SetObjInternal(const std::string& path, const std::any& obj, std::type_index type) {
@@ -530,11 +549,10 @@ namespace libjaguar {
 		//Verify stream state if needed
 		INDEX_READ_CHECK;
 
-		if(!CheckUTF8(path)) throw std::runtime_error("Path supplied to document that is invalid UTF-8 data!");
-		uint64_t id = GenIndexID(path);
-
 		//Make sure this isn't a list item
+		if(!CheckUTF8(path)) throw std::runtime_error("Path supplied to document that is invalid UTF-8 data!");
 		if(path.ends_with("]")) throw std::runtime_error("Cannot delete individual list items; must delete whole list!");
+		uint64_t id = GenIndexID(path);
 
 		//Find parent
 		const auto indexWalk = [id](ScopeEntry& entry) -> std::optional<std::reference_wrapper<ScopeEntry>> {
@@ -584,5 +602,23 @@ namespace libjaguar {
 			purgeScope(*scopeIt);
 			parentScope.subscopes.erase(scopeIt);
 		}
+	}
+
+	void Document::_RegisterConverterInternal(const std::string& typeID, const StructuredTypeLayout& layout, const std::type_index& type, const typename decltype(converters)::mapped_type& cvt, std::function<void(const std::string&, bool)> createWrap) {
+		//Verify stream state if needed
+		INDEX_READ_CHECK;
+
+		//Check type ID validity
+		if(!CheckUTF8(typeID)) throw std::runtime_error("Cannot register a structured object type with an invalid UTF-8 type ID!");
+		if(converters.contains(type)) throw std::runtime_error("A converter has already been registered for this type!");
+
+		//Validate layout
+		ValidateTypeLayout(layout);
+
+		//Store data
+		structuredObjTypes.insert_or_assign(typeID, type);
+		converters.insert_or_assign(type, std::move(cvt));
+		createValWraps.insert_or_assign(type, createWrap);
+		index->types[typeID] = layout;
 	}
 }
