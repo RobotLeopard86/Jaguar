@@ -838,7 +838,7 @@ namespace libjaguar {
 				} else if constexpr(std::is_same_v<U, double>) {
 					scope.listMathData.type = TypeTag::Float64;
 				} else if constexpr(is_number_v<U>) {
-					scope.listMathData.type = static_cast<TypeTag>(std::log2(bits_v<S> / 8) + 0x1A + (std::is_signed_v<S> ? 0 : 0x10));
+					scope.listMathData.type = static_cast<TypeTag>(std::log2(bits_v<U> / 8) + 0x1A + (std::is_signed_v<U> ? 0 : 0x10));
 				}
 			} else if constexpr(mat<S>) {
 				scope.listElementType = TypeTag::Vector;
@@ -851,14 +851,14 @@ namespace libjaguar {
 				} else if constexpr(std::is_same_v<U, double>) {
 					scope.listMathData.type = TypeTag::Float64;
 				} else if constexpr(is_number_v<U>) {
-					scope.listMathData.type = static_cast<TypeTag>(std::log2(bits_v<S> / 8) + 0x1A + (std::is_signed_v<S> ? 0 : 0x10));
+					scope.listMathData.type = static_cast<TypeTag>(std::log2(bits_v<U> / 8) + 0x1A + (std::is_signed_v<U> ? 0 : 0x10));
 				}
 			} else if constexpr(std::is_same_v<S, UnstructuredObjTag>) {
 				scope.listElementType = TypeTag::UnstructuredObj;
 				scope.typeID = "";
 			} else if(converters.contains(typeid(S))) {
 				scope.listElementType = TypeTag::StructuredObj;
-				scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [](const std::type_index& type) { return type == typeid(S); });
+				scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [this](const auto& pair) { return pair.second == typeid(T); })->first;
 			} else
 				throw std::runtime_error("Invalid type for field creation!");
 
@@ -934,7 +934,7 @@ namespace libjaguar {
 			scope.id = id;
 			scope.streamBeginPosition = 0;
 			scope.listElementType = TypeTag::StructuredObj;
-			scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [](const std::type_index& type) { return type == typeid(T); });
+			scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [this](const auto& pair) { return pair.second == typeid(T); })->first;
 			parentScope.subscopes.push_back(scope);
 
 			//Configure fields
@@ -982,7 +982,9 @@ namespace libjaguar {
 						break;
 					case TypeTag::List:
 						if(field.elementType == TypeTag::StructuredObj) {
-							createValWraps[structuredObjTypes[field.typeID]](path + "." + field.name, true);
+							const std::type_index& type = structuredObjTypes.at(field.typeID);
+							createValWraps.at(type)(path + "." + field.name, false);
+							break;
 						} else {
 							switch(field.elementType) {
 								case TypeTag::String:
@@ -1029,19 +1031,752 @@ namespace libjaguar {
 									break;
 								case TypeTag::Vector:
 								case TypeTag::Matrix: {
+									//This makes our lives way easier and improves performance by avoiding nested switch; final bit layout TTTTWWHH (T = type, W = width, H = height)
+									//What do you mean it's hard to understand? /j
+									uint8_t determiner = (static_cast<uint8_t>(field.elementType) << 4) | ((field.width - 1) << 2) | (field.type == TypeTag::Matrix ? ((field.width - 1) << 2) : 0);
+									switch(determiner) {
+										case 0x0E10:
+											CreateValue<std::vector<Vector<float, 2>>>(path + "." + field.name);
+											break;
+										case 0x0E11:
+											CreateValue<std::vector<Matrix<float, 2, 2>>>(path + "." + field.name);
+											break;
+										case 0x0E12:
+											CreateValue<std::vector<Matrix<float, 2, 3>>>(path + "." + field.name);
+											break;
+										case 0x0E13:
+											CreateValue<std::vector<Matrix<float, 2, 4>>>(path + "." + field.name);
+											break;
+										case 0x0E20:
+											CreateValue<std::vector<Vector<float, 3>>>(path + "." + field.name);
+											break;
+										case 0x0E21:
+											CreateValue<std::vector<Matrix<float, 3, 2>>>(path + "." + field.name);
+											break;
+										case 0x0E22:
+											CreateValue<std::vector<Matrix<float, 3, 3>>>(path + "." + field.name);
+											break;
+										case 0x0E23:
+											CreateValue<std::vector<Matrix<float, 3, 4>>>(path + "." + field.name);
+											break;
+										case 0x0E30:
+											CreateValue<std::vector<Vector<float, 4>>>(path + "." + field.name);
+											break;
+										case 0x0E31:
+											CreateValue<std::vector<Matrix<float, 4, 2>>>(path + "." + field.name);
+											break;
+										case 0x0E32:
+											CreateValue<std::vector<Matrix<float, 4, 3>>>(path + "." + field.name);
+											break;
+										case 0x0E33:
+											CreateValue<std::vector<Matrix<float, 4, 4>>>(path + "." + field.name);
+											break;
+										case 0x0F10:
+											CreateValue<std::vector<Vector<double, 2>>>(path + "." + field.name);
+											break;
+										case 0x0F11:
+											CreateValue<std::vector<Matrix<double, 2, 2>>>(path + "." + field.name);
+											break;
+										case 0x0F12:
+											CreateValue<std::vector<Matrix<double, 2, 3>>>(path + "." + field.name);
+											break;
+										case 0x0F13:
+											CreateValue<std::vector<Matrix<double, 2, 4>>>(path + "." + field.name);
+											break;
+										case 0x0F20:
+											CreateValue<std::vector<Vector<double, 3>>>(path + "." + field.name);
+											break;
+										case 0x0F21:
+											CreateValue<std::vector<Matrix<double, 3, 2>>>(path + "." + field.name);
+											break;
+										case 0x0F22:
+											CreateValue<std::vector<Matrix<double, 3, 3>>>(path + "." + field.name);
+											break;
+										case 0x0F23:
+											CreateValue<std::vector<Matrix<double, 3, 4>>>(path + "." + field.name);
+											break;
+										case 0x0F30:
+											CreateValue<std::vector<Vector<double, 4>>>(path + "." + field.name);
+											break;
+										case 0x0F31:
+											CreateValue<std::vector<Matrix<double, 4, 2>>>(path + "." + field.name);
+											break;
+										case 0x0F32:
+											CreateValue<std::vector<Matrix<double, 4, 3>>>(path + "." + field.name);
+											break;
+										case 0x0F33:
+											CreateValue<std::vector<Matrix<double, 4, 4>>>(path + "." + field.name);
+											break;
+										case 0x1A10:
+											CreateValue<std::vector<Vector<int8_t, 2>>>(path + "." + field.name);
+											break;
+										case 0x1A11:
+											CreateValue<std::vector<Matrix<int8_t, 2, 2>>>(path + "." + field.name);
+											break;
+										case 0x1A12:
+											CreateValue<std::vector<Matrix<int8_t, 2, 3>>>(path + "." + field.name);
+											break;
+										case 0x1A13:
+											CreateValue<std::vector<Matrix<int8_t, 2, 4>>>(path + "." + field.name);
+											break;
+										case 0x1A20:
+											CreateValue<std::vector<Vector<int8_t, 3>>>(path + "." + field.name);
+											break;
+										case 0x1A21:
+											CreateValue<std::vector<Matrix<int8_t, 3, 2>>>(path + "." + field.name);
+											break;
+										case 0x1A22:
+											CreateValue<std::vector<Matrix<int8_t, 3, 3>>>(path + "." + field.name);
+											break;
+										case 0x1A23:
+											CreateValue<std::vector<Matrix<int8_t, 3, 4>>>(path + "." + field.name);
+											break;
+										case 0x1A30:
+											CreateValue<std::vector<Vector<int8_t, 4>>>(path + "." + field.name);
+											break;
+										case 0x1A31:
+											CreateValue<std::vector<Matrix<int8_t, 4, 2>>>(path + "." + field.name);
+											break;
+										case 0x1A32:
+											CreateValue<std::vector<Matrix<int8_t, 4, 3>>>(path + "." + field.name);
+											break;
+										case 0x1A33:
+											CreateValue<std::vector<Matrix<int8_t, 4, 4>>>(path + "." + field.name);
+											break;
+										case 0x1B10:
+											CreateValue<std::vector<Vector<int16_t, 2>>>(path + "." + field.name);
+											break;
+										case 0x1B11:
+											CreateValue<std::vector<Matrix<int16_t, 2, 2>>>(path + "." + field.name);
+											break;
+										case 0x1B12:
+											CreateValue<std::vector<Matrix<int16_t, 2, 3>>>(path + "." + field.name);
+											break;
+										case 0x1B13:
+											CreateValue<std::vector<Matrix<int16_t, 2, 4>>>(path + "." + field.name);
+											break;
+										case 0x1B20:
+											CreateValue<std::vector<Vector<int16_t, 3>>>(path + "." + field.name);
+											break;
+										case 0x1B21:
+											CreateValue<std::vector<Matrix<int16_t, 3, 2>>>(path + "." + field.name);
+											break;
+										case 0x1B22:
+											CreateValue<std::vector<Matrix<int16_t, 3, 3>>>(path + "." + field.name);
+											break;
+										case 0x1B23:
+											CreateValue<std::vector<Matrix<int16_t, 3, 4>>>(path + "." + field.name);
+											break;
+										case 0x1B30:
+											CreateValue<std::vector<Vector<int16_t, 4>>>(path + "." + field.name);
+											break;
+										case 0x1B31:
+											CreateValue<std::vector<Matrix<int16_t, 4, 2>>>(path + "." + field.name);
+											break;
+										case 0x1B32:
+											CreateValue<std::vector<Matrix<int16_t, 4, 3>>>(path + "." + field.name);
+											break;
+										case 0x1B33:
+											CreateValue<std::vector<Matrix<int16_t, 4, 4>>>(path + "." + field.name);
+											break;
+										case 0x1C10:
+											CreateValue<std::vector<Vector<int32_t, 2>>>(path + "." + field.name);
+											break;
+										case 0x1C11:
+											CreateValue<std::vector<Matrix<int32_t, 2, 2>>>(path + "." + field.name);
+											break;
+										case 0x1C12:
+											CreateValue<std::vector<Matrix<int32_t, 2, 3>>>(path + "." + field.name);
+											break;
+										case 0x1C13:
+											CreateValue<std::vector<Matrix<int32_t, 2, 4>>>(path + "." + field.name);
+											break;
+										case 0x1C20:
+											CreateValue<std::vector<Vector<int32_t, 3>>>(path + "." + field.name);
+											break;
+										case 0x1C21:
+											CreateValue<std::vector<Matrix<int32_t, 3, 2>>>(path + "." + field.name);
+											break;
+										case 0x1C22:
+											CreateValue<std::vector<Matrix<int32_t, 3, 3>>>(path + "." + field.name);
+											break;
+										case 0x1C23:
+											CreateValue<std::vector<Matrix<int32_t, 3, 4>>>(path + "." + field.name);
+											break;
+										case 0x1C30:
+											CreateValue<std::vector<Vector<int32_t, 4>>>(path + "." + field.name);
+											break;
+										case 0x1C31:
+											CreateValue<std::vector<Matrix<int32_t, 4, 2>>>(path + "." + field.name);
+											break;
+										case 0x1C32:
+											CreateValue<std::vector<Matrix<int32_t, 4, 3>>>(path + "." + field.name);
+											break;
+										case 0x1C33:
+											CreateValue<std::vector<Matrix<int32_t, 4, 4>>>(path + "." + field.name);
+											break;
+										case 0x1D10:
+											CreateValue<std::vector<Vector<int64_t, 2>>>(path + "." + field.name);
+											break;
+										case 0x1D11:
+											CreateValue<std::vector<Matrix<int64_t, 2, 2>>>(path + "." + field.name);
+											break;
+										case 0x1D12:
+											CreateValue<std::vector<Matrix<int64_t, 2, 3>>>(path + "." + field.name);
+											break;
+										case 0x1D13:
+											CreateValue<std::vector<Matrix<int64_t, 2, 4>>>(path + "." + field.name);
+											break;
+										case 0x1D20:
+											CreateValue<std::vector<Vector<int64_t, 3>>>(path + "." + field.name);
+											break;
+										case 0x1D21:
+											CreateValue<std::vector<Matrix<int64_t, 3, 2>>>(path + "." + field.name);
+											break;
+										case 0x1D22:
+											CreateValue<std::vector<Matrix<int64_t, 3, 3>>>(path + "." + field.name);
+											break;
+										case 0x1D23:
+											CreateValue<std::vector<Matrix<int64_t, 3, 4>>>(path + "." + field.name);
+											break;
+										case 0x1D30:
+											CreateValue<std::vector<Vector<int64_t, 4>>>(path + "." + field.name);
+											break;
+										case 0x1D31:
+											CreateValue<std::vector<Matrix<int64_t, 4, 2>>>(path + "." + field.name);
+											break;
+										case 0x1D32:
+											CreateValue<std::vector<Matrix<int64_t, 4, 3>>>(path + "." + field.name);
+											break;
+										case 0x1D33:
+											CreateValue<std::vector<Matrix<int64_t, 4, 4>>>(path + "." + field.name);
+											break;
+										case 0x2A10:
+											CreateValue<std::vector<Vector<uint8_t, 2>>>(path + "." + field.name);
+											break;
+										case 0x2A11:
+											CreateValue<std::vector<Matrix<uint8_t, 2, 2>>>(path + "." + field.name);
+											break;
+										case 0x2A12:
+											CreateValue<std::vector<Matrix<uint8_t, 2, 3>>>(path + "." + field.name);
+											break;
+										case 0x2A13:
+											CreateValue<std::vector<Matrix<uint8_t, 2, 4>>>(path + "." + field.name);
+											break;
+										case 0x2A20:
+											CreateValue<std::vector<Vector<uint8_t, 3>>>(path + "." + field.name);
+											break;
+										case 0x2A21:
+											CreateValue<std::vector<Matrix<uint8_t, 3, 2>>>(path + "." + field.name);
+											break;
+										case 0x2A22:
+											CreateValue<std::vector<Matrix<uint8_t, 3, 3>>>(path + "." + field.name);
+											break;
+										case 0x2A23:
+											CreateValue<std::vector<Matrix<uint8_t, 3, 4>>>(path + "." + field.name);
+											break;
+										case 0x2A30:
+											CreateValue<std::vector<Vector<uint8_t, 4>>>(path + "." + field.name);
+											break;
+										case 0x2A31:
+											CreateValue<std::vector<Matrix<uint8_t, 4, 2>>>(path + "." + field.name);
+											break;
+										case 0x2A32:
+											CreateValue<std::vector<Matrix<uint8_t, 4, 3>>>(path + "." + field.name);
+											break;
+										case 0x2A33:
+											CreateValue<std::vector<Matrix<uint8_t, 4, 4>>>(path + "." + field.name);
+											break;
+										case 0x2B10:
+											CreateValue<std::vector<Vector<uint16_t, 2>>>(path + "." + field.name);
+											break;
+										case 0x2B11:
+											CreateValue<std::vector<Matrix<uint16_t, 2, 2>>>(path + "." + field.name);
+											break;
+										case 0x2B12:
+											CreateValue<std::vector<Matrix<uint16_t, 2, 3>>>(path + "." + field.name);
+											break;
+										case 0x2B13:
+											CreateValue<std::vector<Matrix<uint16_t, 2, 4>>>(path + "." + field.name);
+											break;
+										case 0x2B20:
+											CreateValue<std::vector<Vector<uint16_t, 3>>>(path + "." + field.name);
+											break;
+										case 0x2B21:
+											CreateValue<std::vector<Matrix<uint16_t, 3, 2>>>(path + "." + field.name);
+											break;
+										case 0x2B22:
+											CreateValue<std::vector<Matrix<uint16_t, 3, 3>>>(path + "." + field.name);
+											break;
+										case 0x2B23:
+											CreateValue<std::vector<Matrix<uint16_t, 3, 4>>>(path + "." + field.name);
+											break;
+										case 0x2B30:
+											CreateValue<std::vector<Vector<uint16_t, 4>>>(path + "." + field.name);
+											break;
+										case 0x2B31:
+											CreateValue<std::vector<Matrix<uint16_t, 4, 2>>>(path + "." + field.name);
+											break;
+										case 0x2B32:
+											CreateValue<std::vector<Matrix<uint16_t, 4, 3>>>(path + "." + field.name);
+											break;
+										case 0x2B33:
+											CreateValue<std::vector<Matrix<uint16_t, 4, 4>>>(path + "." + field.name);
+											break;
+										case 0x2C10:
+											CreateValue<std::vector<Vector<uint32_t, 2>>>(path + "." + field.name);
+											break;
+										case 0x2C11:
+											CreateValue<std::vector<Matrix<uint32_t, 2, 2>>>(path + "." + field.name);
+											break;
+										case 0x2C12:
+											CreateValue<std::vector<Matrix<uint32_t, 2, 3>>>(path + "." + field.name);
+											break;
+										case 0x2C13:
+											CreateValue<std::vector<Matrix<uint32_t, 2, 4>>>(path + "." + field.name);
+											break;
+										case 0x2C20:
+											CreateValue<std::vector<Vector<uint32_t, 3>>>(path + "." + field.name);
+											break;
+										case 0x2C21:
+											CreateValue<std::vector<Matrix<uint32_t, 3, 2>>>(path + "." + field.name);
+											break;
+										case 0x2C22:
+											CreateValue<std::vector<Matrix<uint32_t, 3, 3>>>(path + "." + field.name);
+											break;
+										case 0x2C23:
+											CreateValue<std::vector<Matrix<uint32_t, 3, 4>>>(path + "." + field.name);
+											break;
+										case 0x2C30:
+											CreateValue<std::vector<Vector<uint32_t, 4>>>(path + "." + field.name);
+											break;
+										case 0x2C31:
+											CreateValue<std::vector<Matrix<uint32_t, 4, 2>>>(path + "." + field.name);
+											break;
+										case 0x2C32:
+											CreateValue<std::vector<Matrix<uint32_t, 4, 3>>>(path + "." + field.name);
+											break;
+										case 0x2C33:
+											CreateValue<std::vector<Matrix<uint32_t, 4, 4>>>(path + "." + field.name);
+											break;
+										case 0x2D10:
+											CreateValue<std::vector<Vector<uint64_t, 2>>>(path + "." + field.name);
+											break;
+										case 0x2D11:
+											CreateValue<std::vector<Matrix<uint64_t, 2, 2>>>(path + "." + field.name);
+											break;
+										case 0x2D12:
+											CreateValue<std::vector<Matrix<uint64_t, 2, 3>>>(path + "." + field.name);
+											break;
+										case 0x2D13:
+											CreateValue<std::vector<Matrix<uint64_t, 2, 4>>>(path + "." + field.name);
+											break;
+										case 0x2D20:
+											CreateValue<std::vector<Vector<uint64_t, 3>>>(path + "." + field.name);
+											break;
+										case 0x2D21:
+											CreateValue<std::vector<Matrix<uint64_t, 3, 2>>>(path + "." + field.name);
+											break;
+										case 0x2D22:
+											CreateValue<std::vector<Matrix<uint64_t, 3, 3>>>(path + "." + field.name);
+											break;
+										case 0x2D23:
+											CreateValue<std::vector<Matrix<uint64_t, 3, 4>>>(path + "." + field.name);
+											break;
+										case 0x2D30:
+											CreateValue<std::vector<Vector<uint64_t, 4>>>(path + "." + field.name);
+											break;
+										case 0x2D31:
+											CreateValue<std::vector<Matrix<uint64_t, 4, 2>>>(path + "." + field.name);
+											break;
+										case 0x2D32:
+											CreateValue<std::vector<Matrix<uint64_t, 4, 3>>>(path + "." + field.name);
+											break;
+										case 0x2D33:
+											CreateValue<std::vector<Matrix<uint64_t, 4, 4>>>(path + "." + field.name);
+											break;
+									}
 									break;
 								}
 								default: break;
 							}
+							break;
 						}
 					case TypeTag::UnstructuredObj:
 						CreateValue<UnstructuredObjTag>(path + "." + field.name);
 						break;
-					case TypeTag::StructuredObj:
-						createValWraps[structuredObjTypes[field.typeID]](path + "." + field.name, false);
+					case TypeTag::StructuredObj: {
+						const std::type_index& type = structuredObjTypes.at(field.typeID);
+						createValWraps.at(type)(path + "." + field.name, false);
 						break;
+					}
 					case TypeTag::Vector:
 					case TypeTag::Matrix: {
+						//This makes our lives way easier and improves performance by avoiding nested switch; final bit layout TTTTWWHH (T = type, W = width, H = height)
+						//What do you mean it's hard to understand? /j
+						uint8_t determiner = (static_cast<uint8_t>(field.elementType) << 4) | ((field.width - 1) << 2) | (field.type == TypeTag::Matrix ? ((field.width - 1) << 2) : 0);
+						switch(determiner) {
+							case 0x0E10:
+								CreateValue<Vector<float, 2>>(path + "." + field.name);
+								break;
+							case 0x0E11:
+								CreateValue<Matrix<float, 2, 2>>(path + "." + field.name);
+								break;
+							case 0x0E12:
+								CreateValue<Matrix<float, 2, 3>>(path + "." + field.name);
+								break;
+							case 0x0E13:
+								CreateValue<Matrix<float, 2, 4>>(path + "." + field.name);
+								break;
+							case 0x0E20:
+								CreateValue<Vector<float, 3>>(path + "." + field.name);
+								break;
+							case 0x0E21:
+								CreateValue<Matrix<float, 3, 2>>(path + "." + field.name);
+								break;
+							case 0x0E22:
+								CreateValue<Matrix<float, 3, 3>>(path + "." + field.name);
+								break;
+							case 0x0E23:
+								CreateValue<Matrix<float, 3, 4>>(path + "." + field.name);
+								break;
+							case 0x0E30:
+								CreateValue<Vector<float, 4>>(path + "." + field.name);
+								break;
+							case 0x0E31:
+								CreateValue<Matrix<float, 4, 2>>(path + "." + field.name);
+								break;
+							case 0x0E32:
+								CreateValue<Matrix<float, 4, 3>>(path + "." + field.name);
+								break;
+							case 0x0E33:
+								CreateValue<Matrix<float, 4, 4>>(path + "." + field.name);
+								break;
+							case 0x0F10:
+								CreateValue<Vector<double, 2>>(path + "." + field.name);
+								break;
+							case 0x0F11:
+								CreateValue<Matrix<double, 2, 2>>(path + "." + field.name);
+								break;
+							case 0x0F12:
+								CreateValue<Matrix<double, 2, 3>>(path + "." + field.name);
+								break;
+							case 0x0F13:
+								CreateValue<Matrix<double, 2, 4>>(path + "." + field.name);
+								break;
+							case 0x0F20:
+								CreateValue<Vector<double, 3>>(path + "." + field.name);
+								break;
+							case 0x0F21:
+								CreateValue<Matrix<double, 3, 2>>(path + "." + field.name);
+								break;
+							case 0x0F22:
+								CreateValue<Matrix<double, 3, 3>>(path + "." + field.name);
+								break;
+							case 0x0F23:
+								CreateValue<Matrix<double, 3, 4>>(path + "." + field.name);
+								break;
+							case 0x0F30:
+								CreateValue<Vector<double, 4>>(path + "." + field.name);
+								break;
+							case 0x0F31:
+								CreateValue<Matrix<double, 4, 2>>(path + "." + field.name);
+								break;
+							case 0x0F32:
+								CreateValue<Matrix<double, 4, 3>>(path + "." + field.name);
+								break;
+							case 0x0F33:
+								CreateValue<Matrix<double, 4, 4>>(path + "." + field.name);
+								break;
+							case 0x1A10:
+								CreateValue<Vector<int8_t, 2>>(path + "." + field.name);
+								break;
+							case 0x1A11:
+								CreateValue<Matrix<int8_t, 2, 2>>(path + "." + field.name);
+								break;
+							case 0x1A12:
+								CreateValue<Matrix<int8_t, 2, 3>>(path + "." + field.name);
+								break;
+							case 0x1A13:
+								CreateValue<Matrix<int8_t, 2, 4>>(path + "." + field.name);
+								break;
+							case 0x1A20:
+								CreateValue<Vector<int8_t, 3>>(path + "." + field.name);
+								break;
+							case 0x1A21:
+								CreateValue<Matrix<int8_t, 3, 2>>(path + "." + field.name);
+								break;
+							case 0x1A22:
+								CreateValue<Matrix<int8_t, 3, 3>>(path + "." + field.name);
+								break;
+							case 0x1A23:
+								CreateValue<Matrix<int8_t, 3, 4>>(path + "." + field.name);
+								break;
+							case 0x1A30:
+								CreateValue<Vector<int8_t, 4>>(path + "." + field.name);
+								break;
+							case 0x1A31:
+								CreateValue<Matrix<int8_t, 4, 2>>(path + "." + field.name);
+								break;
+							case 0x1A32:
+								CreateValue<Matrix<int8_t, 4, 3>>(path + "." + field.name);
+								break;
+							case 0x1A33:
+								CreateValue<Matrix<int8_t, 4, 4>>(path + "." + field.name);
+								break;
+							case 0x1B10:
+								CreateValue<Vector<int16_t, 2>>(path + "." + field.name);
+								break;
+							case 0x1B11:
+								CreateValue<Matrix<int16_t, 2, 2>>(path + "." + field.name);
+								break;
+							case 0x1B12:
+								CreateValue<Matrix<int16_t, 2, 3>>(path + "." + field.name);
+								break;
+							case 0x1B13:
+								CreateValue<Matrix<int16_t, 2, 4>>(path + "." + field.name);
+								break;
+							case 0x1B20:
+								CreateValue<Vector<int16_t, 3>>(path + "." + field.name);
+								break;
+							case 0x1B21:
+								CreateValue<Matrix<int16_t, 3, 2>>(path + "." + field.name);
+								break;
+							case 0x1B22:
+								CreateValue<Matrix<int16_t, 3, 3>>(path + "." + field.name);
+								break;
+							case 0x1B23:
+								CreateValue<Matrix<int16_t, 3, 4>>(path + "." + field.name);
+								break;
+							case 0x1B30:
+								CreateValue<Vector<int16_t, 4>>(path + "." + field.name);
+								break;
+							case 0x1B31:
+								CreateValue<Matrix<int16_t, 4, 2>>(path + "." + field.name);
+								break;
+							case 0x1B32:
+								CreateValue<Matrix<int16_t, 4, 3>>(path + "." + field.name);
+								break;
+							case 0x1B33:
+								CreateValue<Matrix<int16_t, 4, 4>>(path + "." + field.name);
+								break;
+							case 0x1C10:
+								CreateValue<Vector<int32_t, 2>>(path + "." + field.name);
+								break;
+							case 0x1C11:
+								CreateValue<Matrix<int32_t, 2, 2>>(path + "." + field.name);
+								break;
+							case 0x1C12:
+								CreateValue<Matrix<int32_t, 2, 3>>(path + "." + field.name);
+								break;
+							case 0x1C13:
+								CreateValue<Matrix<int32_t, 2, 4>>(path + "." + field.name);
+								break;
+							case 0x1C20:
+								CreateValue<Vector<int32_t, 3>>(path + "." + field.name);
+								break;
+							case 0x1C21:
+								CreateValue<Matrix<int32_t, 3, 2>>(path + "." + field.name);
+								break;
+							case 0x1C22:
+								CreateValue<Matrix<int32_t, 3, 3>>(path + "." + field.name);
+								break;
+							case 0x1C23:
+								CreateValue<Matrix<int32_t, 3, 4>>(path + "." + field.name);
+								break;
+							case 0x1C30:
+								CreateValue<Vector<int32_t, 4>>(path + "." + field.name);
+								break;
+							case 0x1C31:
+								CreateValue<Matrix<int32_t, 4, 2>>(path + "." + field.name);
+								break;
+							case 0x1C32:
+								CreateValue<Matrix<int32_t, 4, 3>>(path + "." + field.name);
+								break;
+							case 0x1C33:
+								CreateValue<Matrix<int32_t, 4, 4>>(path + "." + field.name);
+								break;
+							case 0x1D10:
+								CreateValue<Vector<int64_t, 2>>(path + "." + field.name);
+								break;
+							case 0x1D11:
+								CreateValue<Matrix<int64_t, 2, 2>>(path + "." + field.name);
+								break;
+							case 0x1D12:
+								CreateValue<Matrix<int64_t, 2, 3>>(path + "." + field.name);
+								break;
+							case 0x1D13:
+								CreateValue<Matrix<int64_t, 2, 4>>(path + "." + field.name);
+								break;
+							case 0x1D20:
+								CreateValue<Vector<int64_t, 3>>(path + "." + field.name);
+								break;
+							case 0x1D21:
+								CreateValue<Matrix<int64_t, 3, 2>>(path + "." + field.name);
+								break;
+							case 0x1D22:
+								CreateValue<Matrix<int64_t, 3, 3>>(path + "." + field.name);
+								break;
+							case 0x1D23:
+								CreateValue<Matrix<int64_t, 3, 4>>(path + "." + field.name);
+								break;
+							case 0x1D30:
+								CreateValue<Vector<int64_t, 4>>(path + "." + field.name);
+								break;
+							case 0x1D31:
+								CreateValue<Matrix<int64_t, 4, 2>>(path + "." + field.name);
+								break;
+							case 0x1D32:
+								CreateValue<Matrix<int64_t, 4, 3>>(path + "." + field.name);
+								break;
+							case 0x1D33:
+								CreateValue<Matrix<int64_t, 4, 4>>(path + "." + field.name);
+								break;
+							case 0x2A10:
+								CreateValue<Vector<uint8_t, 2>>(path + "." + field.name);
+								break;
+							case 0x2A11:
+								CreateValue<Matrix<uint8_t, 2, 2>>(path + "." + field.name);
+								break;
+							case 0x2A12:
+								CreateValue<Matrix<uint8_t, 2, 3>>(path + "." + field.name);
+								break;
+							case 0x2A13:
+								CreateValue<Matrix<uint8_t, 2, 4>>(path + "." + field.name);
+								break;
+							case 0x2A20:
+								CreateValue<Vector<uint8_t, 3>>(path + "." + field.name);
+								break;
+							case 0x2A21:
+								CreateValue<Matrix<uint8_t, 3, 2>>(path + "." + field.name);
+								break;
+							case 0x2A22:
+								CreateValue<Matrix<uint8_t, 3, 3>>(path + "." + field.name);
+								break;
+							case 0x2A23:
+								CreateValue<Matrix<uint8_t, 3, 4>>(path + "." + field.name);
+								break;
+							case 0x2A30:
+								CreateValue<Vector<uint8_t, 4>>(path + "." + field.name);
+								break;
+							case 0x2A31:
+								CreateValue<Matrix<uint8_t, 4, 2>>(path + "." + field.name);
+								break;
+							case 0x2A32:
+								CreateValue<Matrix<uint8_t, 4, 3>>(path + "." + field.name);
+								break;
+							case 0x2A33:
+								CreateValue<Matrix<uint8_t, 4, 4>>(path + "." + field.name);
+								break;
+							case 0x2B10:
+								CreateValue<Vector<uint16_t, 2>>(path + "." + field.name);
+								break;
+							case 0x2B11:
+								CreateValue<Matrix<uint16_t, 2, 2>>(path + "." + field.name);
+								break;
+							case 0x2B12:
+								CreateValue<Matrix<uint16_t, 2, 3>>(path + "." + field.name);
+								break;
+							case 0x2B13:
+								CreateValue<Matrix<uint16_t, 2, 4>>(path + "." + field.name);
+								break;
+							case 0x2B20:
+								CreateValue<Vector<uint16_t, 3>>(path + "." + field.name);
+								break;
+							case 0x2B21:
+								CreateValue<Matrix<uint16_t, 3, 2>>(path + "." + field.name);
+								break;
+							case 0x2B22:
+								CreateValue<Matrix<uint16_t, 3, 3>>(path + "." + field.name);
+								break;
+							case 0x2B23:
+								CreateValue<Matrix<uint16_t, 3, 4>>(path + "." + field.name);
+								break;
+							case 0x2B30:
+								CreateValue<Vector<uint16_t, 4>>(path + "." + field.name);
+								break;
+							case 0x2B31:
+								CreateValue<Matrix<uint16_t, 4, 2>>(path + "." + field.name);
+								break;
+							case 0x2B32:
+								CreateValue<Matrix<uint16_t, 4, 3>>(path + "." + field.name);
+								break;
+							case 0x2B33:
+								CreateValue<Matrix<uint16_t, 4, 4>>(path + "." + field.name);
+								break;
+							case 0x2C10:
+								CreateValue<Vector<uint32_t, 2>>(path + "." + field.name);
+								break;
+							case 0x2C11:
+								CreateValue<Matrix<uint32_t, 2, 2>>(path + "." + field.name);
+								break;
+							case 0x2C12:
+								CreateValue<Matrix<uint32_t, 2, 3>>(path + "." + field.name);
+								break;
+							case 0x2C13:
+								CreateValue<Matrix<uint32_t, 2, 4>>(path + "." + field.name);
+								break;
+							case 0x2C20:
+								CreateValue<Vector<uint32_t, 3>>(path + "." + field.name);
+								break;
+							case 0x2C21:
+								CreateValue<Matrix<uint32_t, 3, 2>>(path + "." + field.name);
+								break;
+							case 0x2C22:
+								CreateValue<Matrix<uint32_t, 3, 3>>(path + "." + field.name);
+								break;
+							case 0x2C23:
+								CreateValue<Matrix<uint32_t, 3, 4>>(path + "." + field.name);
+								break;
+							case 0x2C30:
+								CreateValue<Vector<uint32_t, 4>>(path + "." + field.name);
+								break;
+							case 0x2C31:
+								CreateValue<Matrix<uint32_t, 4, 2>>(path + "." + field.name);
+								break;
+							case 0x2C32:
+								CreateValue<Matrix<uint32_t, 4, 3>>(path + "." + field.name);
+								break;
+							case 0x2C33:
+								CreateValue<Matrix<uint32_t, 4, 4>>(path + "." + field.name);
+								break;
+							case 0x2D10:
+								CreateValue<Vector<uint64_t, 2>>(path + "." + field.name);
+								break;
+							case 0x2D11:
+								CreateValue<Matrix<uint64_t, 2, 2>>(path + "." + field.name);
+								break;
+							case 0x2D12:
+								CreateValue<Matrix<uint64_t, 2, 3>>(path + "." + field.name);
+								break;
+							case 0x2D13:
+								CreateValue<Matrix<uint64_t, 2, 4>>(path + "." + field.name);
+								break;
+							case 0x2D20:
+								CreateValue<Vector<uint64_t, 3>>(path + "." + field.name);
+								break;
+							case 0x2D21:
+								CreateValue<Matrix<uint64_t, 3, 2>>(path + "." + field.name);
+								break;
+							case 0x2D22:
+								CreateValue<Matrix<uint64_t, 3, 3>>(path + "." + field.name);
+								break;
+							case 0x2D23:
+								CreateValue<Matrix<uint64_t, 3, 4>>(path + "." + field.name);
+								break;
+							case 0x2D30:
+								CreateValue<Vector<uint64_t, 4>>(path + "." + field.name);
+								break;
+							case 0x2D31:
+								CreateValue<Matrix<uint64_t, 4, 2>>(path + "." + field.name);
+								break;
+							case 0x2D32:
+								CreateValue<Matrix<uint64_t, 4, 3>>(path + "." + field.name);
+								break;
+							case 0x2D33:
+								CreateValue<Matrix<uint64_t, 4, 4>>(path + "." + field.name);
+								break;
+						}
 						break;
 					}
 					default: break;
