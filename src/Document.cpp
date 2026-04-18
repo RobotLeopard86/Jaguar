@@ -525,6 +525,12 @@ namespace libjaguar {
 	void Document::_SetInternal(uint64_t id, const ValueStorage& val) {
 		//So... we just set it now
 		storage[id] = val;
+
+		//But we gotta fix the index for buffers...
+		ValueEntry& ve = const_cast<ValueEntry&>(_ValInfoInternal(id));
+		if(ve.type == TypeTag::String || ve.type == TypeTag::ByteBuffer) {
+			ve.size = val.mem.size();
+		}
 	}
 
 	std::any Document::_QueryObjInternal(const std::string& path, std::type_index type) {

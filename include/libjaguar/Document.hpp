@@ -339,8 +339,9 @@ namespace libjaguar {
 			return ValueStorage {.materialized = true, .mem = std::vector<unsigned char>(range.begin(), range.end()), .inStream = 0};
 		}
 
-		template<number T>
-		ValueStorage From(const Vector<T, 2>& vec) {
+		template<vec_c<2> V>
+		ValueStorage From(const V& vec) {
+			using T = vec_subtype_t<V>;
 			ValueStorage vs {.materialized = true, .mem = std::vector<unsigned char>(bits_v<T> / 4), .inStream = 0};
 			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
 			for(uint8_t i = 0; i < bits_v<T>; ++i) {
@@ -355,8 +356,9 @@ namespace libjaguar {
 			return vs;
 		}
 
-		template<number T>
-		ValueStorage From(const Vector<T, 3>& vec) {
+		template<vec_c<3> V>
+		ValueStorage From(const V& vec) {
+			using T = vec_subtype_t<V>;
 			ValueStorage vs {.materialized = true, .mem = std::vector<unsigned char>(bits_v<T> / 8 * 3), .inStream = 0};
 			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
 			for(uint8_t i = 0; i < bits_v<T>; ++i) {
@@ -376,8 +378,9 @@ namespace libjaguar {
 			return vs;
 		}
 
-		template<number T>
-		ValueStorage From(const Vector<T, 4>& vec) {
+		template<vec_c<4> V>
+		ValueStorage From(const V& vec) {
+			using T = vec_subtype_t<V>;
 			ValueStorage vs {.materialized = true, .mem = std::vector<unsigned char>(bits_v<T> / 2), .inStream = 0};
 			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
 			for(uint8_t i = 0; i < bits_v<T>; ++i) {
@@ -402,8 +405,11 @@ namespace libjaguar {
 			return vs;
 		}
 
-		template<number T, uint8_t W, uint8_t H>
-		ValueStorage From(const Matrix<T, W, H>& mat) {
+		template<mat M>
+		ValueStorage From(const M& mat) {
+			constexpr uint8_t W = mat_width_v<M>;
+			constexpr uint8_t H = mat_height_v<M>;
+			using T = mat_subtype_t<M>;
 			ValueStorage vs {.materialized = true, .mem = std::vector<unsigned char>(bits_v<T> / 2), .inStream = 0};
 			for(uint8_t x = 0; x < W; ++x) {
 				for(uint8_t y = 0; y < H; ++y) {
@@ -544,9 +550,12 @@ namespace libjaguar {
 			return vec;
 		}
 
-		template<number T, uint8_t W, uint8_t H>
-		Matrix<T, W, H> To(const ValueStorage& storage) {
-			Matrix<T, W, H> mat;
+		template<mat M>
+		M To(const ValueStorage& storage) {
+			constexpr uint8_t W = mat_width_v<M>;
+			constexpr uint8_t H = mat_height_v<M>;
+			using T = mat_subtype_t<M>;
+			M mat;
 			for(uint8_t x = 0; x < W; ++x) {
 				for(uint8_t y = 0; y < H; ++y) {
 					with_bits_t<bits_v<T>> val = 0;
@@ -701,7 +710,7 @@ namespace libjaguar {
 		} else {
 			if(converters.contains(typeid(T))) {
 				if(uint64_t id = GenIndexID(path); HasValue(path) && structuredObjTypes.at(_ScopeInfoInternal(id).typeID) != typeid(T)) throw std::runtime_error("Existing structured object type mismatch!");
-				_SetObjInternal(path, std::make_any(value), typeid(T));
+				_SetObjInternal(path, std::make_any<T>(value), typeid(T));
 			} else
 				throw std::runtime_error("No valid type registered!");
 		}
@@ -715,19 +724,31 @@ namespace libjaguar {
 
 		//Scope checks
 		uint64_t id = GenIndexID(path);
-		uint64_t parentID = GenIndexID(path.substr(0, path.find_last_of('.')));
-		std::string fieldName = (parentID == index->root.id) ? path : path.substr(path.find_last_of('.'));
+		uint64_t parentID = 0;
+		std::string fieldName = "";
+		if(path.ends_with("]")) {
+			if(path[0] == '[') throw std::runtime_error("Cannot index root scope!");
+			auto openBracket = path.find_last_of('[');
+			std::string parentPath = path.substr(0, openBracket);
+			if(!QueryScopeInfo(parentPath).list) throw std::runtime_error("Cannot index non-list!");
+			parentID = GenIndexID(parentPath);
+			fieldName = path.substr(openBracket + 1, path.size() - 1);
+		} else {
+			auto lastDot = path.find_last_of('.');
+			parentID = (lastDot == std::string::npos) ? index->root.id : GenIndexID(path.substr(0, lastDot));
+			fieldName = (parentID == index->root.id) ? path : path.substr(lastDot + 1);
+		}
 		const auto indexWalk = [parentID](ScopeEntry& entry) -> std::optional<std::reference_wrapper<ScopeEntry>> {
 			auto impl = [parentID](ScopeEntry& entry, auto& implRef) mutable -> std::optional<std::reference_wrapper<ScopeEntry>> {
 				for(ScopeEntry& scope : entry.subscopes) {
-					if(scope.id == parentID) return std::make_optional(std::reference_wrapper<ScopeEntry>(entry));
+					if(scope.id == parentID) return std::make_optional(std::reference_wrapper<ScopeEntry>(scope));
 					if(auto result = implRef(scope, implRef); result.has_value()) return result;
 				}
 				return std::nullopt;
 			};
 			return impl(entry, impl);
 		};
-		auto maybeScope = indexWalk(index->root);
+		auto maybeScope = (parentID == index->root.id) ? index->root : indexWalk(index->root);
 		if(!maybeScope.has_value()) throw std::runtime_error("Cannot create field with a nonexistent parent scope!");
 		ScopeEntry& parentScope = maybeScope->get();
 		if(!parentScope.typeID.empty()) {
@@ -776,19 +797,31 @@ namespace libjaguar {
 
 		//Scope checks
 		uint64_t id = GenIndexID(path);
-		uint64_t parentID = GenIndexID(path.substr(0, path.find_last_of('.')));
-		std::string fieldName = (parentID == index->root.id) ? path : path.substr(path.find_last_of('.'));
+		uint64_t parentID = 0;
+		std::string fieldName = "";
+		if(path.ends_with("]")) {
+			if(path[0] == '[') throw std::runtime_error("Cannot index root scope!");
+			auto openBracket = path.find_last_of('[');
+			std::string parentPath = path.substr(0, openBracket);
+			if(!QueryScopeInfo(parentPath).list) throw std::runtime_error("Cannot index non-list!");
+			parentID = GenIndexID(parentPath);
+			fieldName = path.substr(openBracket + 1, path.size() - openBracket - 2);
+		} else {
+			auto lastDot = path.find_last_of('.');
+			parentID = (lastDot == std::string::npos) ? index->root.id : GenIndexID(path.substr(0, lastDot));
+			fieldName = (parentID == index->root.id) ? path : path.substr(lastDot + 1);
+		}
 		const auto indexWalk = [parentID](ScopeEntry& entry) -> std::optional<std::reference_wrapper<ScopeEntry>> {
 			auto impl = [parentID](ScopeEntry& entry, auto& implRef) mutable -> std::optional<std::reference_wrapper<ScopeEntry>> {
 				for(ScopeEntry& scope : entry.subscopes) {
-					if(scope.id == parentID) return std::make_optional(std::reference_wrapper<ScopeEntry>(entry));
+					if(scope.id == parentID) return std::make_optional(std::reference_wrapper<ScopeEntry>(scope));
 					if(auto result = implRef(scope, implRef); result.has_value()) return result;
 				}
 				return std::nullopt;
 			};
 			return impl(entry, impl);
 		};
-		auto maybeScope = indexWalk(index->root);
+		auto maybeScope = (parentID == index->root.id) ? index->root : indexWalk(index->root);
 		if(!maybeScope.has_value()) throw std::runtime_error("Cannot create field with a nonexistent parent scope!");
 		ScopeEntry& parentScope = maybeScope->get();
 		if(!parentScope.typeID.empty()) {
@@ -866,7 +899,7 @@ namespace libjaguar {
 			parentScope.subscopes.push_back(scope);
 		} else if constexpr(std::is_same_v<T, UnstructuredObjTag>) {
 			ScopeEntry scope = {};
-			scope.list = true;
+			scope.list = false;
 			scope.name = fieldName;
 			scope.id = id;
 			scope.streamBeginPosition = 0;
@@ -902,7 +935,7 @@ namespace libjaguar {
 				} else if constexpr(std::is_same_v<U, double>) {
 					value.elementType = TypeTag::Float64;
 				} else if constexpr(is_number_v<U>) {
-					value.elementType = static_cast<TypeTag>(std::log2(bits_v<T> / 8) + 0x1A + (std::is_signed_v<T> ? 0 : 0x10));
+					value.elementType = static_cast<TypeTag>(std::log2(bits_v<U> / 8) + 0x1A + (std::is_signed_v<U> ? 0 : 0x10));
 				}
 			} else if constexpr(mat<T>) {
 				value.type = TypeTag::Vector;
@@ -914,7 +947,7 @@ namespace libjaguar {
 				} else if constexpr(std::is_same_v<U, double>) {
 					value.elementType = TypeTag::Float64;
 				} else if constexpr(is_number_v<U>) {
-					value.elementType = static_cast<TypeTag>(std::log2(bits_v<T> / 8) + 0x1A + (std::is_signed_v<T> ? 0 : 0x10));
+					value.elementType = static_cast<TypeTag>(std::log2(bits_v<U> / 8) + 0x1A + (std::is_signed_v<U> ? 0 : 0x10));
 				}
 			}
 
@@ -929,7 +962,7 @@ namespace libjaguar {
 		} else if(converters.contains(typeid(T))) {
 			//Setup scope entry
 			ScopeEntry scope = {};
-			scope.list = true;
+			scope.list = false;
 			scope.name = fieldName;
 			scope.id = id;
 			scope.streamBeginPosition = 0;
