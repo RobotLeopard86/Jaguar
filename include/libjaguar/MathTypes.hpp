@@ -4,6 +4,7 @@
 #include "Traits.hpp"
 
 #include <stdexcept>
+#include <array>
 
 namespace libjaguar {
 	/**
