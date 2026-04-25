@@ -138,18 +138,49 @@ namespace libjaguar {
 		struct ObjWriter {
 		  public:
 			/**
-			 * @brief Set a value in the object scope
+			 * @brief Set the value of a field in the object scope
 			 *
-			 * @tparam T The object type from which to derive the Jaguar data; must match the type declared in the index
+			 * @tparam T The object type to be converted to Jaguar data; must match the type declared in the index
 			 *
 			 * @param field The name of the field to set
 			 * @param value The value to store in the field
 			 *
-			 * @throws std::runtime_error If a field exists in the document with a type that does not match
+			 * @throws std::runtime_error If no field exists in the document with the given path and type or it is not an "end value"
 			 */
 			template<typename T>
 			void Set(const std::string& field, const T& value) {
-				doc->SetValue(basePath + "." + field, value);
+				doc->SetValue<T>(basePath + "." + field, value);
+			}
+
+			/**
+			 * @brief Create a new field in the object scope
+			 *
+			 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
+			 *
+			 * @param field The name of the field to create
+			 *
+			 * @throws std::runtime_error If a field already exists with the same path
+			 */
+			template<typename T>
+				requires(!is_byte_range_v<T>)
+			void Create(const std::string& field) {
+				doc->CreateValue<T>(basePath + "." + field);
+			}
+
+			/**
+			 * @brief Create a new field in the object scope
+			 *
+			 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
+			 *
+			 * @param field The name of the field to create
+			 * @param list If the field is to be represented by a List with element type UInt8 or a ByteBuffer
+			 *
+			 * @throws std::runtime_error If a field already exists with the same path
+			 * @throws std::runtime_error If the path references nonexistent scopes
+			 */
+			template<byte_range T>
+			void Create(const std::string& field, bool list) {
+				doc->CreateValue<T>(basePath + "." + field, list);
 			}
 
 		  private:
