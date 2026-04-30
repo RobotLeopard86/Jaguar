@@ -85,28 +85,12 @@ More details about complex object types will be provided in later sections.
 
 The scope boundary `TypeTag` does not function as a traditional `Value`; it serves to delimit object and list boundaries, has no header or body, and may only appear in certain locations. More information will be provided in section 5.
 
-## 3. Containers
-In order to support storing a Jaguar stream on disk in an identifiable format, the stream can be wrapped in a Jaguar container.  
-
-Unlike a Jaguar stream, Jaguar containers cannot be directly concatenated and still be valid, since the container is essentially a header followed by stream data. Since the header is not valid Jaguar bytes, this would cause the stream to become invalid when the header is encountered.  
-
-The container header takes the following form:
-| Field | Size (bytes) |
-| ----- | ---- |
-| Magic data | 6 |
-| File intent byte | 1 |
-| Null separator for alignment | 1 |
-
-The magic data string is `JAGUAR` in ASCII (or `4A 41 47 55 41 52` in hex bytes).  
-
-The file intent byte is application-defined and is used to identify what the stream is supposed to be to the application. Decoders **must not** rely on this byte to determine how to parse the stream, as this value has no formal definition. The only exception is that a null byte here (`00`) is reserved to mean a freeform stream (i.e., have no expectations for what you get). This is primarily for higher-level consumers of parsed Jaguar data as opposed to the decoder itself.  
-
-## 4. Numerical Types
+## 3. Numerical Types
 Numerical types are very simple in Jaguar. They are the signed and unsigned integers, floating-point numbers, and booleans (while not technically numbers, they are stored as `0` for false and `1` for true; any other value is **invalid**). All necessary information to read the data is contained in the `TypeTag`.  
 
 As such, they do not have a header _per se_, and the body size is negligible enough that decoders are advised to immediately parse them as opposed to delaying parsing as may be done for more complex types.
 
-## 5. Objects
+## 4. Objects
 Objects allow for the subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:  
 
 **Unstructured objects** (like dictionaries) provide a generic key-value mapping. Decoders **must not** attempt to interpret the structure of unstructured objects.  
@@ -117,7 +101,7 @@ Unstructured object headers are fairly simple; they consist of a 16-bit unsigned
 
 Structured object headers consist of an 8-bit unsigned integer typename string length, followed by the typename string data of that length.  
 
-### Structured Object Type Declarations
+### 4.1. Structured Object Type Declarations
 Before a structured object typename may be used, it must appear as part of a structured object type declaration. A structured object type declaration follows this header format:  
 | Field | Size (bytes) |
 | ----- | ------------ |
@@ -132,7 +116,7 @@ The body of a declaration is very similar to an unstructured object, with the ex
 
 Structured object type declarations **may not** contain other type declarations and **may only** exist within the root scope.
 
-### Object Body Data
+### 4.2. Object Body Data
 
 If the typename string of a structured object references a typename that has not yet been declared, decoders **must** declare the stream invalid and terminate decoding, as there is no way to accurately know the bounds of the broken object scope (since it could contain subobjects, using the scope boundary system does not work here).  
 
@@ -148,7 +132,7 @@ Objects **may** be nested up to a maximum depth of 64. If the maximum nesting de
 
 If an object does not contain the amount of fields specified (which may be detected using scope boundary `Value`s if they are found earlier than expected or not present where they are expected), decoders **may** either declare the stream invalid and terminate decoding **or**, if the boundary object was found early attempt recovery, **may** attempt to recover following the same procedure as the maximum nesting depth reached.
 
-## 6. Math Types
+## 5. Math Types
 Vector and matrix types are built into Jaguar. There are limitations on what data these math types may contain:  
 
 * **ONLY** floating-point numbers and (un)signed integers are permitted. 
@@ -183,14 +167,14 @@ Matrix headers follow the below format:
 | # of Columns (unsigned int) | 1 |
 | # of Rows (unsigned int) | 1 |  
 
-## 7. Buffer Types
+## 6. Buffer Types
 Buffer-type `Value`s are fairly straightforward. Their header consists of an 32-bit integer size (capped at the 24-bit integer limit for strings, which is roughly 16 MiB), and the body is simply the data.  
 
 Per the rules from section 0, all strings must be encoded in UTF-8. This does not apply to data within byte buffers, of course.  
 
 Byte buffers are a blob of raw bytes embedded in the Jaguar stream. They can contain whatever binary data you like. Decoders **must not** attempt to parse the contents of byte buffers themselves; this is reserved for the consuming application.
 
-## 8. Lists
+## 7. Lists
 Lists are a fairly simple construct in Jaguar. The header for a list `Value` is as follows:
 | Field | Size (bytes) |
 | ----- | ------------ |
