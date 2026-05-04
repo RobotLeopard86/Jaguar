@@ -194,7 +194,11 @@ namespace libjaguar {
 				scope.subvalues.push_back(std::move(entry));
 			} else if(header.type == TypeTag::StructuredObjTypeDecl) {
 				//Check that there's not already a type with this name
-				if(index->types.contains(header.name)) DECODE_ERROR("Encountered a type declaration with a name that already exists!");
+				if(index->types.contains(header.name)) {
+					//If we decoded this, then it's for sure a duplicate
+					if(typesWeDecoded.contains(header.name)) DECODE_ERROR("Encountered a type declaration with a name that already exists!");
+					typesWeDecoded.insert(header.name);
+				}
 
 				//Set up layout object
 				StructuredTypeLayout type = {};
@@ -253,6 +257,9 @@ namespace libjaguar {
 				//Ensure we hit the scope boundary
 				uint8_t tagByte = reader.ReadInteger<uint8_t>();
 				if(!(ValidateTypeTag(tagByte) && (TypeTag)tagByte == TypeTag::ScopeBoundary)) DECODE_ERROR("Expected a scope boundary at the end of type declaration!");
+
+				//If this was added to the index eternally, verify it matches
+				if(index->types.contains(header.name) && type != index->types.at(header.name)) DECODE_ERROR("Structured object type declaration mismatch between externally-added and decoded types!");
 
 				//Add type to registry
 				index->types.insert_or_assign(header.name, std::move(type));

@@ -2,12 +2,14 @@
 #include "libjaguar/Decoder.hpp"
 #include "libjaguar/Encoder.hpp"
 #include "libjaguar/Index.hpp"
+#include "libjaguar/ScopedView.hpp"
 #include "libjaguar/StructuredTypeLayout.hpp"
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/Writer.hpp"
 #include "Utilities.hpp"
 
 #include <cstring>
+#include <istream>
 #include <ostream>
 #include <stdexcept>
 #include <typeindex>
@@ -72,6 +74,19 @@ namespace libjaguar {
 					impl(entry, impl);
 				};
 				indexWalk(index->root);
+			} else {
+				//Check materialization state; if everything is materialized then we can relinquish the stream
+				bool okToClose = true;
+				for(const auto& [_, vs] : storage) {
+					if(!vs.materialized) {
+						okToClose = false;
+						break;
+					}
+				}
+				if(okToClose) {
+					reader.reset();
+					streamState = StreamState::Unavailable;
+				}
 			}
 
 			return true;
@@ -102,15 +117,47 @@ namespace libjaguar {
 		void String(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) override {
 			const ValueEntry& ve = doc->_ValInfoInternal(id);
 			if(ve.type != TypeTag::String) throw std::runtime_error("Requested a string for a value that is not one!");
+			const ValueStorage& vs = doc->_QueryInternal(id);
+
+			//Get whole string and return
+			if((int64_t(vs.mem.size()) - offset - chunkSize) < 0) throw std::runtime_error("Bad byte amount request!");
 			std::string chunk = doc->To<std::string>(doc->_QueryInternal(id)).substr(offset, chunkSize);
+			if(!CheckUTF8(chunk)) throw std::runtime_error("String in storage is not valid UTF-8!");
 			out.write(chunk.data(), chunkSize);
+		}
+		std::istream* StringViaStream(uint64_t id) override {
+			//Verify type
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::String) throw std::runtime_error("Requested a string for a value that is not one!");
+			const ValueStorage& vs = doc->storage[id];
+
+			//Create scoped view and return
+			doc->reader.value()->seekg(vs.inStream, std::ios::beg);
+			SVHandle svh = doc->reader->ReadBuffer(ve.size);
+			return new SVistream(std::move(svh));
 		}
 		void Buffer(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) override {
 			const ValueEntry& ve = doc->_ValInfoInternal(id);
 			if(ve.type != TypeTag::ByteBuffer) throw std::runtime_error("Requested a byte buffer for a value that is not one!");
 			const ValueStorage& vs = doc->_QueryInternal(id);
+
+			//Get whole buffer and return
 			if((int64_t(vs.mem.size()) - offset - chunkSize) < 0) throw std::runtime_error("Bad byte amount request!");
-			out.write(reinterpret_cast<const char*>(vs.mem.data()), chunkSize);
+			out.write(reinterpret_cast<const char*>(vs.mem.data() + offset), chunkSize);
+		}
+		std::istream* BufferViaStream(uint64_t id) override {
+			//Verify type
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::ByteBuffer) throw std::runtime_error("Requested a byte bufer for a value that is not one!");
+			const ValueStorage& vs = doc->storage[id];
+
+			//Create scoped view and return
+			doc->reader.value()->seekg(vs.inStream, std::ios::beg);
+			SVHandle svh = doc->reader->ReadBuffer(ve.size);
+			return new SVistream(std::move(svh));
+		}
+		bool UseStream2StreamTransfer(uint64_t id) override {
+			return !doc->_QueryInternal(id).materialized;
 		}
 		bool Boolean(uint64_t id) override {
 			if(doc->_ValInfoInternal(id).type != TypeTag::Boolean) throw std::runtime_error("Requested a boolean for a value that is not one!");
@@ -386,6 +433,10 @@ namespace libjaguar {
 	void Document::MaterializeAll() {
 		INDEX_READ_CHECK;
 		Materialize(index->root.id);
+
+		//No more need for the stream, close it
+		reader.reset();
+		streamState = StreamState::Unavailable;
 	}
 
 	void Document::Materialize(uint64_t id) {

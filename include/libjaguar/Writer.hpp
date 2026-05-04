@@ -129,6 +129,18 @@ namespace libjaguar {
 		}
 
 		/**
+		 * @brief Write a string to the stream from another stream
+		 *
+		 * @param istream The stream to source data from (must not be @c nullptr)
+		 * @param length The length (in bytes) of data to copy
+		 *
+		 * @throws std::runtime_error If the source stream is null or invalid
+		 * @throws std::runtime_error If reading from the source stream fails
+		 * @throws std::runtime_error If the source stream returns invalid UTF-8 data
+		 */
+		void WriteStringFromStream(std::istream* istream, std::size_t length);
+
+		/**
 		 * @brief Write a buffer to the stream from another stream
 		 *
 		 * @param istream The stream to source data from (must not be @c nullptr)

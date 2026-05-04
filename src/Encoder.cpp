@@ -132,42 +132,54 @@ namespace libjaguar {
 		constexpr std::size_t chunkSize = 64 * 1024;//64 KiB (one KiB is 1024 bytes)
 		switch(header.type) {
 			case TypeTag::String: {
-				std::size_t current = 0;
-				std::ostringstream intermediate;
-				while(current < header.size) {
-					//Clear intermediate buffer
-					intermediate.str("");
+				if(provider->UseStream2StreamTransfer(entry.id)) {
+					std::istream* stream = provider->StringViaStream(entry.id);
+					writer.WriteStringFromStream(stream, header.size);
+					delete stream;
+				} else {
+					std::size_t current = 0;
+					std::ostringstream intermediate;
+					while(current < header.size) {
+						//Clear intermediate buffer
+						intermediate.str("");
 
-					//Read into intermediate
-					std::size_t len = std::min(header.size - current, chunkSize);
-					provider->String(entry.id, intermediate, len, current);
-					if(intermediate.str().size() != len) throw std::runtime_error("Incorrect amount of data provided by payload provider for string chunk!");
+						//Read into intermediate
+						std::size_t len = std::min(header.size - current, chunkSize);
+						provider->String(entry.id, intermediate, len, current);
+						if(intermediate.str().size() != len) throw std::runtime_error("Incorrect amount of data provided by payload provider for string chunk!");
 
-					//Write data slice
-					writer.WriteString(intermediate.str());
+						//Write data slice
+						writer.WriteString(intermediate.str());
 
-					//Increment progress counter
-					current += len;
+						//Increment progress counter
+						current += len;
+					}
 				}
 				break;
 			}
 			case TypeTag::ByteBuffer: {
-				std::size_t current = 0;
-				std::stringstream intermediate;
-				while(current < header.size) {
-					//Clear intermediate buffer
-					intermediate.str("");
+				if(provider->UseStream2StreamTransfer(entry.id)) {
+					std::istream* stream = provider->BufferViaStream(entry.id);
+					writer.WriteBufferFromStream(stream, header.size);
+					delete stream;
+				} else {
+					std::size_t current = 0;
+					std::stringstream intermediate;
+					while(current < header.size) {
+						//Clear intermediate buffer
+						intermediate.str("");
 
-					//Read into intermediate
-					std::size_t len = std::min(header.size - current, chunkSize);
-					provider->Buffer(entry.id, intermediate, len, current);
-					if(intermediate.str().size() != len) throw std::runtime_error("Incorrect amount of data provided by payload provider for string chunk!");
+						//Read into intermediate
+						std::size_t len = std::min(header.size - current, chunkSize);
+						provider->Buffer(entry.id, intermediate, len, current);
+						if(intermediate.str().size() != len) throw std::runtime_error("Incorrect amount of data provided by payload provider for string chunk!");
 
-					//Write data slice
-					writer.WriteBufferFromStream(&intermediate, len);
+						//Write data slice
+						writer.WriteBufferFromStream(&intermediate, len);
 
-					//Increment progress counter
-					current += len;
+						//Increment progress counter
+						current += len;
+					}
 				}
 				break;
 			}

@@ -138,49 +138,18 @@ namespace libjaguar {
 		struct ObjWriter {
 		  public:
 			/**
-			 * @brief Set the value of a field in the object scope
+			 * @brief Set a value in the object scope
 			 *
-			 * @tparam T The object type to be converted to Jaguar data; must match the type declared in the index
+			 * @tparam T The object type from which to derive the Jaguar data; must match the type declared in the index
 			 *
 			 * @param field The name of the field to set
 			 * @param value The value to store in the field
 			 *
-			 * @throws std::runtime_error If no field exists in the document with the given path and type or it is not an "end value"
+			 * @throws std::runtime_error If a field exists in the document with a type that does not match
 			 */
 			template<typename T>
 			void Set(const std::string& field, const T& value) {
-				doc->SetValue<T>(basePath + "." + field, value);
-			}
-
-			/**
-			 * @brief Create a new field in the object scope
-			 *
-			 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
-			 *
-			 * @param field The name of the field to create
-			 *
-			 * @throws std::runtime_error If a field already exists with the same path
-			 */
-			template<typename T>
-				requires(!is_byte_range_v<T>)
-			void Create(const std::string& field) {
-				doc->CreateValue<T>(basePath + "." + field);
-			}
-
-			/**
-			 * @brief Create a new field in the object scope
-			 *
-			 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
-			 *
-			 * @param field The name of the field to create
-			 * @param list If the field is to be represented by a List with element type UInt8 or a ByteBuffer
-			 *
-			 * @throws std::runtime_error If a field already exists with the same path
-			 * @throws std::runtime_error If the path references nonexistent scopes
-			 */
-			template<byte_range T>
-			void Create(const std::string& field, bool list) {
-				doc->CreateValue<T>(basePath + "." + field, list);
+				doc->SetValue(basePath + "." + field, value);
 			}
 
 		  private:
@@ -270,7 +239,7 @@ namespace libjaguar {
 		 *
 		 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
 		 *
-		 * @param path The full path of the field to modify
+		 * @param path The full path of the field to create
 		 *
 		 * @throws std::runtime_error If a field already exists with the same path
 		 */
@@ -283,7 +252,7 @@ namespace libjaguar {
 		 *
 		 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
 		 *
-		 * @param path The full path of the field to modify
+		 * @param path The full path of the field to create
 		 * @param list If the field is to be represented by a List with element type UInt8 or a ByteBuffer
 		 *
 		 * @throws std::runtime_error If a field already exists with the same path
@@ -291,6 +260,36 @@ namespace libjaguar {
 		 */
 		template<byte_range T>
 		void CreateValue(const std::string& path, bool list);
+
+		/**
+		 * @brief Set the value of a field to the document at a given path, creating if if it does not exist
+		 *
+		 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
+		 *
+		 * @param path The full path of the field to modify/create
+		 * @param value The data to store in the field
+		 *
+		 * @throws std::runtime_error If the field already exists with non-matching type information
+		 * @throws std::runtime_error If the path references nonexistent scopes
+		 */
+		template<typename T>
+			requires(!is_byte_range_v<T>)
+		void SetOrCreateValue(const std::string& path, const T& value);
+
+		/**
+		 * @brief Create a new field in the document at a given path
+		 *
+		 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
+		 *
+		 * @param path The full path of the field to modify/create
+		 * @param list If the field is to be represented by a List with element type UInt8 or a ByteBuffer
+		 * @param value The data to store in the field
+		 *
+		 * @throws std::runtime_error If the field already exists with non-matching type information
+		 * @throws std::runtime_error If the path references nonexistent scopes
+		 */
+		template<byte_range T>
+		void SetOrCreateValue(const std::string& path, bool list, const T& value);
 
 		/**
 		 * @brief Check if the document contains a field at the given path
@@ -325,7 +324,7 @@ namespace libjaguar {
 		std::optional<Reader> reader;
 		enum class StreamState {
 			NoStream,	///No stream is being used
-			Unavailable,///A stream was being used but is now gone due to a move or other invalidating operation
+			Unavailable,///A stream was being used but is now gone due to a move, all values being materialized, or another invalidating operation
 			Available	///A stream is being used and is good to go
 		} streamState;
 
@@ -350,7 +349,7 @@ namespace libjaguar {
 			std::vector<unsigned char> mem(bits_v<T>);
 			for(uint8_t i = 0; i < bits_v<T>; ++i) {
 				mem[i] = static_cast<unsigned char>(work & 0xFF);
-				work >>= 8;
+				if constexpr(bits_v<T> != 8) work >>= 8;
 			}
 			return ValueStorage {.materialized = true, .mem = mem, .inStream = 0};
 		}
@@ -922,7 +921,7 @@ namespace libjaguar {
 				scope.typeID = "";
 			} else if(converters.contains(typeid(S))) {
 				scope.listElementType = TypeTag::StructuredObj;
-				scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [this](const auto& pair) { return pair.second == typeid(T); })->first;
+				scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [](const auto& pair) { return pair.second == typeid(T); })->first;
 			} else
 				throw std::runtime_error("Invalid type for field creation!");
 
@@ -998,7 +997,7 @@ namespace libjaguar {
 			scope.id = id;
 			scope.streamBeginPosition = 0;
 			scope.listElementType = TypeTag::StructuredObj;
-			scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [this](const auto& pair) { return pair.second == typeid(T); })->first;
+			scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [](const auto& pair) { return pair.second == typeid(T); })->first;
 			parentScope.subscopes.push_back(scope);
 
 			//Configure fields
@@ -1981,6 +1980,23 @@ namespace libjaguar {
 				break;
 			default: break;
 		}
+	}
+
+	template<typename T>
+		requires(!is_byte_range_v<T>)
+	void Document::SetOrCreateValue(const std::string& path, const T& value) {
+		if(HasValue(path)) {
+			CreateValue<T>(path);
+		}
+		SetValue<T>(path, value);
+	}
+
+	template<byte_range T>
+	void Document::SetOrCreateValue(const std::string& path, bool list, const T& value) {
+		if(HasValue(path)) {
+			CreateValue<T>(path, list);
+		}
+		SetValue<T>(path, value);
 	}
 	///@endcond
 }

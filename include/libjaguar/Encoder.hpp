@@ -3,8 +3,7 @@
 #include "DllHelper.hpp"
 #include "Writer.hpp"
 #include "Index.hpp"
-#include "libjaguar/MathTypes.hpp"
-#include "libjaguar/TypeTags.hpp"
+#include "TypeTags.hpp"
 
 #include <cstdint>
 
@@ -19,6 +18,8 @@ namespace libjaguar {
 		/**
 		 * @brief Called to request a string value; may be called multiple times for large strings
 		 *
+		 * @note As long as the appopriate methods as given by @c GetTransferMethod have actual functionality, this method may be left as a stub
+		 *
 		 * @param id The ID of the value to fetch, @b guaranteed to be a value that exists
 		 * @param out The stream to write output to (use @c write, not @c operator<< to ensure exact transfer)
 		 * @param chunkSize The requested amount of string data to send (used for large strings); will always be aligned to 4 bytes except for at the end of strings to ensure that all sequences are valid UTF-8
@@ -30,7 +31,23 @@ namespace libjaguar {
 		virtual void String(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) = 0;
 
 		/**
+		 * @brief Called to request a string value via stream-stream transfer
+
+		 * @note As long as the appopriate methods as given by @c GetTransferMethod have actual functionality, this method may be left as a stub
+		 *
+		 * @param id The ID of the value to fetch, @b guaranteed to be a value that exists
+		 *
+		 * @warning If the stream provides data that is not proper UTF-8, encoding will <b>halt</b>.
+		 * @warning <b>Once a stream pointer is returned via this method, the encoder has exclusive ownership! The stream will be freed when it is no longer needed!</b>
+		 *
+		 * @return A pointer to a stream through which the stream may be read
+		 */
+		virtual std::istream* StringViaStream(uint64_t id) = 0;
+
+		/**
 		 * @brief Called to request a byte buffer value; may be called multiple times for large buffers
+		 *
+		 * @note As long as the appopriate methods as given by @c GetTransferMethod have actual functionality, this method may be left as a stub
 		 *
 		 * @param id The ID of the value to fetch, @b guaranteed to be a value that exists
 		 * @param out The stream to write output to (use @c write, not @c operator<< to avoid interpretation of bytes as a string)
@@ -40,6 +57,28 @@ namespace libjaguar {
 		 * @warning If the requested amount of data is not provided (too much or too little), encoding will <b>halt</b>.
 		 */
 		virtual void Buffer(uint64_t id, std::ostream& out, std::size_t chunkSize, std::size_t offset) = 0;
+
+		/**
+		 * @brief Called to request a byte buffer value via stream-stream transfer
+		 *
+		 * @note As long as the appopriate methods as given by @c GetTransferMethod have actual functionality, this method may be left as a stub
+		 *
+		 * @param id The ID of the value to fetch, @b guaranteed to be a value that exists
+		 *
+		 * @warning <b>Once a stream pointer is returned via this method, the encoder has exclusive ownership! The stream will be freed when it is no longer needed!</b>
+		 *
+		 * @return A pointer to a stream through which the stream may be read
+		 */
+		virtual std::istream* BufferViaStream(uint64_t id) = 0;
+
+		/**
+		 * @brief Called to determine whether stream-stream transfer or full buffer loading is preferred by the provider for the given value
+		 *
+		 * @param id The ID of the value to use for reference, @b guaranteed to be a value that exists
+		 *
+		 * @return Encoder preference for transfer mode; @c t
+		 */
+		virtual bool UseStream2StreamTransfer(uint64_t id) = 0;
 
 		/**
 		 * @brief Called to request a boolean value

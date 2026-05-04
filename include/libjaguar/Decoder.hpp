@@ -4,10 +4,11 @@
 #include "Index.hpp"
 #include "Reader.hpp"
 #include "ValueHeader.hpp"
-#include "libjaguar/Index.hpp"
-#include "libjaguar/TypeTags.hpp"
+#include "TypeTags.hpp"
+
 #include <optional>
 #include <stdexcept>
+#include <set>
 
 namespace libjaguar {
 	/**
@@ -87,6 +88,7 @@ namespace libjaguar {
 		bool readerValid = true;
 		bool failFlag = false;
 		uint8_t nest = 0;
+		std::set<std::string> typesWeDecoded;
 
 		///@cond
 		struct ScopeExpectations {

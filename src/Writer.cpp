@@ -64,6 +64,32 @@ namespace libjaguar {
 		stream->write(value.data(), value.size());
 	}
 
+	void Writer::WriteStringFromStream(std::istream* istream, std::size_t length) {
+		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
+		if(istream == nullptr) throw std::runtime_error("Cannot write buffer from a null source stream!");
+		if(!(*istream)) throw std::runtime_error("Cannot write buffer from an invalid source stream!");
+
+		//Read and write data in chunks
+		constexpr std::size_t chunkSize = 64 * 1024;//64 KiB (one KiB is 1024 bytes)
+		std::string chunkBuffer;
+		chunkBuffer.resize(chunkSize);
+		std::size_t remaining = length;
+		while(remaining > 0) {
+			//Read data
+			std::size_t toRead = std::min(chunkSize, remaining);
+			istream->read(reinterpret_cast<char*>(chunkBuffer.data()), toRead);
+
+			//Write data back
+			std::size_t bytesRead = istream->gcount();
+			if(bytesRead == 0) throw std::runtime_error("Failed to read chunk for string transfer via stream!");
+			if(!CheckUTF8(chunkBuffer)) throw std::runtime_error("Source stream for string transfer returned invalid UTF-8 data!");
+			stream->write(reinterpret_cast<char*>(chunkBuffer.data()), bytesRead);
+
+			//Update remaining quantity
+			remaining -= bytesRead;
+		}
+	}
+
 	void Writer::WriteBufferFromStream(std::istream* istream, std::size_t length) {
 		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
 		if(istream == nullptr) throw std::runtime_error("Cannot write buffer from a null source stream!");
@@ -80,7 +106,7 @@ namespace libjaguar {
 
 			//Write data back
 			std::size_t bytesRead = istream->gcount();
-			if(bytesRead == 0) throw std::runtime_error("Failed to read chunk for buffer stream transfer!");
+			if(bytesRead == 0) throw std::runtime_error("Failed to read chunk for buffer transfer via stream!");
 			stream->write(reinterpret_cast<char*>(chunkBuffer.data()), bytesRead);
 
 			//Update remaining quantity

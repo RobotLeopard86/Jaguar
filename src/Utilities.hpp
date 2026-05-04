@@ -23,6 +23,11 @@ namespace libjaguar {
 			if(underflow() == EOF) throw std::runtime_error("Unexpected IO error during initial scoped view streambuf population!");
 		}
 
+		~SVstreambuf() {
+			//Mark invalid
+			if(handle.IsHandleValid() && handle->IsValid()) handle->DiscardAll();
+		}
+
 	  protected:
 		std::streamsize showmanyc() override {
 			return okRange;

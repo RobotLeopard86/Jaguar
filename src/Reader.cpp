@@ -59,13 +59,21 @@ namespace libjaguar {
 	}
 
 	std::istream* Reader::operator->() {
-		if(view && (view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
-		return (stream ? stream.get() : nullptr);
+		try {
+			VerifyOk();
+		} catch(...) {
+			return nullptr;
+		}
+		return stream.get();
 	}
 
 	std::istream* Reader::operator*() {
-		if(view && (view->GetBytesRemaining() > 0 || !view->valid)) return nullptr;
-		return (stream ? stream.get() : nullptr);
+		try {
+			VerifyOk();
+		} catch(...) {
+			return nullptr;
+		}
+		return stream.get();
 	}
 
 	uint64_t Reader::_ReadIntegerInternal(uint8_t bits) {

@@ -33,6 +33,10 @@ namespace libjaguar {
 			///@}
 		};
 		std::vector<Field> fields;///<List of fields
+
+		///@cond
+		bool operator==(const StructuredTypeLayout& rhs) const;
+		///@endcond
 	};
 
 	/**

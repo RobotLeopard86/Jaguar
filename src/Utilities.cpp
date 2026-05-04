@@ -4,6 +4,7 @@
 #include "libjaguar/TypeTags.hpp"
 
 #include <cmath>
+#include <cstdint>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -129,6 +130,9 @@ namespace libjaguar {
 		//Tracking info
 		std::set<std::string> seenFields;
 
+		//Check to ensure field size is not above UINT16_MAX (which would break the encoder)
+		if(layout.fields.size() > UINT16_MAX) return false;
+
 		//Check all the fields; if everything passes than they all must be good
 		for(const StructuredTypeLayout::Field& field : layout.fields) {
 			//Field name
@@ -218,5 +222,54 @@ namespace libjaguar {
 			default: break;
 		}
 		return result;
+	}
+
+	bool StructuredTypeLayout::operator==(const StructuredTypeLayout& rhs) const {
+		//We can't compare invalid layouts
+		if(!ValidateTypeLayout(*this) || !ValidateTypeLayout(rhs)) return false;
+
+		//Check equivalent field sizes
+		if(fields.size() != rhs.fields.size()) return false;
+
+		//Check every field
+		for(uint16_t i = 0; i < fields.size(); ++i) {
+			//Get fields
+			const StructuredTypeLayout::Field& ours = fields[i];
+			const StructuredTypeLayout::Field& theirs = rhs.fields[i];
+
+			//Check name and type
+			if(ours.name.compare(theirs.name) != 0) return false;
+			if(ours.type != theirs.type) return false;
+
+			//Check type-specific data
+			if(IsValue(ours.type) && static_cast<uint8_t>(ours.type) < 0x4A) continue;
+			switch(ours.type) {
+				case TypeTag::Vector:
+				case TypeTag::Matrix:
+					if(ours.elementType != theirs.elementType) return false;
+					if(ours.width != theirs.width) return false;
+					if(ours.type == TypeTag::Matrix && ours.height != theirs.height) return false;
+					break;
+				case TypeTag::StructuredObj:
+					if(ours.typeID.compare(theirs.typeID) != 0) return false;
+				case TypeTag::List:
+					if(IsValue(ours.elementType) && static_cast<uint8_t>(ours.elementType) < 0x4A) continue;
+					switch(ours.elementType) {
+						case TypeTag::Vector:
+						case TypeTag::Matrix:
+							if(ours.nestedElementType != theirs.nestedElementType) return false;
+							if(ours.width != theirs.width) return false;
+							if(ours.type == TypeTag::Matrix && ours.height != theirs.height) return false;
+							break;
+						case TypeTag::StructuredObj:
+							if(ours.typeID.compare(theirs.typeID) != 0) return false;
+						default: break;
+					}
+				default: break;
+			}
+		}
+
+		//All tests passed, good
+		return true;
 	}
 }
