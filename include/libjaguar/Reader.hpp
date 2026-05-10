@@ -27,7 +27,7 @@ namespace libjaguar {
 		 *
 		 * @param istream The stream containing Jaguar data
 		 *
-		 * @warning Be sure that the stream being used was opened in binary mode (@c std::ios::binary), or encoding issues may occur
+		 * @warning Be sure that the stream being used was opened in binary mode (@c std::ios::binary), or decoding issues may occur
 		 */
 		explicit Reader(std::unique_ptr<std::istream>&& istream);
 
@@ -148,5 +148,7 @@ namespace libjaguar {
 
 		uint64_t _ReadIntegerInternal(uint8_t bits);
 		void VerifyOk();
+
+		friend class Document;
 	};
 }

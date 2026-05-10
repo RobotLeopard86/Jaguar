@@ -50,6 +50,8 @@ namespace libjaguar {
 		 * @brief Create a document sourcing initial data from an input stream
 		 *
 		 * @param stream The stream to read from
+		 *
+		 * @warning Be sure that the stream being used was opened in binary mode (@c std::ios::binary), or decoding issues may occur
 		 */
 		Document(std::unique_ptr<std::istream>&& stream)
 		  : reader(std::make_optional<Reader>(std::move(stream))), streamState(StreamState::Available), index(std::nullopt) {}
@@ -104,6 +106,15 @@ namespace libjaguar {
 		void ExportTo(std::ostream& out);
 
 		/**
+		 * @brief Release the stream if there is one
+		 *
+		 * @note Before the stream is released, @c MaterializeAll will be called to ensure that all values stay accessible without the stream
+		 *
+		 * @return A pointer to the stream object if it is avilable, @c nullptr otherwise. Once returned, the pointer's lifetime is the responsibility of the caller
+		 */
+		std::istream* ReleaseStream();
+
+		/**
 		 * @brief A utility class for structured object converters to read values
 		 */
 		struct ObjReader {
@@ -138,18 +149,83 @@ namespace libjaguar {
 		struct ObjWriter {
 		  public:
 			/**
-			 * @brief Set a value in the object scope
+			 * @brief Set the value of a field in the object scope
 			 *
-			 * @tparam T The object type from which to derive the Jaguar data; must match the type declared in the index
+			 * @tparam T The object type to be converted to Jaguar data; must match the type declared in the index
 			 *
 			 * @param field The name of the field to set
 			 * @param value The value to store in the field
 			 *
-			 * @throws std::runtime_error If a field exists in the document with a type that does not match
+			 * @throws std::runtime_error If no field exists in the object scope with the given path and type or it is not an "end value"
 			 */
 			template<typename T>
 			void Set(const std::string& field, const T& value) {
-				doc->SetValue(basePath + "." + field, value);
+				doc->SetValue<T>(basePath + "." + field, value);
+			}
+
+			/**
+			 * @brief Create a new field in the object scope
+			 *
+			 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
+			 *
+			 * @param field The name of the field to create
+			 *
+			 * @throws std::runtime_error If a field already exists with the same path
+			 */
+			template<typename T>
+				requires(!is_byte_range_v<T>)
+			void Create(const std::string& field) {
+				doc->CreateValue<T>(basePath + "." + field);
+			}
+
+			/**
+			 * @brief Create a new field in the object scope
+			 *
+			 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
+			 *
+			 * @param field The name of the field to create
+			 * @param list If the field is to be represented by a List with element type UInt8 or a ByteBuffer
+			 *
+			 * @throws std::runtime_error If a field already exists with the same path
+			 * @throws std::runtime_error If the path references nonexistent scopes
+			 */
+			template<byte_range T>
+			void Create(const std::string& field, bool list) {
+				doc->CreateValue<T>(basePath + "." + field, list);
+			}
+
+			/**
+			 * @brief Set the value of a field in the object scope, creating if if it does not exist
+			 *
+			 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
+			 *
+			 * @param field The name of the field to modify/create
+			 * @param value The value to store in the field
+			 *
+			 * @throws std::runtime_error If the field already exists with non-matching type information
+			 * @throws std::runtime_error If the path references nonexistent scopes
+			 */
+			template<typename T>
+				requires(!is_byte_range_v<T>)
+			void SetOrCreate(const std::string& field, const T& value) {
+				doc->SetOrCreateValue<T>(basePath + "." + field, value);
+			}
+
+			/**
+			 * @brief Set the value of a field in the object scope, creating if if it does not exist
+			 *
+			 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
+			 *
+			 * @param field The name of the field to modify/create
+			 * @param list If the field is to be represented by a List with element type UInt8 or a ByteBuffer
+			 * @param value The value to store in the field
+			 *
+			 * @throws std::runtime_error If the field already exists with non-matching type information
+			 * @throws std::runtime_error If the path references nonexistent scopes
+			 */
+			template<byte_range T>
+			void SetOrCreate(const std::string& field, bool list, const T& value) {
+				doc->SetOrCreateValue<T>(basePath + "." + field, list, value);
 			}
 
 		  private:
@@ -262,7 +338,7 @@ namespace libjaguar {
 		void CreateValue(const std::string& path, bool list);
 
 		/**
-		 * @brief Set the value of a field to the document at a given path, creating if if it does not exist
+		 * @brief Set the value of a field in the document at a given path, creating if if it does not exist
 		 *
 		 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
 		 *
@@ -277,7 +353,7 @@ namespace libjaguar {
 		void SetOrCreateValue(const std::string& path, const T& value);
 
 		/**
-		 * @brief Create a new field in the document at a given path
+		 * @brief Set the value of a field in the document at a given path, creating if if it does not exist
 		 *
 		 * @tparam T The type of data stored in the field; must be able to be converted to a Jaguar type for storage
 		 *

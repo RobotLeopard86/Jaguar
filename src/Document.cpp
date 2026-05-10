@@ -2,6 +2,7 @@
 #include "libjaguar/Decoder.hpp"
 #include "libjaguar/Encoder.hpp"
 #include "libjaguar/Index.hpp"
+#include "libjaguar/Reader.hpp"
 #include "libjaguar/ScopedView.hpp"
 #include "libjaguar/StructuredTypeLayout.hpp"
 #include "libjaguar/TypeTags.hpp"
@@ -74,24 +75,11 @@ namespace libjaguar {
 					impl(entry, impl);
 				};
 				indexWalk(index->root);
-			} else {
-				//Check materialization state; if everything is materialized then we can relinquish the stream
-				bool okToClose = true;
-				for(const auto& [_, vs] : storage) {
-					if(!vs.materialized) {
-						okToClose = false;
-						break;
-					}
-				}
-				if(okToClose) {
-					reader.reset();
-					streamState = StreamState::Unavailable;
-				}
 			}
-
 			return true;
-		} else
+		} else {
 			return false;
+		}
 	}
 
 	template<>
@@ -677,5 +665,24 @@ namespace libjaguar {
 		converters.insert_or_assign(type, std::move(cvt));
 		createValWraps.insert_or_assign(type, createWrap);
 		index->types[typeID] = layout;
+	}
+
+	std::istream* Document::ReleaseStream() {
+		if(streamState == StreamState::Available) {
+			//Ensure everything is materialized
+			MaterializeAll();
+
+			//Get the stream out
+			streamState = StreamState::Unavailable;
+			Reader r = std::move(*reader);
+			std::istream* ptr = r.stream.release();
+			reader.reset();
+
+			//Hand back the pointer
+			return ptr;
+		} else {
+			//No stream (already released or never had one), can't release
+			return nullptr;
+		}
 	}
 }
