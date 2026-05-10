@@ -492,10 +492,10 @@
 <dl class="cpp function">
 <dt class="sig sig-object cpp" id="_CPPv4I0EN9libjaguar8Document9ObjWriter3SetEvRKNSt6stringERK1T">
 <span id="_CPPv3I0EN9libjaguar8Document9ObjWriter3SetERKNSt6stringERK1T"></span><span id="_CPPv2I0EN9libjaguar8Document9ObjWriter3SetERKNSt6stringERK1T"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structlibjaguar_1_1Document_1_1ObjWriter_1ab711147f557358de0a2feca12c27b03a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Set</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">field</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN9libjaguar8Document9ObjWriter3SetEvRKNSt6stringERK1T" title="libjaguar::Document::ObjWriter::Set::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN9libjaguar8Document9ObjWriter3SetEvRKNSt6stringERK1T" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Set a value in the object scope. </p>
+<dd><p>Set the value of a field in the object scope. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>T</strong> – The object type from which to derive the Jaguar data; must match the type declared in the index</p>
+<dd class="field-odd"><p><strong>T</strong> – The object type to be converted to Jaguar data; must match the type declared in the index</p>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
@@ -504,7 +504,94 @@
 </ul>
 </dd>
 <dt class="field-odd">Throws<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If a field exists in the document with a type that does not match </p>
+<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If no field exists in the object scope with the given path and type or it is not an “end value” </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN9libjaguar8Document9ObjWriter6CreateEvRKNSt6stringE">
+<span id="_CPPv3I0EN9libjaguar8Document9ObjWriter6CreateERKNSt6stringE"></span><span id="_CPPv2I0EN9libjaguar8Document9ObjWriter6CreateERKNSt6stringE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structlibjaguar_1_1Document_1_1ObjWriter_1a7b6c96e6ba2a9298c96f8ea15c7004bb"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Create</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">field</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN9libjaguar8Document9ObjWriter6CreateEvRKNSt6stringE" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Create a new field in the object scope. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> – The type of data stored in the field; must be able to be converted to a Jaguar type for storage</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>field</strong> – The name of the field to create</p>
+</dd>
+<dt class="field-odd">Throws<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If a field already exists with the same path </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_10byte_rangeEN9libjaguar8Document9ObjWriter6CreateEvRKNSt6stringEb">
+<span id="_CPPv3I_10byte_rangeEN9libjaguar8Document9ObjWriter6CreateERKNSt6stringEb"></span><span id="_CPPv2I_10byte_rangeEN9libjaguar8Document9ObjWriter6CreateERKNSt6stringEb"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">byte_range</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structlibjaguar_1_1Document_1_1ObjWriter_1ac8bc18765abb49cdc55b25822e9e0e0e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Create</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">field</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">list</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I_10byte_rangeEN9libjaguar8Document9ObjWriter6CreateEvRKNSt6stringEb" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Create a new field in the object scope. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> – The type of data stored in the field; must be able to be converted to a Jaguar type for storage</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>field</strong> – The name of the field to create </p></li>
+<li><p><strong>list</strong> – If the field is to be represented by a List with element type UInt8 or a ByteBuffer</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Throws<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If a field already exists with the same path </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the path references nonexistent scopes </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN9libjaguar8Document9ObjWriter11SetOrCreateEvRKNSt6stringERK1T">
+<span id="_CPPv3I0EN9libjaguar8Document9ObjWriter11SetOrCreateERKNSt6stringERK1T"></span><span id="_CPPv2I0EN9libjaguar8Document9ObjWriter11SetOrCreateERKNSt6stringERK1T"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structlibjaguar_1_1Document_1_1ObjWriter_1a611a8becaddce3f6ace7ebefe3524005"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetOrCreate</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">field</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN9libjaguar8Document9ObjWriter11SetOrCreateEvRKNSt6stringERK1T" title="libjaguar::Document::ObjWriter::SetOrCreate::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN9libjaguar8Document9ObjWriter11SetOrCreateEvRKNSt6stringERK1T" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Set the value of a field in the object scope, creating if if it does not exist. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> – The type of data stored in the field; must be able to be converted to a Jaguar type for storage</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>field</strong> – The name of the field to modify/create </p></li>
+<li><p><strong>value</strong> – The value to store in the field</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Throws<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the field already exists with non-matching type information </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the path references nonexistent scopes </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4I_10byte_rangeEN9libjaguar8Document9ObjWriter11SetOrCreateEvRKNSt6stringEbRK1T">
+<span id="_CPPv3I_10byte_rangeEN9libjaguar8Document9ObjWriter11SetOrCreateERKNSt6stringEbRK1T"></span><span id="_CPPv2I_10byte_rangeEN9libjaguar8Document9ObjWriter11SetOrCreateERKNSt6stringEbRK1T"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">byte_range</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structlibjaguar_1_1Document_1_1ObjWriter_1aafda44bf05aef1734f544bda04862bd2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetOrCreate</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">field</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">list</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_10byte_rangeEN9libjaguar8Document9ObjWriter11SetOrCreateEvRKNSt6stringEbRK1T" title="libjaguar::Document::ObjWriter::SetOrCreate::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I_10byte_rangeEN9libjaguar8Document9ObjWriter11SetOrCreateEvRKNSt6stringEbRK1T" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Set the value of a field in the object scope, creating if if it does not exist. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>T</strong> – The type of data stored in the field; must be able to be converted to a Jaguar type for storage</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>field</strong> – The name of the field to modify/create </p></li>
+<li><p><strong>list</strong> – If the field is to be represented by a List with element type UInt8 or a ByteBuffer </p></li>
+<li><p><strong>value</strong> – The value to store in the field</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Throws<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the field already exists with non-matching type information </p></li>
+<li><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If the path references nonexistent scopes </p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -566,6 +653,10 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#struct-documentation">Struct Documentation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar8Document9ObjWriterE"><code class="docutils literal notranslate"><span class="pre">libjaguar::Document::ObjWriter</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0EN9libjaguar8Document9ObjWriter3SetEvRKNSt6stringERK1T"><code class="docutils literal notranslate"><span class="pre">Set()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0EN9libjaguar8Document9ObjWriter6CreateEvRKNSt6stringE"><code class="docutils literal notranslate"><span class="pre">Create()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_10byte_rangeEN9libjaguar8Document9ObjWriter6CreateEvRKNSt6stringEb"><code class="docutils literal notranslate"><span class="pre">Create()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0EN9libjaguar8Document9ObjWriter11SetOrCreateEvRKNSt6stringERK1T"><code class="docutils literal notranslate"><span class="pre">SetOrCreate()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I_10byte_rangeEN9libjaguar8Document9ObjWriter11SetOrCreateEvRKNSt6stringEbRK1T"><code class="docutils literal notranslate"><span class="pre">SetOrCreate()</span></code></a></li>
 </ul>
 </li>
 </ul>
