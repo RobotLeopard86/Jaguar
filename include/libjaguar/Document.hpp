@@ -857,7 +857,7 @@ namespace libjaguar {
 		auto maybeScope = (parentID == index->root.id) ? index->root : indexWalk(index->root);
 		if(!maybeScope.has_value()) throw std::runtime_error("Cannot create field with a nonexistent parent scope!");
 		ScopeEntry& parentScope = maybeScope->get();
-		if(!parentScope.typeID.empty()) {
+		if(!parentScope.list && !parentScope.typeID.empty()) {
 			StructuredTypeLayout& stl = index->types.at(parentScope.typeID);
 			[&stl, &fieldName]() {
 				for(const StructuredTypeLayout::Field& field : stl.fields) {
@@ -930,7 +930,7 @@ namespace libjaguar {
 		auto maybeScope = (parentID == index->root.id) ? index->root : indexWalk(index->root);
 		if(!maybeScope.has_value()) throw std::runtime_error("Cannot create field with a nonexistent parent scope!");
 		ScopeEntry& parentScope = maybeScope->get();
-		if(!parentScope.typeID.empty()) {
+		if(!parentScope.list && !parentScope.typeID.empty()) {
 			StructuredTypeLayout& stl = index->types.at(parentScope.typeID);
 			[&stl, &fieldName]() {
 				for(const StructuredTypeLayout::Field& field : stl.fields) {
@@ -997,7 +997,7 @@ namespace libjaguar {
 				scope.typeID = "";
 			} else if(converters.contains(typeid(S))) {
 				scope.listElementType = TypeTag::StructuredObj;
-				scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [](const auto& pair) { return pair.second == typeid(T); })->first;
+				scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [](const auto& pair) { return pair.second == typeid(S); })->first;
 			} else
 				throw std::runtime_error("Invalid type for field creation!");
 
@@ -2061,7 +2061,7 @@ namespace libjaguar {
 	template<typename T>
 		requires(!is_byte_range_v<T>)
 	void Document::SetOrCreateValue(const std::string& path, const T& value) {
-		if(HasValue(path)) {
+		if(!HasValue(path)) {
 			CreateValue<T>(path);
 		}
 		SetValue<T>(path, value);
@@ -2069,7 +2069,7 @@ namespace libjaguar {
 
 	template<byte_range T>
 	void Document::SetOrCreateValue(const std::string& path, bool list, const T& value) {
-		if(HasValue(path)) {
+		if(!HasValue(path)) {
 			CreateValue<T>(path, list);
 		}
 		SetValue<T>(path, value);

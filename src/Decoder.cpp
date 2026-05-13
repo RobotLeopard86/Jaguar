@@ -111,7 +111,9 @@ namespace libjaguar {
 			try {
 				header = reader.ReadHeader();
 			} catch(...) {
-				if(reader->eof()) {
+				std::istream* sptr = *reader;
+				if(sptr == nullptr) throw std::runtime_error("[Decode Error] Unexpected stream failure!");
+				if(sptr->eof()) {
 					if(!expectations.rootFlag) DECODE_ERROR("Unexpected EOF in nested scope!");
 					return;
 				}
@@ -193,6 +195,8 @@ namespace libjaguar {
 				//Add entry
 				scope.subvalues.push_back(std::move(entry));
 			} else if(header.type == TypeTag::StructuredObjTypeDecl) {
+				if(nest > 1) DECODE_ERROR("Type declarations may only appear in the root scope!");
+
 				//Check that there's not already a type with this name
 				if(index->types.contains(header.name)) {
 					//If we decoded this, then it's for sure a duplicate
@@ -284,7 +288,6 @@ namespace libjaguar {
 				}
 				entry.id = GenIndexID(newScopePath);
 				if(entry.list) newScopePath += "[";
-				if(nest > 1 && header.type == TypeTag::StructuredObjTypeDecl) DECODE_ERROR("Type declarations may only appear in the root scope!");
 
 				//Handle different scope types
 				if(entry.list) {
@@ -350,7 +353,7 @@ namespace libjaguar {
 							se.rootFlag = false;
 
 							//Parse scope
-							_ParseScopeInternal(listScope, se, newScopePath);
+							_ParseScopeInternal(listScope, se, subscopePath);
 
 							//Add to list
 							entry.subscopes.push_back(std::move(listScope));

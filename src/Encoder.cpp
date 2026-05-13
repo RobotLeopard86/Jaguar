@@ -338,7 +338,7 @@ namespace libjaguar {
 		}
 	}
 
-	void Encoder::_WriteObj(const Index& index, const ScopeEntry& entry, PayloadProvider* provider) {
+	void Encoder::_WriteObj(const Index& index, const ScopeEntry& entry, PayloadProvider* provider, bool forList) {
 		//Write appropriate header for structured or unstructured types
 		if(entry.typeID.empty()) {
 			//Create and write header
@@ -352,11 +352,13 @@ namespace libjaguar {
 			if(!index.types.contains(entry.typeID)) throw std::runtime_error("Cannot encode structured object subscope using undeclared type!");
 
 			//Create and write header
-			ValueHeader header = {};
-			header.name = entry.name;
-			header.type = TypeTag::StructuredObj;
-			header.typeID = entry.typeID;
-			writer.WriteHeader(header);
+			if(!forList) {
+				ValueHeader header = {};
+				header.name = entry.name;
+				header.type = TypeTag::StructuredObj;
+				header.typeID = entry.typeID;
+				writer.WriteHeader(header);
+			}
 		}
 
 		//Write the subscope
@@ -434,7 +436,7 @@ namespace libjaguar {
 					}
 				} else {
 					for(const ScopeEntry& subscope : scope.subscopes) {
-						_WriteObj(index, subscope, provider);
+						_WriteObj(index, subscope, provider, true);
 					}
 				}
 

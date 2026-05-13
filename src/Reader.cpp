@@ -42,7 +42,7 @@ namespace libjaguar {
 	void Reader::VerifyOk() {
 		//Check stream integrity
 		if(!stream) throw std::runtime_error("Cannot perform operations without a backing stream!");
-		if(!stream->good()) throw std::runtime_error("Cannot perform operations with a broken stream!");
+		if(!stream->eof() && !stream->good()) throw std::runtime_error("Cannot perform operations with a broken stream!");
 
 		//Check read view state
 		if(view) {

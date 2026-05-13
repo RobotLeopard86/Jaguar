@@ -309,7 +309,7 @@ namespace libjaguar {
 
 		void _WriteNum(TypeTag type, uint64_t asBits);
 		void _WriteValue(const ValueEntry& entry, PayloadProvider* provider, bool forList = false);
-		void _WriteObj(const Index&, const ScopeEntry& entry, PayloadProvider* provider);
+		void _WriteObj(const Index&, const ScopeEntry& entry, PayloadProvider* provider, bool forList = false);
 		void _WriteScope(const Index& index, const ScopeEntry& entry, PayloadProvider* provider);
 		void _Write(const Index& index, PayloadProvider* provider);
 	};
