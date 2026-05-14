@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <ranges>
 #include <type_traits>
+#include <vector>
 
 #include "DllHelper.hpp"
 

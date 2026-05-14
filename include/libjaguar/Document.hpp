@@ -550,7 +550,12 @@ namespace libjaguar {
 		template<byte_range T>
 		T To(const ValueStorage& storage) {
 			T t;
-			std::ranges::copy(storage.mem.begin(), storage.mem.end(), std::back_inserter(t));
+			if constexpr(resizable_range<T>) {
+				std::ranges::copy(storage.mem.begin(), storage.mem.end(), std::back_inserter(t));
+			} else {
+				if(storage.mem.size() > std::extent_v<T>) throw std::runtime_error("Storage too small to hold data!");
+				std::ranges::copy(storage.mem.begin(), storage.mem.end(), t.begin());
+			}
 			return t;
 		}
 
