@@ -183,7 +183,7 @@ namespace libjaguar {
 	};
 
 	template<typename T>
-	concept resizable_range = requires(T t, std::size_t n) {
+	concept resizable_range = std::ranges::sized_range<T> && requires(T t, std::size_t n) {
 		t.resize(n);
 	};
 	///@endcond

@@ -590,7 +590,7 @@ namespace libjaguar {
 			if constexpr(resizable_range<T>) {
 				std::ranges::copy(storage.mem.begin(), storage.mem.end(), std::back_inserter(t));
 			} else {
-				if(storage.mem.size() > std::extent_v<T>) throw std::runtime_error("Storage too small to hold data!");
+				if(storage.mem.size() > std::ranges::size(t)) throw std::runtime_error("Storage too small to hold data!");
 				std::ranges::copy(storage.mem.begin(), storage.mem.end(), t.begin());
 			}
 			return t;
@@ -1975,9 +1975,10 @@ namespace libjaguar {
 				if constexpr(!std::is_same_v<T, std::string>) throw std::runtime_error("Type incompatibility: String checked against non-matching candidate type!");
 				break;
 			case TypeTag::ByteBuffer:
-				if constexpr(!is_byte_range_v<T>) throw std::runtime_error("Type incompatibility: ByteBuffer checked against non-matching candidate type!");
-				if constexpr(std::ranges::sized_range<T>) {
-					if(std::extent_v<T> < ve.size) throw std::runtime_error("Type incompatibility: ByteBuffer requires a candidate storage with sufficient space!");
+				if constexpr(!is_byte_range_v<T>)
+					throw std::runtime_error("Type incompatibility: ByteBuffer checked against non-matching candidate type!");
+				else if constexpr(!resizable_range<T>) {
+					if(std::ranges::size(T {}) < ve.size) throw std::runtime_error("Type incompatibility: ByteBuffer requires a candidate storage with sufficient space!");
 				}
 				break;
 			case TypeTag::Boolean:
