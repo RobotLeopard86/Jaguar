@@ -120,7 +120,7 @@ namespace libjaguar {
 		struct ObjReader {
 		  public:
 			/**
-			 * @brief Get a value from the document
+			 * @brief Query the value of a field in the object scope
 			 *
 			 * @tparam T The object type to return the Jaguar data as; must match the type declared in the index
 			 *
@@ -128,11 +128,48 @@ namespace libjaguar {
 			 *
 			 * @return The current value stored in that field
 			 *
-			 * @throws std::runtime_error If no field exists in the document with the given ID and type
+			 * @throws std::runtime_error If no field exists in the object scope with the given ID and type
 			 */
 			template<typename T>
-			T Get(const std::string& field) {
+			T Query(const std::string& field) {
 				return doc->QueryValue<T>(basePath + "." + field);
+			}
+
+			/**
+			 * @brief Check if the object scope contains a field of the given name
+			 *
+			 * @param field The name of the field whose existence to check
+			 *
+			 * @return If the field exists
+			 */
+			bool Has(const std::string& field) {
+				return doc->HasValue(basePath + "." + field);
+			}
+
+			/**
+			 * @brief Query type information about a value field in the object scope by its name
+			 *
+			 * @param field The name of the field to request
+			 *
+			 * @return The type data stored for this field
+			 *
+			 * @throws std::runtime_error If no value field exists in the object scope with the given name
+			 */
+			const ValueEntry& QueryValueInfo(const std::string& field) {
+				return doc->QueryValueInfo(basePath + "." + field);
+			}
+
+			/**
+			 * @brief Query type information about a scope field in the object scope by its name
+			 *
+			 * @param field The name of the field to request
+			 *
+			 * @return The type data stored for this field
+			 *
+			 * @throws std::runtime_error If no scope field exists in the object scope with the given name
+			 */
+			const ScopeEntry& QueryScopeInfo(const std::string& field) {
+				return doc->QueryScopeInfo(basePath + "." + field);
 			}
 
 		  private:
