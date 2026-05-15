@@ -27,7 +27,7 @@
 
 namespace libjaguar {
 	///@cond
-	bool CheckUTF8(const std::string& string);
+	bool CheckUTF8(const std::string_view& string);
 	///@endcond
 
 	///@brief An empty class used for template arguments when creating unstructured objects

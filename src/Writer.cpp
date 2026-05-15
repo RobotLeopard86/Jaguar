@@ -5,6 +5,7 @@
 
 #include <istream>
 #include <array>
+#include <iterator>
 #include <stdexcept>
 #include <algorithm>
 #include <cmath>
@@ -69,25 +70,71 @@ namespace libjaguar {
 		if(istream == nullptr) throw std::runtime_error("Cannot write buffer from a null source stream!");
 		if(!(*istream)) throw std::runtime_error("Cannot write buffer from an invalid source stream!");
 
-		//Read and write data in chunks
-		constexpr std::size_t chunkSize = 64 * 1024;//64 KiB (one KiB is 1024 bytes)
-		std::string chunkBuffer;
-		chunkBuffer.resize(chunkSize);
-		std::size_t remaining = length;
-		while(remaining > 0) {
-			//Read data
-			std::size_t toRead = std::min(chunkSize, remaining);
-			istream->read(reinterpret_cast<char*>(chunkBuffer.data()), toRead);
+		//Wrapper class for checking UTF-8 before writing to real output
+		class CheckWrapperBuf : public std::streambuf {
+		  public:
+			explicit CheckWrapperBuf(std::streambuf* dest)
+			  : outSB(dest) {}
 
-			//Write data back
-			std::size_t bytesRead = istream->gcount();
-			if(bytesRead == 0) throw std::runtime_error("Failed to read chunk for string transfer via stream!");
-			if(!CheckUTF8(chunkBuffer)) throw std::runtime_error("Source stream for string transfer returned invalid UTF-8 data!");
-			stream->write(reinterpret_cast<char*>(chunkBuffer.data()), bytesRead);
+		  protected:
+			std::streamsize xsputn(const char* s, std::streamsize n) override {
+				std::string_view input {s, static_cast<std::size_t>(n)};
 
-			//Update remaining quantity
-			remaining -= bytesRead;
-		}
+				//Append to carry buffer
+				carry.append(input.data(), input.size());
+
+				//Process only full 4-byte chunks
+				std::size_t full = carry.size() & ~std::size_t(3);
+				if(full > 0) {
+					std::string_view chunk {carry.data(), full};
+					if(!CheckUTF8(chunk))
+						throw std::runtime_error("Cannot write non-UTF-8 data to a string!");
+					if(outSB->sputn(chunk.data(), full) != static_cast<std::streamsize>(full))
+						return 0;
+
+					//Remove processed bytes, keep remainder (0–3 bytes)
+					carry.erase(0, full);
+				}
+				return n;
+			}
+
+			int overflow(int ch) override {
+				if(ch == traits_type::eof())
+					return sync() == 0 ? traits_type::not_eof(ch) : traits_type::eof();
+				char c = static_cast<char>(ch);
+				return xsputn(&c, 1) == 1 ? ch : traits_type::eof();
+			}
+
+			int sync() override {
+				if(!carry.empty()) {
+					if(!CheckUTF8(carry))
+						return -1;
+					if(outSB->sputn(carry.data(), carry.size()) != static_cast<std::streamsize>(carry.size()))
+						return -1;
+					carry.clear();
+				}
+				return outSB->pubsync();
+			}
+
+		  private:
+			std::streambuf* outSB;
+			std::string carry;
+		};
+
+		///...and the corresponding stream
+		class CheckWrapperOStream : public std::ostream {
+		  public:
+			explicit CheckWrapperOStream(std::ostream& out)
+			  : std::ostream(&buf), buf(out.rdbuf()) {}
+
+		  private:
+			CheckWrapperBuf buf;
+		};
+
+		//Copy stream-to-stream efficiently while checking UTF-8
+		CheckWrapperOStream wrapper(*stream);
+		std::copy_n(std::istreambuf_iterator<char>(*istream), length, std::ostreambuf_iterator<char>(wrapper));
+		stream->flush();
 	}
 
 	void Writer::WriteBufferFromStream(std::istream* istream, std::size_t length) {
@@ -95,23 +142,9 @@ namespace libjaguar {
 		if(istream == nullptr) throw std::runtime_error("Cannot write buffer from a null source stream!");
 		if(!(*istream)) throw std::runtime_error("Cannot write buffer from an invalid source stream!");
 
-		//Read and write data in chunks
-		constexpr std::size_t chunkSize = 64 * 1024;//64 KiB (one KiB is 1024 bytes)
-		std::array<unsigned char, chunkSize> chunkBuffer;
-		std::size_t remaining = length;
-		while(remaining > 0) {
-			//Read data
-			std::size_t toRead = std::min(chunkSize, remaining);
-			istream->read(reinterpret_cast<char*>(chunkBuffer.data()), toRead);
-
-			//Write data back
-			std::size_t bytesRead = istream->gcount();
-			if(bytesRead == 0) throw std::runtime_error("Failed to read chunk for buffer transfer via stream!");
-			stream->write(reinterpret_cast<char*>(chunkBuffer.data()), bytesRead);
-
-			//Update remaining quantity
-			remaining -= bytesRead;
-		}
+		//Copy stream-to-stream efficiently
+		std::copy_n(std::istreambuf_iterator<char>(*istream), length, std::ostreambuf_iterator<char>(*stream));
+		stream->flush();
 	}
 
 	void Writer::WriteHeader(const ValueHeader& header, bool noIdentifier) {

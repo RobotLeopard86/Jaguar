@@ -11,7 +11,7 @@
 #include <vector>
 
 namespace libjaguar {
-	bool CheckUTF8(const std::string& string) {
+	bool CheckUTF8(const std::string_view& string) {
 		//Keep track of expected continuation bytes (to prevent overlong encodings)
 		uint8_t expectedContinuations = 0;
 

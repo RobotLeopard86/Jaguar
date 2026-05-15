@@ -74,5 +74,5 @@ namespace libjaguar {
 		}
 	};
 
-	bool CheckUTF8(const std::string& string);
+	bool CheckUTF8(const std::string_view& string);
 }
