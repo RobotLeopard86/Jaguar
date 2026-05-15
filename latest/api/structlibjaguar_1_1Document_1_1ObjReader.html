@@ -490,9 +490,9 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4I0EN9libjaguar8Document9ObjReader3GetE1TRKNSt6stringE">
-<span id="_CPPv3I0EN9libjaguar8Document9ObjReader3GetERKNSt6stringE"></span><span id="_CPPv2I0EN9libjaguar8Document9ObjReader3GetERKNSt6stringE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structlibjaguar_1_1Document_1_1ObjReader_1a62123c77024888b9a99f29210e33ff9e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN9libjaguar8Document9ObjReader3GetE1TRKNSt6stringE" title="libjaguar::Document::ObjReader::Get::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Get</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">field</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN9libjaguar8Document9ObjReader3GetE1TRKNSt6stringE" title="Link to this definition"><span/></a><br /></dt>
-<dd><p>Get a value from the document. </p>
+<dt class="sig sig-object cpp" id="_CPPv4I0EN9libjaguar8Document9ObjReader5QueryE1TRKNSt6stringE">
+<span id="_CPPv3I0EN9libjaguar8Document9ObjReader5QueryERKNSt6stringE"></span><span id="_CPPv2I0EN9libjaguar8Document9ObjReader5QueryERKNSt6stringE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structlibjaguar_1_1Document_1_1ObjReader_1a0ef29d820ec2112639f3270bed9a34e6"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN9libjaguar8Document9ObjReader5QueryE1TRKNSt6stringE" title="libjaguar::Document::ObjReader::Query::T"><span class="n"><span class="pre">T</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Query</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">field</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN9libjaguar8Document9ObjReader5QueryE1TRKNSt6stringE" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Query the value of a field in the object scope. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>T</strong> – The object type to return the Jaguar data as; must match the type declared in the index</p>
@@ -501,10 +501,58 @@
 <dd class="field-even"><p><strong>field</strong> – The name of the field to retrieve</p>
 </dd>
 <dt class="field-odd">Throws<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If no field exists in the document with the given ID and type </p>
+<dd class="field-odd"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If no field exists in the object scope with the given ID and type </p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The current value stored in that field</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar8Document9ObjReader3HasERKNSt6stringE">
+<span id="_CPPv3N9libjaguar8Document9ObjReader3HasERKNSt6stringE"></span><span id="_CPPv2N9libjaguar8Document9ObjReader3HasERKNSt6stringE"></span><span id="libjaguar::Document::ObjReader::Has__ssCR"></span><span class="target" id="structlibjaguar_1_1Document_1_1ObjReader_1ac47b1fa5b0ff96c3a979589fdb02b6e2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Has</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">field</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar8Document9ObjReader3HasERKNSt6stringE" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Check if the object scope contains a field of the given name. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>field</strong> – The name of the field whose existence to check</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>If the field exists </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar8Document9ObjReader14QueryValueInfoERKNSt6stringE">
+<span id="_CPPv3N9libjaguar8Document9ObjReader14QueryValueInfoERKNSt6stringE"></span><span id="_CPPv2N9libjaguar8Document9ObjReader14QueryValueInfoERKNSt6stringE"></span><span id="libjaguar::Document::ObjReader::QueryValueInfo__ssCR"></span><span class="target" id="structlibjaguar_1_1Document_1_1ObjReader_1a68ea6140cc8150054c4915cde70db0f5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="structlibjaguar_1_1ValueEntry.html#_CPPv4N9libjaguar10ValueEntryE" title="libjaguar::ValueEntry"><span class="n"><span class="pre">ValueEntry</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">QueryValueInfo</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">field</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar8Document9ObjReader14QueryValueInfoERKNSt6stringE" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Query type information about a value field in the object scope by its name. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>field</strong> – The name of the field to request</p>
+</dd>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If no value field exists in the object scope with the given name </p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The type data stored for this field</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N9libjaguar8Document9ObjReader14QueryScopeInfoERKNSt6stringE">
+<span id="_CPPv3N9libjaguar8Document9ObjReader14QueryScopeInfoERKNSt6stringE"></span><span id="_CPPv2N9libjaguar8Document9ObjReader14QueryScopeInfoERKNSt6stringE"></span><span id="libjaguar::Document::ObjReader::QueryScopeInfo__ssCR"></span><span class="target" id="structlibjaguar_1_1Document_1_1ObjReader_1ae466cc443f6583254d2c0a6b93b98885"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="structlibjaguar_1_1ScopeEntry.html#_CPPv4N9libjaguar10ScopeEntryE" title="libjaguar::ScopeEntry"><span class="n"><span class="pre">ScopeEntry</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">QueryScopeInfo</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">field</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9libjaguar8Document9ObjReader14QueryScopeInfoERKNSt6stringE" title="Link to this definition"><span/></a><br /></dt>
+<dd><p>Query type information about a scope field in the object scope by its name. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>field</strong> – The name of the field to request</p>
+</dd>
+<dt class="field-even">Throws<span class="colon">:</span></dt>
+<dd class="field-even"><p><span><span class="cpp-expr sig sig-inline cpp"><span class="n">std</span><span class="p">::</span><span class="n">runtime_error</span></span></span> – If no scope field exists in the object scope with the given name </p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The type data stored for this field</p>
 </dd>
 </dl>
 </dd></dl>
@@ -565,7 +613,10 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nested-relationships">Nested Relationships</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#struct-documentation">Struct Documentation</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar8Document9ObjReaderE"><code class="docutils literal notranslate"><span class="pre">libjaguar::Document::ObjReader</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0EN9libjaguar8Document9ObjReader3GetE1TRKNSt6stringE"><code class="docutils literal notranslate"><span class="pre">Get()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4I0EN9libjaguar8Document9ObjReader5QueryE1TRKNSt6stringE"><code class="docutils literal notranslate"><span class="pre">Query()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar8Document9ObjReader3HasERKNSt6stringE"><code class="docutils literal notranslate"><span class="pre">Has()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar8Document9ObjReader14QueryValueInfoERKNSt6stringE"><code class="docutils literal notranslate"><span class="pre">QueryValueInfo()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9libjaguar8Document9ObjReader14QueryScopeInfoERKNSt6stringE"><code class="docutils literal notranslate"><span class="pre">QueryScopeInfo()</span></code></a></li>
 </ul>
 </li>
 </ul>
