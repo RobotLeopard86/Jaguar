@@ -421,10 +421,6 @@ namespace libjaguar {
 	void Document::MaterializeAll() {
 		INDEX_READ_CHECK;
 		Materialize(index->root.id);
-
-		//No more need for the stream, close it
-		reader.reset();
-		streamState = StreamState::Unavailable;
 	}
 
 	void Document::Materialize(uint64_t id) {

@@ -346,7 +346,7 @@ namespace libjaguar {
 			header.name = entry.name;
 			header.type = TypeTag::UnstructuredObj;
 			header.fieldCount = entry.subvalues.size() + entry.subscopes.size();
-			writer.WriteHeader(header);
+			writer.WriteHeader(header, forList);
 		} else {
 			//Check type
 			if(!index.types.contains(entry.typeID)) throw std::runtime_error("Cannot encode structured object subscope using undeclared type!");
