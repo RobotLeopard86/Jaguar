@@ -1,0 +1,1 @@
+option('testing', type: 'boolean', value: true, description: 'Whether to build test programs')
