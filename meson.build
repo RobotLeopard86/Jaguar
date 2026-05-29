@@ -1,4 +1,4 @@
-project('jaguar', 'cpp', version: '1.0.0-pre6', meson_version: '>=1.2.0', license: 'Apache-2.0', default_options: ['cpp_std=c++20', 'default_library=static', 'b_vscrt=from_buildtype'])
+project('jaguar', 'cpp', version: '1.0.0-pre7', meson_version: '>=1.2.0', license: 'Apache-2.0', default_options: ['cpp_std=c++20', 'default_library=static', 'b_vscrt=from_buildtype'])
 
 bt = get_option('buildtype')
 
