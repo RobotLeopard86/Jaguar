@@ -1053,6 +1053,7 @@ namespace libjaguar {
 			scope.streamBeginPosition = 0;
 			scope.listElementType = TypeTag::UnstructuredObj;
 			scope.typeID = "";
+			if(parentScope.list && parentScope.listElementType != TypeTag::UnstructuredObj) throw std::runtime_error("Cannot store value in list with type that does not match that of the list!");
 			parentScope.subscopes.push_back(scope);
 		} else if constexpr(SingleVal<T>) {
 			//Basic setup
@@ -1099,6 +1100,9 @@ namespace libjaguar {
 				}
 			}
 
+			//Check for list type match
+			if(parentScope.list && parentScope.listElementType != value.type) throw std::runtime_error("Cannot store value in list with type that does not match that of the list!");
+
 			//Add to scope
 			parentScope.subvalues.push_back(value);
 
@@ -1116,6 +1120,7 @@ namespace libjaguar {
 			scope.streamBeginPosition = 0;
 			scope.listElementType = TypeTag::StructuredObj;
 			scope.typeID = std::find_if(structuredObjTypes.begin(), structuredObjTypes.end(), [](const auto& pair) { return pair.second == typeid(T); })->first;
+			if(parentScope.list && (parentScope.listElementType != TypeTag::StructuredObj || (parentScope.listElementType == TypeTag::StructuredObj && parentScope.typeID.compare(scope.typeID) != 0))) throw std::runtime_error("Cannot store value in list with type that does not match that of the list!");
 			parentScope.subscopes.push_back(scope);
 
 			//Configure fields
