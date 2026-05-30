@@ -22,6 +22,9 @@ int main() {
 		for(unsigned int i = 0; i < reencoded.size(); ++i) {
 			if(buf[i] != reencoded[i]) return -1;
 		}
+		{
+			reencoded = doc.QueryValue<std::vector<unsigned char>>("bytes");
+		}
 		return 0;
 	} catch(...) {
 		return -1;

@@ -8,6 +8,7 @@ int main() {
 		//int list
 		doc.CreateValue<std::vector<int32_t>>("ints");
 		std::vector<int32_t> intlist = {1, 2, 3, 4, 5};
+		doc.CreateValue<int32_t>("ints[0]");
 		doc.SetValue<std::vector<int32_t>>("ints", intlist);
 		auto got = doc.QueryValue<std::vector<int32_t>>("ints");
 		if(got != intlist) return -1;
