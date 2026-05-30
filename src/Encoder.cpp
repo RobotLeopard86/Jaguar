@@ -227,7 +227,7 @@ namespace libjaguar {
 							case TypeTag::UInt16:
 							case TypeTag::UInt32:
 							case TypeTag::UInt64: {
-								Vector<uint64_t, 2> vec = provider->IntegerVec2(entry.id, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
+								Vector<uint64_t, 2> vec = provider->IntegerVec2(entry.id, std::pow(2, (static_cast<uint8_t>(header.elementType) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
 								nums.push_back(vec.x);
 								nums.push_back(vec.y);
 								break;
@@ -259,7 +259,7 @@ namespace libjaguar {
 							case TypeTag::UInt16:
 							case TypeTag::UInt32:
 							case TypeTag::UInt64: {
-								Vector<uint64_t, 3> vec = provider->IntegerVec3(entry.id, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
+								Vector<uint64_t, 3> vec = provider->IntegerVec3(entry.id, std::pow(2, (static_cast<uint8_t>(header.elementType) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
 								nums.push_back(vec.x);
 								nums.push_back(vec.y);
 								nums.push_back(vec.z);
@@ -294,7 +294,7 @@ namespace libjaguar {
 							case TypeTag::UInt16:
 							case TypeTag::UInt32:
 							case TypeTag::UInt64: {
-								Vector<uint64_t, 4> vec = provider->IntegerVec4(entry.id, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
+								Vector<uint64_t, 4> vec = provider->IntegerVec4(entry.id, std::pow(2, (static_cast<uint8_t>(header.elementType) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
 								nums.push_back(vec.x);
 								nums.push_back(vec.y);
 								nums.push_back(vec.z);
@@ -308,6 +308,7 @@ namespace libjaguar {
 				for(uint8_t i = 0; i < nums.size(); ++i) {
 					_WriteNum(header.elementType, nums[i]);
 				}
+				break;
 			}
 			case TypeTag::Matrix: {
 				for(uint8_t x = 0; x < header.width; ++x) {
@@ -326,13 +327,14 @@ namespace libjaguar {
 								case TypeTag::UInt16:
 								case TypeTag::UInt32:
 								case TypeTag::UInt64:
-									return provider->IntegerMat(entry.id, x, y, std::pow(2, (static_cast<uint8_t>(header.type) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
+									return provider->IntegerMat(entry.id, x, y, std::pow(2, (static_cast<uint8_t>(header.elementType) & 0xF) - 0xA) * 8, static_cast<uint8_t>(header.elementType) < 0x20);
 								default: return 0;
 							}
 						}();
 						_WriteNum(header.elementType, val);
 					}
 				}
+				break;
 			}
 			default: break;
 		}

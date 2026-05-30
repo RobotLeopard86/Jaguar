@@ -151,10 +151,14 @@ namespace libjaguar {
 			if(encounteredFields > expectations.fieldCount) DECODE_ERROR("Excess number of fields detected in scope!");
 
 			//Check names to avoid duplication
-			if(header.type != TypeTag::StructuredObjTypeDecl && fieldTracker.contains(header.name) && fieldTracker[header.name])
-				DECODE_ERROR("Detected duplicate field in scope!")
-			else
-				fieldTracker[header.name] = true;
+			if(header.type == TypeTag::StructuredObjTypeDecl) {
+			} else {
+				if(fieldTracker.contains(header.name) && fieldTracker[header.name])
+					DECODE_ERROR("Detected duplicate field in scope!")
+				else
+					fieldTracker[header.name] = true;
+			}
+
 
 			//For structured objects: check that the type actually contains this value
 			if(expectations.type == TypeTag::StructuredObj) {

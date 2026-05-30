@@ -1,11 +1,8 @@
 tests = [
-    'integer_read',
-    'float_read',
-    'buffer_read',
-    'string_read',
-    'bool_read',
-    'header_fuzz',
-    'reader_move_semantics'
+    'basic_types',
+    'structured_object',
+    'duplicate_name',
+    'invalid_utf8',
 ]
 
 foreach name : tests

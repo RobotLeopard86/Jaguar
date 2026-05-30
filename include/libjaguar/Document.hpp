@@ -460,9 +460,9 @@ namespace libjaguar {
 		ValueStorage From(const T& num) {
 			with_bits_t<bits_v<T>> work = std::bit_cast<with_bits_t<bits_v<T>>, T>(num);
 			std::vector<unsigned char> mem(bits_v<T>);
-			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				mem[i] = static_cast<unsigned char>(work & 0xFF);
-				if constexpr(bits_v<T> != 8) work >>= 8;
+				if constexpr(bits_v<T> > 8) work >>= 8;
 			}
 			return ValueStorage {.materialized = true, .mem = mem, .inStream = 0};
 		}
@@ -487,13 +487,13 @@ namespace libjaguar {
 			using T = vec_subtype_t<V>;
 			ValueStorage vs {.materialized = true, .mem = std::vector<unsigned char>(bits_v<T> / 4), .inStream = 0};
 			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
-			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[i] = (x & 0xFF);
 				x >>= 8;
 			}
 			with_bits_t<bits_v<T>> y = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.y);
-			for(uint8_t i = 0; i < bits_v<T>; ++i) {
-				vs.mem[bits_v<T> + i] = (y & 0xFF);
+			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
+				vs.mem[(bits_v<T> / 8) + i] = (y & 0xFF);
 				y >>= 8;
 			}
 			return vs;
@@ -504,18 +504,18 @@ namespace libjaguar {
 			using T = vec_subtype_t<V>;
 			ValueStorage vs {.materialized = true, .mem = std::vector<unsigned char>(bits_v<T> / 8 * 3), .inStream = 0};
 			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
-			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[i] = (x & 0xFF);
 				x >>= 8;
 			}
 			with_bits_t<bits_v<T>> y = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.y);
-			for(uint8_t i = 0; i < bits_v<T>; ++i) {
-				vs.mem[bits_v<T> + i] = (y & 0xFF);
+			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
+				vs.mem[(bits_v<T> / 8) + i] = (y & 0xFF);
 				y >>= 8;
 			}
 			with_bits_t<bits_v<T>> z = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.z);
-			for(uint8_t i = 0; i < bits_v<T>; ++i) {
-				vs.mem[bits_v<T> * 2 + i] = (z & 0xFF);
+			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
+				vs.mem[(bits_v<T> / 4) + i] = (z & 0xFF);
 				z >>= 8;
 			}
 			return vs;
@@ -526,23 +526,23 @@ namespace libjaguar {
 			using T = vec_subtype_t<V>;
 			ValueStorage vs {.materialized = true, .mem = std::vector<unsigned char>(bits_v<T> / 2), .inStream = 0};
 			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
-			for(uint8_t i = 0; i < bits_v<T>; ++i) {
+			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[i] = (x & 0xFF);
 				x >>= 8;
 			}
 			with_bits_t<bits_v<T>> y = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.y);
-			for(uint8_t i = 0; i < bits_v<T>; ++i) {
-				vs.mem[bits_v<T> + i] = (y & 0xFF);
+			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
+				vs.mem[(bits_v<T> / 8) + i] = (y & 0xFF);
 				y >>= 8;
 			}
 			with_bits_t<bits_v<T>> z = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.z);
-			for(uint8_t i = 0; i < bits_v<T>; ++i) {
-				vs.mem[bits_v<T> * 2 + i] = (z & 0xFF);
+			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
+				vs.mem[(bits_v<T> / 4) + i] = (z & 0xFF);
 				z >>= 8;
 			}
 			with_bits_t<bits_v<T>> w = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.w);
-			for(uint8_t i = 0; i < bits_v<T>; ++i) {
-				vs.mem[bits_v<T> * 3 + i] = (w & 0xFF);
+			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
+				vs.mem[(bits_v<T> / 8) * 3 + i] = (w & 0xFF);
 				w >>= 8;
 			}
 			return vs;
@@ -557,8 +557,8 @@ namespace libjaguar {
 			for(uint8_t x = 0; x < W; ++x) {
 				for(uint8_t y = 0; y < H; ++y) {
 					with_bits_t<bits_v<T>> val = std::bit_cast<with_bits_t<bits_v<T>>, T>(mat[x][y]);
-					for(uint8_t i = 0; i < bits_v<T>; ++i) {
-						vs.mem[bits_v<T> * (x + 1) * (y + 1) + i] = (val & 0xFF);
+					for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
+						vs.mem[(bits_v<T> / 8) * (x + 1) * (y + 1) + i] = (val & 0xFF);
 						val >>= 8;
 					}
 				}
@@ -600,21 +600,20 @@ namespace libjaguar {
 		V To(const ValueStorage& storage) {
 			using T = vec_subtype_t<V>;
 			V vec {.x = 0, .y = 0};
-			with_bits_t<bits_v<T>> work;
-			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
+			with_bits_t<bits_v<T>> work = 0;
+			uint8_t component = 0;
+			for(uint8_t i = 0; i <= storage.mem.size(); ++i) {
 				//Update component data
-				static uint8_t component = 0;
-				if(i % (bits_v<T> / 8) == 0) {
-					++component;
-					work = 0;
-					switch(component) {
+				if(i != 0 && i % (bits_v<T> / 8) == 0) {
+					switch(++component) {
 						case 1:
 							vec.x = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
 							break;
 						case 2:
 							vec.y = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
-							break;
+							return vec;
 					}
+					work = 0;
 				}
 
 				//Push latest byte
@@ -631,14 +630,12 @@ namespace libjaguar {
 		V To(const ValueStorage& storage) {
 			using T = vec_subtype_t<V>;
 			V vec {.x = 0, .y = 0, .z = 0};
-			with_bits_t<bits_v<T>> work;
-			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
+			with_bits_t<bits_v<T>> work = 0;
+			uint8_t component = 0;
+			for(uint8_t i = 0; i <= storage.mem.size(); ++i) {
 				//Update component data
-				static uint8_t component = 0;
-				if(i % (bits_v<T> / 8) == 0) {
-					++component;
-					work = 0;
-					switch(component) {
+				if(i != 0 && i % (bits_v<T> / 8) == 0) {
+					switch(++component) {
 						case 1:
 							vec.x = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
 							break;
@@ -647,8 +644,9 @@ namespace libjaguar {
 							break;
 						case 3:
 							vec.z = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
-							break;
+							return vec;
 					}
+					work = 0;
 				}
 
 				//Push latest byte
@@ -665,14 +663,12 @@ namespace libjaguar {
 		V To(const ValueStorage& storage) {
 			using T = vec_subtype_t<V>;
 			V vec {.x = 0, .y = 0, .z = 0, .w = 0};
-			with_bits_t<bits_v<T>> work;
-			for(uint8_t i = 0; i < storage.mem.size(); ++i) {
+			with_bits_t<bits_v<T>> work = 0;
+			uint8_t component = 0;
+			for(uint8_t i = 0; i <= storage.mem.size(); ++i) {
 				//Update component data
-				static uint8_t component = 0;
-				if(i % (bits_v<T> / 8) == 0) {
-					++component;
-					work = 0;
-					switch(component) {
+				if(i != 0 && i % (bits_v<T> / 8) == 0) {
+					switch(++component) {
 						case 1:
 							vec.x = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
 							break;
@@ -684,8 +680,9 @@ namespace libjaguar {
 							break;
 						case 4:
 							vec.w = std::bit_cast<T, with_bits_t<bits_v<T>>>(work);
-							break;
+							return vec;
 					}
+					work = 0;
 				}
 
 				//Push latest byte
@@ -844,7 +841,7 @@ namespace libjaguar {
 			//Set individual elements
 			auto it = std::ranges::begin(value);
 			for(uint32_t i = 0; it != std::ranges::end(value); ++i, ++it) {
-				SetValue<S>(std::format("{}[{}]", path, i), *it);
+				SetOrCreateValue<S>(std::format("{}[{}]", path, i), *it);
 			}
 			return;
 		}
