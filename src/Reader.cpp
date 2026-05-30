@@ -268,6 +268,7 @@ namespace libjaguar {
 	}
 
 	void ScopedView::Discard(uint32_t byteCount) {
+		if(eof && byteCount == 0) return;
 		if(!valid || eof) READ_ERROR("Cannot perform operations on an invalid scoped read view!");
 		if(byteCount > GetBytesRemaining()) READ_ERROR("Byte discard count exceeds number of remaining bytes!");
 
@@ -278,7 +279,8 @@ namespace libjaguar {
 	}
 
 	void ScopedView::DiscardAll() {
-		if(!valid || eof) READ_ERROR("Cannot perform operations on an invalid scoped read view!");
+		if(!valid) READ_ERROR("Cannot perform operations on an invalid scoped read view!");
+		if(eof) return;
 		Discard(GetBytesRemaining());
 	}
 }
