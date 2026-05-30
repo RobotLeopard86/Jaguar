@@ -19,11 +19,9 @@ Before the more complicated parts of the specification, here are a few small rul
 
 * All strings are encoded using UTF-8.
 
-* Jaguar is byte-packed, but does not contain an explicit synchronization system. This is because Jaguar is not designed to be used in a lossy environment (such as networking).
+* Jaguar is byte-packed, but does not contain an explicit synchronization system. This is because Jaguar is not designed to be used in a potentially lossy environment (such as networking).
 
 * All floating-point values are encoded in accordance with the IEEE 754 LE standard.
-
-* While Jaguar can be used to encode hierarchical data, it is worth noting that **Jaguar is not an object tree**; it is fundamentally a data stream system and has no concept of a top-level tree or DOM.
 
 ## 1. Values and Data
 A Jaguar stream is fairly simple, conceptually. It is simply a continued stream of multiple `Value`s.  
@@ -93,7 +91,7 @@ As such, they do not have a header _per se_, and the body size is negligible eno
 ## 4. Objects
 Objects allow for the subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:  
 
-**Unstructured objects** (like dictionaries) provide a generic key-value mapping. Decoders **must not** attempt to interpret the structure of unstructured objects.  
+**Unstructured objects** (like dictionaries) provide a generic key-value mapping. Decoders **must not** attempt to interpret the structure of unstructured objects as anything other than that.  
 
 **Structured objects** provide a type-consistent method of encoding and coordinating information together at a deeper level than the primary stream, using a system of stream-defined typenames to identify the appropriate structure. All structured objects with the same typename must have the same structure; a structured object that does not conform to the declared structure is **invalid**, and decoders must ignore it. Decoders **may** either declare the stream invalid and terminate decoding **or** continue without the invalid object in this case.
 
@@ -193,7 +191,7 @@ If a list's type is that of a `Value` that requires header properties (e.g., vec
 | Typename string | (size above) |
 | Element Count (unsigned int) | 4 |  
 
-Due to this header property nesting, lists **may not** directly contain other lists. If a list of lists is truly needed, use a structured object wrapper around it.
+Due to this header property nesting, lists **may not** directly contain other lists. If a list of lists is truly needed, wrap it in an object.
 
 The only properties exempt from this rule are buffer and object sizes (which are encoded in the list body immediately before the data). Vectors and matrices are not considered containers, so their size information must be encoded in the list header, like so:
 | Field | Size (bytes) |
