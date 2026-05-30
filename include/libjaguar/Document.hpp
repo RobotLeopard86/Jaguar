@@ -786,10 +786,18 @@ namespace libjaguar {
 					S val = QueryValue<S>(std::format("{}[{}]", path, i));
 					result[i] = val;
 				}
+				for(uint32_t i = 0; i < scope.subscopes.size(); ++i) {
+					S val = QueryValue<S>(std::format("{}[{}]", path, i));
+					result[i] = val;
+				}
 			} else {
 				auto it = std::ranges::begin(result);
 				for(uint32_t i = 0; i < scope.subvalues.size(); ++i, ++it) {
 					*it = QueryValue<S>(std::format("{}[{}]", path, i));
+				}
+				for(uint32_t i = 0; i < scope.subscopes.size(); ++i) {
+					S val = QueryValue<S>(std::format("{}[{}]", path, i));
+					result[i] = val;
 				}
 			}
 

@@ -39,6 +39,11 @@ int main() {
 		//create instance
 		Point pt {10, 20};
 		doc.SetOrCreateValue<Point>("point", pt);
+		std::vector<Point> pts = {
+			{3, 5},
+			{1, 6},
+			{2, -9}};
+		doc.SetOrCreateValue<std::vector<Point>>("many_points", pts);
 		//serialize
 		std::stringstream ss;
 		doc.ExportTo(ss);
@@ -60,6 +65,8 @@ int main() {
 			});
 		Point p2 = d2.QueryValue<Point>("point");
 		if(p2.x != pt.x || p2.y != pt.y) return -1;
+		std::vector<Point> pts2 = d2.QueryValue<std::vector<Point>>("many_points");
+		if(pts2[0].x != pts[0].x || pts2[0].y != pts[0].y || pts2[1].x != pts[1].x || pts2[1].y != pts[1].y || pts2[2].x != pts[2].x || pts2[2].y != pts[2].y) return -1;
 		return 0;
 	} catch(...) {
 		return -1;

@@ -14,7 +14,7 @@ namespace libjaguar {
 
 	class SVstreambuf : public std::streambuf {
 	  public:
-		SVstreambuf(SVHandle&& handle) : handle(std::move(handle)) {
+		SVstreambuf(SVHandle&& inHandle) : handle(std::move(inHandle)) {
 			//Check validity
 			if(!handle.IsHandleValid()) throw std::runtime_error("Cannot create scoped view streambuf with a null view!");
 			if(!handle->IsValid() || handle->GetBytesRemaining() == 0) throw std::runtime_error("Cannot create scoped view streambuf with invalid or exhausted view!");
@@ -61,16 +61,20 @@ namespace libjaguar {
 	  public:
 		SVistream(SVHandle&& handle)
 		  : std::istream(bufInit(std::move(handle))) {
-			rdbuf(buf.get());
-			init(buf.get());
+			rdbuf(buf);
+			init(buf);
+		}
+
+		~SVistream() {
+			delete buf;
 		}
 
 	  private:
-		std::unique_ptr<SVstreambuf> buf;
+		SVstreambuf* buf;
 
 		SVstreambuf* bufInit(SVHandle&& handle) {
-			buf = std::make_unique<SVstreambuf>(std::move(handle));
-			return buf.get();
+			buf = new SVstreambuf(std::move(handle));
+			return buf;
 		}
 	};
 

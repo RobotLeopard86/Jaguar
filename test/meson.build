@@ -6,7 +6,8 @@ tests = [
     'list',
     'nested_object',
     'errors',
-	'scoped_view'
+	'scoped_view',
+	'buffer_transfer'
 ]
 
 foreach name : tests

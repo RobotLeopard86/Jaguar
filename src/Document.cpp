@@ -145,7 +145,7 @@ namespace libjaguar {
 			return new SVistream(std::move(svh));
 		}
 		bool UseStream2StreamTransfer(uint64_t id) override {
-			return !doc->_QueryInternal(id).materialized;
+			return !doc->storage[id].materialized;
 		}
 		bool Boolean(uint64_t id) override {
 			if(doc->_ValInfoInternal(id).type != TypeTag::Boolean) throw std::runtime_error("Requested a boolean for a value that is not one!");
