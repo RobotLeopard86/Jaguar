@@ -395,9 +395,8 @@
 <li><p>Jaguar streams use little-endian byte order.</p></li>
 <li><p>All strings are stored using Pascal format - a size in bytes followed by the actual string data, which has no terminator.</p></li>
 <li><p>All strings are encoded using UTF-8.</p></li>
-<li><p>Jaguar is byte-packed, but does not contain an explicit synchronization system. This is because Jaguar is not designed to be used in a lossy environment (such as networking).</p></li>
+<li><p>Jaguar is byte-packed, but does not contain an explicit synchronization system. This is because Jaguar is not designed to be used in a potentially lossy environment (such as networking).</p></li>
 <li><p>All floating-point values are encoded in accordance with the IEEE 754 LE standard.</p></li>
-<li><p>While Jaguar can be used to encode hierarchical data, it is worth noting that <strong>Jaguar is not an object tree</strong>; it is fundamentally a data stream system and has no concept of a top-level tree or DOM.</p></li>
 </ul>
 </section>
 <section id="values-and-data">
@@ -525,7 +524,7 @@
 <section id="objects">
 <h2>4. Objects<a class="headerlink" href="#objects" title="Link to this heading"><span/></a></h2>
 <p>Objects allow for the subdivision of a Jaguar stream into multiple groups of fields. Objects are organized as a list with a defined number of key-value pairs. There are two primary types of objects:</p>
-<p><strong>Unstructured objects</strong> (like dictionaries) provide a generic key-value mapping. Decoders <strong>must not</strong> attempt to interpret the structure of unstructured objects.</p>
+<p><strong>Unstructured objects</strong> (like dictionaries) provide a generic key-value mapping. Decoders <strong>must not</strong> attempt to interpret the structure of unstructured objects as anything other than that.</p>
 <p><strong>Structured objects</strong> provide a type-consistent method of encoding and coordinating information together at a deeper level than the primary stream, using a system of stream-defined typenames to identify the appropriate structure. All structured objects with the same typename must have the same structure; a structured object that does not conform to the declared structure is <strong>invalid</strong>, and decoders must ignore it. Decoders <strong>may</strong> either declare the stream invalid and terminate decoding <strong>or</strong> continue without the invalid object in this case.</p>
 <p>Unstructured object headers are fairly simple; they consist of a 16-bit unsigned integer field count.</p>
 <p>Structured object headers consist of an 8-bit unsigned integer typename string length, followed by the typename string data of that length.</p>
@@ -677,7 +676,7 @@
 </tbody>
 </table>
 </div>
-<p>Due to this header property nesting, lists <strong>may not</strong> directly contain other lists. If a list of lists is truly needed, use a structured object wrapper around it.</p>
+<p>Due to this header property nesting, lists <strong>may not</strong> directly contain other lists. If a list of lists is truly needed, wrap it in an object.</p>
 <p>The only properties exempt from this rule are buffer and object sizes (which are encoded in the list body immediately before the data). Vectors and matrices are not considered containers, so their size information must be encoded in the list header, like so:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
