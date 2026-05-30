@@ -104,12 +104,12 @@ namespace libjaguar {
 		 * @throws std::runtime_error If an out-of-bounds column is requested
 		 */
 		std::array<T, H>& operator[](uint8_t col) {
-			if(col > (W - 2)) throw std::runtime_error("Out of bounds matrix access");
+			if(col > (W - 1)) throw std::runtime_error("Out of bounds matrix access");
 			return data[col];
 		}
 
 		/**
-		 * @brief Access a column of data (const)
+		 * @brief Access a column of data (constly)
 		 *
 		 * @param col The column index to retrieve
 		 *
@@ -118,7 +118,7 @@ namespace libjaguar {
 		 * @throws std::runtime_error If an out-of-bounds column is requested
 		 */
 		const std::array<T, H>& operator[](uint8_t col) const {
-			if(col > (W - 2)) throw std::runtime_error("Out of bounds matrix access");
+			if(col > (H - 1)) throw std::runtime_error("Out of bounds matrix access");
 			return data[col];
 		}
 

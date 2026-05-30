@@ -8,7 +8,9 @@ tests = [
     'errors',
 	'scoped_view',
 	'buffer_transfer',
-	'utilities'
+	'utilities',
+	'extended_value_creation',
+	'structured_obj_fieldcreate'
 ]
 
 foreach name : tests

@@ -553,12 +553,12 @@ namespace libjaguar {
 			constexpr uint8_t W = mat_width_v<M>;
 			constexpr uint8_t H = mat_height_v<M>;
 			using T = mat_subtype_t<M>;
-			ValueStorage vs {.materialized = true, .mem = std::vector<unsigned char>(bits_v<T> / 2), .inStream = 0};
+			ValueStorage vs {.materialized = true, .mem = std::vector<unsigned char>(bits_v<T> * W * H / 8), .inStream = 0};
 			for(uint8_t x = 0; x < W; ++x) {
 				for(uint8_t y = 0; y < H; ++y) {
 					with_bits_t<bits_v<T>> val = std::bit_cast<with_bits_t<bits_v<T>>, T>(mat[x][y]);
 					for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
-						vs.mem[(bits_v<T> / 8) * (x + 1) * (y + 1) + i] = (val & 0xFF);
+						vs.mem[(bits_v<T> / 8) * x * H + y + i] = (val & 0xFF);
 						val >>= 8;
 					}
 				}
@@ -1027,7 +1027,7 @@ namespace libjaguar {
 					scope.listMathData.type = static_cast<TypeTag>(std::log2(bits_v<U> / 8) + 0x1A + (std::is_signed_v<U> ? 0 : 0x10));
 				}
 			} else if constexpr(mat<S>) {
-				scope.listElementType = TypeTag::Vector;
+				scope.listElementType = TypeTag::Matrix;
 				scope.listMathData = {};
 				scope.listMathData.width = mat_width_v<S>;
 				scope.listMathData.height = mat_height_v<S>;
@@ -1092,7 +1092,7 @@ namespace libjaguar {
 					value.elementType = static_cast<TypeTag>(std::log2(bits_v<U> / 8) + 0x1A + (std::is_signed_v<U> ? 0 : 0x10));
 				}
 			} else if constexpr(mat<T>) {
-				value.type = TypeTag::Vector;
+				value.type = TypeTag::Matrix;
 				value.width = mat_width_v<T>;
 				value.height = mat_height_v<T>;
 				using U = mat_subtype_t<T>;
@@ -1224,7 +1224,7 @@ namespace libjaguar {
 								case TypeTag::Matrix: {
 									//This makes our lives way easier and improves performance by avoiding nested switch; final bit layout TTTTWWHH (T = type, W = width, H = height)
 									//What do you mean it's hard to understand? /j
-									uint8_t determiner = (static_cast<uint8_t>(field.elementType) << 4) | ((field.width - 1) << 2) | (field.type == TypeTag::Matrix ? ((field.width - 1) << 2) : 0);
+									uint16_t determiner = (static_cast<uint8_t>(field.elementType) << 8) | ((field.width - 1) << 4) | (field.type == TypeTag::Matrix ? (field.height - 1) : 0);
 									switch(determiner) {
 										case 0x0E10:
 											CreateValue<std::vector<Vector<float, 2>>>(path + "." + field.name);
@@ -1605,7 +1605,7 @@ namespace libjaguar {
 					case TypeTag::Matrix: {
 						//This makes our lives way easier and improves performance by avoiding nested switch; final bit layout TTTTWWHH (T = type, W = width, H = height)
 						//What do you mean it's hard to understand? /j
-						uint8_t determiner = (static_cast<uint8_t>(field.elementType) << 4) | ((field.width - 1) << 2) | (field.type == TypeTag::Matrix ? ((field.width - 1) << 2) : 0);
+						uint16_t determiner = (static_cast<uint8_t>(field.elementType) << 8) | ((field.width - 1) << 4) | (field.type == TypeTag::Matrix ? (field.height - 1) : 0);
 						switch(determiner) {
 							case 0x0E10:
 								CreateValue<Vector<float, 2>>(path + "." + field.name);
