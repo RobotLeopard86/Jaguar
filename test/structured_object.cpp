@@ -1,7 +1,7 @@
-#include <libjaguar/Document.hpp>
-#include <libjaguar/StructuredTypeLayout.hpp>
-#include <libjaguar/MathTypes.hpp>
-#include <libjaguar/TypeTags.hpp>
+#include "libjaguar/Document.hpp"
+#include "libjaguar/StructuredTypeLayout.hpp"
+#include "libjaguar/MathTypes.hpp"
+#include "libjaguar/TypeTags.hpp"
 #include <sstream>
 
 struct Point {

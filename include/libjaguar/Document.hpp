@@ -1222,7 +1222,7 @@ namespace libjaguar {
 									break;
 								case TypeTag::Vector:
 								case TypeTag::Matrix: {
-									//This makes our lives way easier and improves performance by avoiding nested switch; final bit layout TTTTWWHH (T = type, W = width, H = height)
+									//This makes our lives way easier and improves performance by avoiding nested switch; final bit layout TTTTTTTT WWWWHHHH (T = type, W = width, H = height)
 									//What do you mean it's hard to understand? /j
 									uint16_t determiner = (static_cast<uint8_t>(field.elementType) << 8) | ((field.width - 1) << 4) | (field.type == TypeTag::Matrix ? (field.height - 1) : 0);
 									switch(determiner) {
@@ -1603,7 +1603,7 @@ namespace libjaguar {
 					}
 					case TypeTag::Vector:
 					case TypeTag::Matrix: {
-						//This makes our lives way easier and improves performance by avoiding nested switch; final bit layout TTTTWWHH (T = type, W = width, H = height)
+						//This makes our lives way easier and improves performance by avoiding nested switch; final bit layout TTTTTTTT WWWWHHHH (T = type, W = width, H = height)
 						//What do you mean it's hard to understand? /j
 						uint16_t determiner = (static_cast<uint8_t>(field.elementType) << 8) | ((field.width - 1) << 4) | (field.type == TypeTag::Matrix ? (field.height - 1) : 0);
 						switch(determiner) {

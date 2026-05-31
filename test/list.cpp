@@ -1,4 +1,4 @@
-#include <libjaguar/Document.hpp>
+#include "libjaguar/Document.hpp"
 #include <vector>
 #include <cmath>
 
@@ -21,12 +21,12 @@ int main() {
 			if(std::abs(gotf[i] - flist[i]) > 1e-6f) return -1;
 		}
 		//vector list
-		doc.CreateValue<std::vector<libjaguar::Vector<int64_t, 2>>>("vecs");
+		doc.CreateValue<std::vector<libjaguar::Vector<int64_t, 2>>>(" vecs ");
 		std::vector<libjaguar::Vector<int64_t, 2>> vlist;
 		vlist.push_back({.x = 1, .y = 2});
 		vlist.push_back({.x = 3, .y = 4});
-		doc.SetValue<std::vector<libjaguar::Vector<int64_t, 2>>>("vecs", vlist);
-		auto gotv = doc.QueryValue<std::vector<libjaguar::Vector<int64_t, 2>>>("vecs");
+		doc.SetValue<std::vector<libjaguar::Vector<int64_t, 2>>>(" vecs ", vlist);
+		auto gotv = doc.QueryValue<std::vector<libjaguar::Vector<int64_t, 2>>>(" vecs ");
 		if(gotv.size() != vlist.size()) return -1;
 		for(size_t i = 0; i < vlist.size(); ++i) {
 			if(gotv[i].x != vlist[i].x || gotv[i].y != vlist[i].y) return -1;

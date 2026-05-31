@@ -1,6 +1,6 @@
 #include "libjaguar/MathTypes.hpp"
-#include <libjaguar/Document.hpp>
-#include <libjaguar/TypeTags.hpp>
+#include "libjaguar/Document.hpp"
+#include "libjaguar/TypeTags.hpp"
 #include <cassert>
 #include <vector>
 #include <string>

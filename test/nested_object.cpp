@@ -1,7 +1,7 @@
-#include <libjaguar/Document.hpp>
-#include <libjaguar/StructuredTypeLayout.hpp>
+#include "libjaguar/Document.hpp"
+#include "libjaguar/StructuredTypeLayout.hpp"
 #include <sstream>
-#include <libjaguar/TypeTags.hpp>
+#include "libjaguar/TypeTags.hpp"
 #include <vector>
 
 struct Inner {
