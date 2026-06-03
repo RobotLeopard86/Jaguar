@@ -383,6 +383,8 @@
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdint&gt;</span>
 
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DllHelper.hpp&quot;</span>
+
 <span class="k">namespace</span><span class="w"> </span><span class="nn">libjaguar</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">TypeTag</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x0A</span><span class="p">,</span>
@@ -407,7 +409,7 @@
 <span class="w">        </span><span class="n">Matrix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x4B</span>
 <span class="w">    </span><span class="p">};</span>
 
-<span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">ValidateTypeTag</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tagByte</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">LJAPI</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ValidateTypeTag</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">tagByte</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">tagByte</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mh">0x0A</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">tagByte</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mh">0x4B</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
 <span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">lowerNibble</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">tagByte</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mb">0b0000&#39;1111</span><span class="p">);</span>
 <span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">upperNibble</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">tagByte</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mb">0b1111&#39;0000</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span>
@@ -418,18 +420,18 @@
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsValue</span><span class="p">(</span><span class="n">TypeTag</span><span class="w"> </span><span class="n">tag</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">LJAPI</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">IsValue</span><span class="p">(</span><span class="n">TypeTag</span><span class="w"> </span><span class="n">tag</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">asUint</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">tag</span><span class="p">);</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">tag</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">TypeTag</span><span class="o">::</span><span class="n">ScopeBoundary</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">((</span><span class="n">asUint</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mh">0x3</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">MathTypeDescriptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">MathTypeDescriptor</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">width</span><span class="p">;</span>
 <span class="w">        </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">height</span><span class="p">;</span>
 <span class="w">        </span><span class="n">TypeTag</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
 <span class="w">    </span><span class="p">};</span>
 
-<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">CalcValueSize</span><span class="p">(</span><span class="n">TypeTag</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">MathTypeDescriptor</span><span class="w"> </span><span class="n">mathData</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">buffSize</span><span class="p">);</span>
+<span class="w">    </span><span class="n">LJAPI</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">CalcValueSize</span><span class="p">(</span><span class="n">TypeTag</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">MathTypeDescriptor</span><span class="w"> </span><span class="n">mathData</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">buffSize</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>

@@ -407,9 +407,9 @@
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unordered_map&gt;</span>
 
 <span class="k">namespace</span><span class="w"> </span><span class="nn">libjaguar</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">CheckUTF8</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="o">&amp;</span><span class="w"> </span><span class="n">string</span><span class="p">);</span>
+<span class="w">    </span><span class="n">LJAPI</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">CheckUTF8</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string_view</span><span class="o">&amp;</span><span class="w"> </span><span class="n">string</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">UnstructuredObjTag</span><span class="w"> </span><span class="p">{};</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">UnstructuredObjTag</span><span class="w"> </span><span class="p">{};</span>
 
 <span class="w">    </span><span class="k">class</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">Document</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="k">public</span><span class="o">:</span>
@@ -436,7 +436,7 @@
 
 <span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">istream</span><span class="o">*</span><span class="w"> </span><span class="nf">ReleaseStream</span><span class="p">();</span>
 
-<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">ObjReader</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">ObjReader</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="k">public</span><span class="o">:</span>
 <span class="w">            </span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
 <span class="w">            </span><span class="n">T</span><span class="w"> </span><span class="n">Query</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">field</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -463,7 +463,7 @@
 <span class="w">            </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">basePath</span><span class="p">;</span>
 <span class="w">        </span><span class="p">};</span>
 
-<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">ObjWriter</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="nc">LJAPI</span><span class="w"> </span><span class="n">ObjWriter</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="k">public</span><span class="o">:</span>
 <span class="w">            </span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
 <span class="w">            </span><span class="kt">void</span><span class="w"> </span><span class="n">Set</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">field</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
