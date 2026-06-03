@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include "DllHelper.hpp"
+
 namespace libjaguar {
 	/**
 	 * @brief All valid type specifiers in a Jaguar stream
@@ -36,7 +38,7 @@ namespace libjaguar {
 	 *
 	 * @return @c true if the byte is really a TypeTag (and thus can be cast to one), @c false otherwise
 	 */
-	inline bool ValidateTypeTag(uint8_t tagByte) {
+	LJAPI inline bool ValidateTypeTag(uint8_t tagByte) {
 		if(tagByte < 0x0A || tagByte > 0x4B) return false;
 		uint8_t lowerNibble = (tagByte & 0b0000'1111);
 		uint8_t upperNibble = (tagByte & 0b1111'0000) >> 4;
@@ -54,7 +56,7 @@ namespace libjaguar {
 	 *
 	 * @return @c true if the TypeTag is a value, @c false if it's a scope (including lists)
 	 */
-	inline bool IsValue(TypeTag tag) {
+	LJAPI inline bool IsValue(TypeTag tag) {
 		uint8_t asUint = static_cast<uint8_t>(tag);
 		return (tag != TypeTag::ScopeBoundary) && ((asUint >> 4) != 0x3);
 	}
@@ -62,7 +64,7 @@ namespace libjaguar {
 	/**
 	 * @brief Describes the special paramaters for math type values
 	 */
-	struct MathTypeDescriptor {
+	struct LJAPI MathTypeDescriptor {
 		uint8_t width; ///<Number of components in a vector or columns in a matrix
 		uint8_t height;///<Number of rows in a matrix (set to 1 for a vector)
 		TypeTag type;  ///<Vector/matrix element type (int, float, etc.)
@@ -77,5 +79,5 @@ namespace libjaguar {
 	 *
 	 * @return The size in bytes, or 0 if the provided type was not a value or the supplementary info is invalid
 	 */
-	uint32_t CalcValueSize(TypeTag tag, MathTypeDescriptor mathData, uint32_t buffSize);
+	LJAPI uint32_t CalcValueSize(TypeTag tag, MathTypeDescriptor mathData, uint32_t buffSize);
 }

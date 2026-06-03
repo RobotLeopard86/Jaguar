@@ -2,6 +2,7 @@
 
 #include "libjaguar/TypeTags.hpp"
 #include "libjaguar/ScopedView.hpp"
+#include "libjaguar/DllHelper.hpp"
 
 #include <cstdint>
 #include <array>
@@ -10,9 +11,9 @@
 constexpr inline uint32_t scopedViewChunkSize = 64 * 1024;//64 KiB (one KiB is 1024 bytes)
 
 namespace libjaguar {
-	uint32_t GetTypeSize(TypeTag type);
+	LJAPI uint32_t GetTypeSize(TypeTag type);
 
-	class SVstreambuf : public std::streambuf {
+	class LJAPI SVstreambuf : public std::streambuf {
 	  public:
 		SVstreambuf(SVHandle&& inHandle) : handle(std::move(inHandle)) {
 			//Check validity
@@ -57,7 +58,7 @@ namespace libjaguar {
 		std::array<unsigned char, scopedViewChunkSize> chunkBuffer;
 	};
 
-	class SVistream : public std::istream {
+	class LJAPI SVistream : public std::istream {
 	  public:
 		SVistream(SVHandle&& handle)
 		  : std::istream(bufInit(std::move(handle))) {
@@ -78,5 +79,5 @@ namespace libjaguar {
 		}
 	};
 
-	bool CheckUTF8(const std::string_view& string);
+	LJAPI bool CheckUTF8(const std::string_view& string);
 }

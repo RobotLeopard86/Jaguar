@@ -27,11 +27,11 @@
 
 namespace libjaguar {
 	///@cond
-	bool CheckUTF8(const std::string_view& string);
+	LJAPI bool CheckUTF8(const std::string_view& string);
 	///@endcond
 
 	///@brief An empty class used for template arguments when creating unstructured objects
-	struct UnstructuredObjTag {};
+	struct LJAPI UnstructuredObjTag {};
 
 	/**
 	 * @brief A lazy interface for reading, modifying, and writing Jaguar data
@@ -117,7 +117,7 @@ namespace libjaguar {
 		/**
 		 * @brief A utility class for structured object converters to read values
 		 */
-		struct ObjReader {
+		struct LJAPI ObjReader {
 		  public:
 			/**
 			 * @brief Query the value of a field in the object scope
@@ -183,7 +183,7 @@ namespace libjaguar {
 		/**
 		 * @brief A utility class for structured object converters to write values
 		 */
-		struct ObjWriter {
+		struct LJAPI ObjWriter {
 		  public:
 			/**
 			 * @brief Set the value of a field in the object scope

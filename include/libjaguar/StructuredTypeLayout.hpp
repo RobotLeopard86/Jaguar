@@ -42,5 +42,5 @@ namespace libjaguar {
 	/**
 	 * @brief Check if the provided type layout is valid
 	 */
-	bool ValidateTypeLayout(const StructuredTypeLayout& layout);
+	LJAPI bool ValidateTypeLayout(const StructuredTypeLayout& layout);
 }

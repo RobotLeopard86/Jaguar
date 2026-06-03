@@ -58,5 +58,5 @@ namespace libjaguar {
 	 *
 	 * @return The generated ID
 	 */
-	uint64_t GenIndexID(const std::string& path);
+	LJAPI uint64_t GenIndexID(const std::string& path);
 }
