@@ -336,7 +336,7 @@ namespace libjaguar {
 		}
 		uint64_t IntegerMat(uint64_t id, uint8_t x, uint8_t y, uint8_t bits, bool isSigned) override {
 			const ValueEntry& ve = doc->_ValInfoInternal(id);
-			if(ve.type != TypeTag::Matrix || ve.width != x || ve.height != y) throw std::runtime_error("Requested a matrix with the incorrect dimensions for the value!");
+			if(ve.type != TypeTag::Matrix || x > (ve.width - 1) || y > (ve.height - 1)) throw std::runtime_error("Requested a matrix with the incorrect dimensions for the value!");
 			switch(bits) {
 				case 8:
 					if(isSigned && ve.elementType != TypeTag::SInt8)
@@ -367,29 +367,28 @@ namespace libjaguar {
 
 			const ValueStorage& storage = doc->_QueryInternal(id);
 			uint64_t out = 0;
-			for(uint8_t i = ((bits / 8) * (x + 1) * (y + 1)); i < (bits / 8); ++i) {
-				out <<= 8;
-				out &= uint64_t(storage.mem[i] & static_cast<unsigned char>(0xFF));
+			for(uint8_t i = 0; i < (bits / 8); ++i) {
+				out |= uint64_t((storage.mem[(bits / 8) * x * ve.height + y + i] & static_cast<unsigned char>(0xFF)) << i * 8);
 			}
 			return out;
 		}
 		float Float32Mat(uint64_t id, uint8_t x, uint8_t y) override {
-			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Matrix || ve.width != x || ve.height != y || ve.elementType != TypeTag::Float32) throw std::runtime_error("Requested a matrix with the incorrect dimensions or element type for the value!");
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::Matrix || ve.elementType != TypeTag::Float32 || x > (ve.width - 1) || y > (ve.height - 1)) throw std::runtime_error("Requested a matrix with the incorrect dimensions or element type for the value!");
 			const ValueStorage& storage = doc->_QueryInternal(id);
 			uint32_t out = 0;
-			for(uint8_t i = (4 * (x + 1) * (y + 1)); i < 4; ++i) {
-				out <<= 8;
-				out &= uint32_t(storage.mem[i] & static_cast<unsigned char>(0xFF));
+			for(uint8_t i = 0; i < 4; ++i) {
+				out |= uint64_t((storage.mem[4 * x * ve.height + y + i] & static_cast<unsigned char>(0xFF)) << i * 8);
 			}
 			return std::bit_cast<float, uint32_t>(out);
 		}
 		double Float64Mat(uint64_t id, uint8_t x, uint8_t y) override {
-			if(auto ve = doc->_ValInfoInternal(id); ve.type != TypeTag::Matrix || ve.width != x || ve.height != y || ve.elementType != TypeTag::Float64) throw std::runtime_error("Requested a matrix with the incorrect dimensions or element type for the value!");
+			const ValueEntry& ve = doc->_ValInfoInternal(id);
+			if(ve.type != TypeTag::Matrix || ve.elementType != TypeTag::Float64 || x > (ve.width - 1) || y > (ve.height - 1)) throw std::runtime_error("Requested a matrix with the incorrect dimensions or element type for the value!");
 			const ValueStorage& storage = doc->_QueryInternal(id);
 			uint64_t out = 0;
-			for(uint8_t i = (8 * (x + 1) * (y + 1)); i < 8; ++i) {
-				out <<= 8;
-				out &= uint64_t(storage.mem[i] & static_cast<unsigned char>(0xFF));
+			for(uint8_t i = 0; i < 8; ++i) {
+				out |= uint64_t((storage.mem[8 * x * ve.height + y + i] & static_cast<unsigned char>(0xFF)) << i * 8);
 			}
 			return std::bit_cast<double, uint64_t>(out);
 		}

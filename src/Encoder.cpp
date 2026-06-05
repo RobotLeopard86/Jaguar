@@ -312,7 +312,7 @@ namespace libjaguar {
 			}
 			case TypeTag::Matrix: {
 				for(uint8_t x = 0; x < header.width; ++x) {
-					for(uint8_t y = 0; y < header.height; ++x) {
+					for(uint8_t y = 0; y < header.height; ++y) {
 						uint64_t val = [&]() -> uint64_t {
 							switch(header.elementType) {
 								case TypeTag::Float32:

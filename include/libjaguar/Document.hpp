@@ -265,6 +265,21 @@ namespace libjaguar {
 				doc->SetOrCreateValue<T>(basePath + "." + field, list, value);
 			}
 
+			/**
+			 * @brief Create an unstructured object of a given name if it does not exist
+			 *
+			 * @param field The name of the field to ensure existence
+			 *
+			 * @throws std::runtime_error If the field already exists and is not an unstructured object
+			 */
+			void EnsureUnstructuredObjExists(const std::string& field) {
+				if(doc->HasValue(basePath + "." + field)) {
+					if(auto info = doc->QueryScopeInfo(basePath + "." + field); info.list || !info.typeID.empty()) throw std::runtime_error("A field already exists and it is not an unstructured object!");
+				} else {
+					doc->CreateValue<UnstructuredObjTag>(basePath + "." + field);
+				}
+			}
+
 		  private:
 			ObjWriter() {}
 			friend class Document;
@@ -707,9 +722,9 @@ namespace libjaguar {
 					unsigned int bytes = (bits_v<T> / 8);
 					for(uint8_t i = 0; i < bytes; ++i) {
 						if constexpr(bits_v<T> > 8) {
-							val |= (with_bits_t<bits_v<T>>(static_cast<uint8_t>(storage.mem[bytes * (x + 1) * (y + 1) + i]) & 0xFF) << (i * 8));
+							val |= (with_bits_t<bits_v<T>>(static_cast<uint8_t>(storage.mem[bytes * x * H + y + i]) & 0xFF) << (i * 8));
 						} else {
-							val = (storage.mem[bytes * (x + 1) * (y + 1) + i] & static_cast<unsigned char>(0xFF));
+							val = (storage.mem[bytes * x * H + y + i] & static_cast<unsigned char>(0xFF));
 						}
 					}
 					mat[x][y] = val;
@@ -1174,7 +1189,7 @@ namespace libjaguar {
 					case TypeTag::List:
 						if(field.elementType == TypeTag::StructuredObj) {
 							const std::type_index& type = structuredObjTypes.at(field.typeID);
-							createValWraps.at(type)(path + "." + field.name, false);
+							createValWraps.at(type)(path + "." + field.name, true);
 							break;
 						} else {
 							switch(field.elementType) {
