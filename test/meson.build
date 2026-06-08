@@ -14,5 +14,5 @@ tests = [
 ]
 
 foreach name : tests
-    test(name, executable('TEST_' + name, name + '.cpp', dependencies: libjaguar_dep))
+    test(name, executable('TEST_' + name, name + '.cpp', dependencies: libjaguar_static_dep))
 endforeach

@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(LJSTATIC)
 #ifdef LJBUILD
 #define LJAPI __declspec(dllexport)
 #else

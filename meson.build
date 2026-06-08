@@ -31,7 +31,8 @@ libjaguar = both_libraries('jaguar', sources: [
 ], include_directories: ['include', 'src'], pic: true, install: true)
 
 # Dependency
-libjaguar_dep = declare_dependency(link_with: libjaguar, include_directories: 'include')
+libjaguar_dep = declare_dependency(link_with: libjaguar.get_shared_lib(), include_directories: 'include')
+libjaguar_static_dep = declare_dependency(link_with: libjaguar.get_static_lib(), include_directories: 'include', compile_args: '-DLJSTATIC')
 
 # Tests
 subdir('test')
