@@ -381,7 +381,7 @@
 <p>↰ <a class="reference internal" href="file_include_libjaguar_DllHelper.hpp.html#file-include-libjaguar-dllhelper-hpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">include/libjaguar/DllHelper.hpp</span></code>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
 
-<span class="cp">#ifdef _WIN32</span>
+<span class="cp">#if defined(_WIN32) &amp;&amp; !defined(LJSTATIC)</span>
 <span class="cp">#ifdef LJBUILD</span>
 <span class="cp">#define LJAPI __declspec(dllexport)</span>
 <span class="cp">#else</span>
