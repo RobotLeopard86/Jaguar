@@ -553,7 +553,7 @@ namespace libjaguar {
 					//Keep going with lists specifically
 					if(field.type == TypeTag::List) {
 						//Element type
-						writer->put(static_cast<uint8_t>(header.elementType));
+						writer->put(static_cast<uint8_t>(field.elementType));
 
 						//Type-specific data
 						if(field.elementType == TypeTag::StructuredObj) {
