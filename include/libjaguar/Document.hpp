@@ -504,12 +504,12 @@ namespace libjaguar {
 			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
 			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[i] = (x & 0xFF);
-				x >>= 8;
+				if constexpr(bits_v<T> > 8) x >>= 8;
 			}
 			with_bits_t<bits_v<T>> y = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.y);
 			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[(bits_v<T> / 8) + i] = (y & 0xFF);
-				y >>= 8;
+				if constexpr(bits_v<T> > 8) y >>= 8;
 			}
 			return vs;
 		}
@@ -521,17 +521,17 @@ namespace libjaguar {
 			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
 			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[i] = (x & 0xFF);
-				x >>= 8;
+				if constexpr(bits_v<T> > 8) x >>= 8;
 			}
 			with_bits_t<bits_v<T>> y = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.y);
 			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[(bits_v<T> / 8) + i] = (y & 0xFF);
-				y >>= 8;
+				if constexpr(bits_v<T> > 8) y >>= 8;
 			}
 			with_bits_t<bits_v<T>> z = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.z);
 			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[(bits_v<T> / 4) + i] = (z & 0xFF);
-				z >>= 8;
+				if constexpr(bits_v<T> > 8) z >>= 8;
 			}
 			return vs;
 		}
@@ -543,22 +543,22 @@ namespace libjaguar {
 			with_bits_t<bits_v<T>> x = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.x);
 			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[i] = (x & 0xFF);
-				x >>= 8;
+				if constexpr(bits_v<T> > 8) x >>= 8;
 			}
 			with_bits_t<bits_v<T>> y = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.y);
 			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[(bits_v<T> / 8) + i] = (y & 0xFF);
-				y >>= 8;
+				if constexpr(bits_v<T> > 8) y >>= 8;
 			}
 			with_bits_t<bits_v<T>> z = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.z);
 			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[(bits_v<T> / 4) + i] = (z & 0xFF);
-				z >>= 8;
+				if constexpr(bits_v<T> > 8) z >>= 8;
 			}
 			with_bits_t<bits_v<T>> w = std::bit_cast<with_bits_t<bits_v<T>>, T>(vec.w);
 			for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 				vs.mem[(bits_v<T> / 8) * 3 + i] = (w & 0xFF);
-				w >>= 8;
+				if constexpr(bits_v<T> > 8) w >>= 8;
 			}
 			return vs;
 		}
@@ -574,7 +574,7 @@ namespace libjaguar {
 					with_bits_t<bits_v<T>> val = std::bit_cast<with_bits_t<bits_v<T>>, T>(mat[x][y]);
 					for(uint8_t i = 0; i < (bits_v<T> / 8); ++i) {
 						vs.mem[(bits_v<T> / 8) * x * H + y + i] = (val & 0xFF);
-						val >>= 8;
+						if constexpr(bits_v<T> > 8) val >>= 8;
 					}
 				}
 			}
