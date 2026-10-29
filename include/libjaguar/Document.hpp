@@ -753,13 +753,16 @@ namespace libjaguar {
 
 		class DocPayloadProvider;
 		friend class DocPayloadProvider;
+		friend struct SingleValEvaluator;
 	};
 
 	///@cond
-	template<typename T>
-	concept SingleVal = requires(Document& d, const T& t, const Document::ValueStorage& s) {
-		{ d.From<std::remove_cvref_t<T>>(t) };
-		{ d.To<std::remove_cvref_t<T>>(s) };
+	struct SingleValEvaluator {
+		template<typename T>
+		constexpr static inline bool value = requires(Document& d, const T& t, const Document::ValueStorage& s) {
+			{ d.From<std::remove_cvref_t<T>>(t) };
+			{ d.To<std::remove_cvref_t<T>>(s) };
+		};
 	};
 
 	template<typename T>
@@ -822,7 +825,7 @@ namespace libjaguar {
 
 	//Regular handling
 	qv_reg_handle:
-		if constexpr(SingleVal<T>) {
+		if constexpr(SingleValEvaluator::value<T>) {
 			const ValueEntry& ve = QueryValueInfo(path);
 			VerifyTypeCompatibility<T>(ve);
 			return To<T>(_QueryInternal(GenIndexID(path)));
@@ -871,7 +874,7 @@ namespace libjaguar {
 
 		//Regular handling
 	sv_reg_handle:
-		if constexpr(SingleVal<T>) {
+		if constexpr(SingleValEvaluator::value<T>) {
 			uint64_t id = GenIndexID(path);
 			VerifyTypeCompatibility<T>(_ValInfoInternal(id));
 			_SetInternal(id, From<T>(value));
@@ -1075,7 +1078,7 @@ namespace libjaguar {
 			scope.typeID = "";
 			if(parentScope.list && parentScope.listElementType != TypeTag::UnstructuredObj) throw std::runtime_error("Cannot store value in list with type that does not match that of the list!");
 			parentScope.subscopes.push_back(scope);
-		} else if constexpr(SingleVal<T>) {
+		} else if constexpr(SingleValEvaluator::value<T>) {
 			//Basic setup
 			ValueEntry value = {};
 			value.name = fieldName;
