@@ -381,11 +381,11 @@
 <p>↰ <a class="reference internal" href="file_include_libjaguar_Decoder.hpp.html#file-include-libjaguar-decoder-hpp"><span class="std std-ref">Return to documentation for file</span></a> (<code class="docutils literal notranslate"><span class="pre">include/libjaguar/Decoder.hpp</span></code>)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma once</span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;DllHelper.hpp&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Index.hpp&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;Reader.hpp&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ValueHeader.hpp&quot;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;TypeTags.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"DllHelper.hpp"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"Index.hpp"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"Reader.hpp"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"ValueHeader.hpp"</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"TypeTags.hpp"</span>
 
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;optional&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdexcept&gt;</span>
@@ -404,9 +404,9 @@
 <span class="w">        </span><span class="n">Reader</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nf">ReleaseReader</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="p">;</span>
 
 <span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">Index</span><span class="o">&amp;</span><span class="w"> </span><span class="nf">GetIndex</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">index</span><span class="p">.</span><span class="n">has_value</span><span class="p">())</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Stream has not yet been parsed; no index is available!&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">index</span><span class="p">.</span><span class="n">has_value</span><span class="p">())</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Stream has not yet been parsed; no index is available!"</span><span class="p">);</span>
 <span class="w">            </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">failFlag</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">index</span><span class="p">.</span><span class="n">value</span><span class="p">();</span>
-<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Cannot obtain the index; parsing errors occurred!&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">"Cannot obtain the index; parsing errors occurred!"</span><span class="p">);</span>
 <span class="w">        </span><span class="p">}</span>
 
 <span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="nf">Parse</span><span class="p">();</span>
